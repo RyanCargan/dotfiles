@@ -2,8 +2,10 @@
 
 # Define an array of source and destination file pairs
 FILES=(
-  "/path/to/source/file1:/path/to/destination/file1"
-  "/path/to/source/file2:/path/to/destination/file2"
+  # "$HOME/path/to/source/file1:~/path/to/destination/file1"
+  # "$HOME/path/to/source/file2:~/path/to/destination/file2"
+	"$HOME/.bashrc:./.bashrc"
+  "$HOME/.bash_profile:./.bash_profile"
   # Add more file pairs as needed
 )
 
@@ -11,6 +13,9 @@ FILES=(
 for PAIR in "${FILES[@]}"; do
   SOURCE_FILE="${PAIR%%:*}"
   DEST_FILE="${PAIR##*:}"
+
+  # Expand the tilde in the destination file path
+  # DEST_FILE="${DEST_FILE/#\~/$HOME}"
 
   # Sync from SOURCE to DEST if the source is newer
   if [ "$SOURCE_FILE" -nt "$DEST_FILE" ]; then
