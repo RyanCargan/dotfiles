@@ -10,6 +10,9 @@ export ANDROID_HOME=~/Android/Sdk
 # Deno apps
 export PATH=$HOME/.deno/bin:$PATH
 
+# Cargo apps
+export PATH=$HOME/.cargo/bin:$PATH
+
 # Man page settings
 export BROWSER=google-chrome-stable
 alias man-web='man --html'
