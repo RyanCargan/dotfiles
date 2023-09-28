@@ -11,7 +11,8 @@ let
 in
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
@@ -27,7 +28,7 @@ in
 
   nixpkgs.config = {
     packageOverrides = pkgs: {
-	    release2105 = import inputs.release2105 {
+      release2105 = import inputs.release2105 {
         config = config.nixpkgs.config;
         inherit system;
       };
@@ -62,43 +63,51 @@ in
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Set users.
-   users.users.ryan = {
-     createHome = true;
-     isNormalUser = true;
-     extraGroups =
-       [
-         "wheel" "libvirtd" "qemu-libvirtd"
-         "audio" "video" "networkmanager"
-         "vglusers"
-         "lxd"
-         "docker"
-       ];
-     group = "users";
-     home = "/home/ryan";
-     uid = 1000;
-   };
-   users.users.rishindu = {
-     createHome = true;
-     isNormalUser = true;
-     extraGroups =
-       [
-         "wheel" "libvirtd" "qemu-libvirtd"
-         "audio" "video" "networkmanager"
-         "vglusers"
-         "lxd"
-         "docker"
-       ];
-     group = "users";
-     home = "/home/rishindu";
-     uid = 1001;
-   };
+  users.users.ryan = {
+    createHome = true;
+    isNormalUser = true;
+    extraGroups =
+      [
+        "wheel"
+        "libvirtd"
+        "qemu-libvirtd"
+        "audio"
+        "video"
+        "networkmanager"
+        "vglusers"
+        "lxd"
+        "docker"
+      ];
+    group = "users";
+    home = "/home/ryan";
+    uid = 1000;
+  };
+  users.users.rishindu = {
+    createHome = true;
+    isNormalUser = true;
+    extraGroups =
+      [
+        "wheel"
+        "libvirtd"
+        "qemu-libvirtd"
+        "audio"
+        "video"
+        "networkmanager"
+        "vglusers"
+        "lxd"
+        "docker"
+      ];
+    group = "users";
+    home = "/home/rishindu";
+    uid = 1001;
+  };
 
   # Set your time zone.
   time.timeZone = "Asia/Colombo";
 
   # Disable automatic refresh of ClamAV signatures database (do this manually).
   services.clamav = {
-     daemon.enable = false;
+    daemon.enable = false;
     updater.enable = false;
   };
 
@@ -118,7 +127,7 @@ in
   # Allow proprietary packages
   nixpkgs.config.allowUnfree = true; # Had to export bash env var for flakes since this didn't work
   nixpkgs.config.allowUnfreePredicate = (pkg: true);
-#   inputs.release2105.config.allowUnfree = true;
+  #   inputs.release2105.config.allowUnfree = true;
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -145,9 +154,9 @@ in
 
   # Hosts
   networking.extraHosts =
-  ''
-    127.0.0.1 codinghermit.net
-  '';
+    ''
+      127.0.0.1 codinghermit.net
+    '';
 
   # programs.volctl.enable = true; # Invalid
   # networking.networkmanager.wifi.backend = "iwd";
@@ -178,8 +187,8 @@ in
   # services.k3s.role = "server";
   # services.k3s.role = "agent";
   # services.k3s.extraFlags = toString [
-    # "--kubelet-arg=v=4" # Optionally add additional args to k3s
-    # "--no-deploy traefik --write-kubeconfig-mode 644 --node-name k3s-master-01"
+  # "--kubelet-arg=v=4" # Optionally add additional args to k3s
+  # "--no-deploy traefik --write-kubeconfig-mode 644 --node-name k3s-master-01"
   # ];
 
   # Enable NVIDIA drivers
@@ -187,7 +196,7 @@ in
   hardware.opengl = {
     enable = true;
     extraPackages = with pkgs; [
-       libGL
+      libGL
     ];
     setLdLibraryPath = true;
   };
@@ -216,13 +225,13 @@ in
 
   # Misc services
   # services = {
-    # fstrim.enable = true; # SSD only
-    # openssh.enable = true; # Redundant
-    # xserver.enable = true; # Redundant
-    # compton.enable = true; # Consider picom instead
-    # compton.shadow = true;
-    # compton.inactiveOpacity = "0.8";
-    # printing.enable = true; # Not needed
+  # fstrim.enable = true; # SSD only
+  # openssh.enable = true; # Redundant
+  # xserver.enable = true; # Redundant
+  # compton.enable = true; # Consider picom instead
+  # compton.shadow = true;
+  # compton.inactiveOpacity = "0.8";
+  # printing.enable = true; # Not needed
   # };
 
   # Enabke Iorri nix-shell extension daemon,
@@ -247,59 +256,59 @@ in
     unload-module module-suspend-on-idle
   '';
 
- # security.rtkit.enable = true;
- # services.pipewire = {
- #   enable = true;
- #   alsa.enable = true;
- #   alsa.support32Bit = true;
- #   pulse.enable = true;
- #   # If you want to use JACK applications, uncomment this
- #   jack.enable = true;
+  # security.rtkit.enable = true;
+  # services.pipewire = {
+  #   enable = true;
+  #   alsa.enable = true;
+  #   alsa.support32Bit = true;
+  #   pulse.enable = true;
+  #   # If you want to use JACK applications, uncomment this
+  #   jack.enable = true;
 
- #   config.pipewire = {
- #     "context.properties" = {
- #       "link.max-buffers" = 16;
- #       "log.level" = 2;
- #       "default.clock.rate" = 48000;
- #       "default.clock.quantum" = 128;
- #       "default.clock.min-quantum" = 128;
- #       "default.clock.max-quantum" = 128;
- #       "core.daemon" = true;
- #       "core.name" = "pipewire-0";
- #       "session.suspend-timeout-seconds" = 0;
- #     };
- #     "context.modules" = [
- #       {
- #         name = "libpipewire-module-rtkit";
- #         args = {
- #           "nice.level" = -15;
- #           "rt.prio" = 88;
- #           "rt.time.soft" = 200000;
- #           "rt.time.hard" = 200000;
- #         };
- #         flags = [ "ifexists" "nofail" ];
- #       }
- #       { name = "libpipewire-module-protocol-native"; }
- #       { name = "libpipewire-module-profiler"; }
- #       { name = "libpipewire-module-metadata"; }
- #       { name = "libpipewire-module-spa-device-factory"; }
- #       { name = "libpipewire-module-spa-node-factory"; }
- #       { name = "libpipewire-module-client-node"; }
- #       { name = "libpipewire-module-client-device"; }
- #       {
- #         name = "libpipewire-module-portal";
- #         flags = [ "ifexists" "nofail" ];
- #       }
- #       {
- #         name = "libpipewire-module-access";
- #         args = {};
- #       }
- #       { name = "libpipewire-module-adapter"; }
- #       { name = "libpipewire-module-link-factory"; }
- #       { name = "libpipewire-module-session-manager"; }
- #     ];
- #   };
- # };
+  #   config.pipewire = {
+  #     "context.properties" = {
+  #       "link.max-buffers" = 16;
+  #       "log.level" = 2;
+  #       "default.clock.rate" = 48000;
+  #       "default.clock.quantum" = 128;
+  #       "default.clock.min-quantum" = 128;
+  #       "default.clock.max-quantum" = 128;
+  #       "core.daemon" = true;
+  #       "core.name" = "pipewire-0";
+  #       "session.suspend-timeout-seconds" = 0;
+  #     };
+  #     "context.modules" = [
+  #       {
+  #         name = "libpipewire-module-rtkit";
+  #         args = {
+  #           "nice.level" = -15;
+  #           "rt.prio" = 88;
+  #           "rt.time.soft" = 200000;
+  #           "rt.time.hard" = 200000;
+  #         };
+  #         flags = [ "ifexists" "nofail" ];
+  #       }
+  #       { name = "libpipewire-module-protocol-native"; }
+  #       { name = "libpipewire-module-profiler"; }
+  #       { name = "libpipewire-module-metadata"; }
+  #       { name = "libpipewire-module-spa-device-factory"; }
+  #       { name = "libpipewire-module-spa-node-factory"; }
+  #       { name = "libpipewire-module-client-node"; }
+  #       { name = "libpipewire-module-client-device"; }
+  #       {
+  #         name = "libpipewire-module-portal";
+  #         flags = [ "ifexists" "nofail" ];
+  #       }
+  #       {
+  #         name = "libpipewire-module-access";
+  #         args = {};
+  #       }
+  #       { name = "libpipewire-module-adapter"; }
+  #       { name = "libpipewire-module-link-factory"; }
+  #       { name = "libpipewire-module-session-manager"; }
+  #     ];
+  #   };
+  # };
 
   # Remove sound.enable or turn it off if you had it set previously, it seems to cause conflicts with pipewire
   #sound.enable = false;
@@ -310,8 +319,8 @@ in
   #  alsa.enable = true;
   #  alsa.support32Bit = true;
   #  pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+  # If you want to use JACK applications, uncomment this
+  #jack.enable = true;
   #};
 
   # Enable Bluetooth
@@ -332,7 +341,7 @@ in
 
   # Overlay setup
   # services.emacs.package = with pkgs; ((emacsPackagesFor emacsGcc).emacsWithPackages (epkgs: [
-    # epkgs.emacspeak
+  # epkgs.emacspeak
   # ]));
   # services.emacs.enable = true; # Optional emacs daemon/server mode.
 
@@ -360,8 +369,8 @@ in
   #-------------------------------------------------------------------------
   # Enable redis service
   #-------------------------------------------------------------------------
-  services.redis.servers."talos".enable=true;
-  services.redis.servers."talos".port=6379;
+  services.redis.servers."talos".enable = true;
+  services.redis.servers."talos".port = 6379;
 
   # Mic
   programs.droidcam.enable = true;
@@ -390,7 +399,7 @@ in
     #(self: super: {
     #  winetricks = super.wine.wineWowPackages.stableFull;
     #})
-  
+
     # dwm
     (self: super: {
       dwm = super.dwm.overrideAttrs (oa: rec {
@@ -402,8 +411,8 @@ in
             # sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
             # url = "https://dwm.suckless.org/patches/systray/dwm-systray-6.0.diff";
             # sha256 = "1k95j0c9gzz15k0v307zlvkk3fbayb9kid68i27idawg2salrz54";
-           url = "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
-           sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
+            url = "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
+            sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
           })
           #(super.fetchpatch {
           # url = "https://dwm.suckless.org/patches/swaptags/dwm-swaptags-6.2.diff";
@@ -434,7 +443,7 @@ in
     })
 
     # nix-direnv
-    (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; } )
+    (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
 
     # pulseaudio
     #(self: super: {
@@ -477,7 +486,56 @@ in
   # $ nix search wget
   # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   environment.systemPackages = with pkgs; [
-    vim wget firefox kate httrack silver-searcher btop ccache fzf fd ripgrep ripgrep-all git docker yt-dlp obs-studio gron go-org groff direnv elinks fbida texmacs ghostwriter ffmpeg paprefs gparted unetbootin audacity emscripten wasmer nvidia-docker pyspread inkscape neovim calibre root sageWithDoc nyxt nomacs maim yacreader tigervnc aria ghostscript nix-du zgrviewer graphviz google-chrome tor-browser-bundle-bin
+    vim
+    wget
+    firefox
+    kate
+    httrack
+    silver-searcher
+    btop
+    ccache
+    fzf
+    fd
+    ripgrep
+    ripgrep-all
+    git
+    docker
+    yt-dlp
+    obs-studio
+    gron
+    go-org
+    groff
+    direnv
+    elinks
+    fbida
+    texmacs
+    ghostwriter
+    ffmpeg
+    paprefs
+    gparted
+    unetbootin
+    audacity
+    emscripten
+    wasmer
+    nvidia-docker
+    pyspread
+    inkscape
+    neovim
+    calibre
+    root
+    sageWithDoc
+    nyxt
+    nomacs
+    maim
+    yacreader
+    tigervnc
+    aria
+    ghostscript
+    nix-du
+    zgrviewer
+    graphviz
+    google-chrome
+    tor-browser-bundle-bin
 
 
     # Virtualization
@@ -496,8 +554,8 @@ in
     # Flakes
     inputs.blender.packages.x86_64-linux.default
     inputs.poetry2nix.packages.x86_64-linux.poetry2nix
-	release2105.dos2unix
-	# release2105.google-chrome
+    release2105.dos2unix
+    # release2105.google-chrome
 
     # nix-direnv
     direnv
@@ -611,7 +669,8 @@ in
 
     # Spellcheck
     aspell
-    hunspell hunspellDicts.en_US
+    hunspell
+    hunspellDicts.en_US
 
     # Virtualisation
     libguestfs
@@ -854,76 +913,78 @@ in
     # Python 3
     #python311
     #python311.withPackages (p: with p; [
-      #fonttools
+    #fonttools
     #])
-    (let
-      my-python-packages = python-packages: with python-packages; [
-        fonttools
-        # conda
-        # requests
-        # psycopg2
-        # tensorflowWithCuda
-        # flask flask_wtf flask_mail flask_login flask_assets flask-sslify flask-silk flask-restx flask-openid flask-cors flask-common flask-bcrypt flask-babel flask-api flask-admin flask_sqlalchemy flask_migrate
-        # fire
-        # typer
-        # pytest
-        # poetry
-        # poetry2conda
-        # nixpkgs-pytools
-        # rope
-        # inkex
-        # pyzmq
-        # Sci-Comp Tools
-        # jupyterlab
-        # (pytorch.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
-        # scikit-learn jax objax optax flax transformers tokenizers fasttext numpy scipy sympy matplotlib pandas scikitimage statsmodels scikits-odes traittypes xarray
-        # unstable.python39Packages.optuna
-        # jaxlib
-        # (jaxlib.override {cudaSupport = true;}) # Same as jaxlibWithCuda
-        # (jaxlib.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
-        # (numba.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
-        # (cupy.override {cudaPackages = cudaPackages_11_6;})
-        # (tensorflow.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
-        # spacy
-        # pytesseract
-        # duckdb
-        # duckdb-engine
-        # jaxlibWithCuda
-        # numbaWithCuda
-        # Scraping Tools
-        # selenium
-        # beautifulsoup4
-        # folium
-        # lxml
-        # yarl
-        # networkx
-        # faker
-        # Misc
-        # pip
-        # pyside2
-        # pyside2-tools
-        # shiboken2
-        # virtualenv
-        # virtualenvwrapper
-        # pillow
-        # virtual-display
-        # EasyProcess
-        # pdftotext
-        # Web-Dev Tools
-        # fastapi sqlalchemy sqlalchemy-utils sqlalchemy-migrate sqlalchemy-jsonfield sqlalchemy-i18n sqlalchemy-citext alembic ColanderAlchemy
-        # Game Dev Tools
-        # pybullet pygame pyglet
-        # General tools
-        # pipx
-        # sh
-        # Testing tools
-        # pytest
-        # pytest-benchmark
-        # loguru
-      ];
-      python-with-my-packages = python310.withPackages my-python-packages;
-    in
-      python-with-my-packages)
+    (
+      let
+        my-python-packages = python-packages: with python-packages; [
+          fonttools
+          # conda
+          # requests
+          # psycopg2
+          # tensorflowWithCuda
+          # flask flask_wtf flask_mail flask_login flask_assets flask-sslify flask-silk flask-restx flask-openid flask-cors flask-common flask-bcrypt flask-babel flask-api flask-admin flask_sqlalchemy flask_migrate
+          # fire
+          # typer
+          # pytest
+          # poetry
+          # poetry2conda
+          # nixpkgs-pytools
+          # rope
+          # inkex
+          # pyzmq
+          # Sci-Comp Tools
+          # jupyterlab
+          # (pytorch.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
+          # scikit-learn jax objax optax flax transformers tokenizers fasttext numpy scipy sympy matplotlib pandas scikitimage statsmodels scikits-odes traittypes xarray
+          # unstable.python39Packages.optuna
+          # jaxlib
+          # (jaxlib.override {cudaSupport = true;}) # Same as jaxlibWithCuda
+          # (jaxlib.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
+          # (numba.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
+          # (cupy.override {cudaPackages = cudaPackages_11_6;})
+          # (tensorflow.override {cudaSupport = true; cudaPackages = cudaPackages_11_6;})
+          # spacy
+          # pytesseract
+          # duckdb
+          # duckdb-engine
+          # jaxlibWithCuda
+          # numbaWithCuda
+          # Scraping Tools
+          # selenium
+          # beautifulsoup4
+          # folium
+          # lxml
+          # yarl
+          # networkx
+          # faker
+          # Misc
+          # pip
+          # pyside2
+          # pyside2-tools
+          # shiboken2
+          # virtualenv
+          # virtualenvwrapper
+          # pillow
+          # virtual-display
+          # EasyProcess
+          # pdftotext
+          # Web-Dev Tools
+          # fastapi sqlalchemy sqlalchemy-utils sqlalchemy-migrate sqlalchemy-jsonfield sqlalchemy-i18n sqlalchemy-citext alembic ColanderAlchemy
+          # Game Dev Tools
+          # pybullet pygame pyglet
+          # General tools
+          # pipx
+          # sh
+          # Testing tools
+          # pytest
+          # pytest-benchmark
+          # loguru
+        ];
+        python-with-my-packages = python310.withPackages my-python-packages;
+      in
+      python-with-my-packages
+    )
 
     # (let 
     #   my-python2-packages = python2-packages: with python2-packages; [ 
@@ -1018,14 +1079,16 @@ in
     gimpPlugins.gap
 
     # Octave
-    (let
-      my-octave-packages = octave-packages: with octave-packages; [
-        general
-        symbolic
-      ];
-      octave-with-my-packages = octave.withPackages my-octave-packages;
-    in
-    octave-with-my-packages)
+    (
+      let
+        my-octave-packages = octave-packages: with octave-packages; [
+          general
+          symbolic
+        ];
+        octave-with-my-packages = octave.withPackages my-octave-packages;
+      in
+      octave-with-my-packages
+    )
 
     # Node
     # nodejs
@@ -1079,9 +1142,9 @@ in
 
     # Overlays
     #((emacsPackagesFor emacsGcc).emacsWithPackages (epkgs: [
-      # epkgs.emacspeak
-      # epkgs.sonic-pi
-      # epkgs.languagetool
+    # epkgs.emacspeak
+    # epkgs.sonic-pi
+    # epkgs.languagetool
     #]))
     wine
     winetricks
