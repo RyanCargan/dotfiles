@@ -6,6 +6,10 @@ FILES=(
   # "$HOME/path/to/source/file2:~/path/to/destination/file2"
 	"$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
+  "/etc/nixos/configuration.nix:./nixos/configuration.nix"
+  "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
+  "/etc/nixos/flake.nix:./nixos/flake.nix"
+  "/etc/nixos/flake.lock:./nixos/flake.lock"
   # Add more file pairs as needed
 )
 
