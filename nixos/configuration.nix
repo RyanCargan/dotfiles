@@ -563,6 +563,7 @@ in
 
     # Educational software
     anki-bin
+    d2
 
     # Audio & video comms
     # droidcam
