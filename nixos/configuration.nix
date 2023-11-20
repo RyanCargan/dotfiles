@@ -536,7 +536,7 @@ in
     graphviz
     google-chrome
     tor-browser-bundle-bin
-
+    busybox
 
     # Virtualization
     (pkgs.stdenv.mkDerivation {
