@@ -314,6 +314,7 @@ in
     tor-browser-bundle-bin
     busybox
     electron
+    nodePackages.asar
 
     # Virtualization
     (pkgs.stdenv.mkDerivation {
