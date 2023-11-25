@@ -313,6 +313,7 @@ in
     google-chrome
     tor-browser-bundle-bin
     busybox
+    electron
 
     # Virtualization
     (pkgs.stdenv.mkDerivation {
