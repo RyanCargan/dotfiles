@@ -448,6 +448,9 @@ in
     # NixOS tools
     nix-index
 
+    # Debian tools
+    dpkg
+
     # Steam tools
     protontricks
     gamescope
