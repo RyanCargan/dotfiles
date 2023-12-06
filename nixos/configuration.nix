@@ -367,6 +367,7 @@ in
     anydesk
     torsocks
     tor
+    ngrok
 
     # Editors
     marktext # Markdown
