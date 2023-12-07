@@ -626,6 +626,7 @@ in
       let
         my-python-packages = python-packages: with python-packages; [
           fonttools
+          pyside6
         ];
         python-with-my-packages = python310.withPackages my-python-packages;
       in
