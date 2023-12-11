@@ -137,7 +137,6 @@ in
   # Hosts
   networking.extraHosts =
     ''
-      127.0.0.1 codinghermit.net
     '';
 
   services.openssh.enable = true;
