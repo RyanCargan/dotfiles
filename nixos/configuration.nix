@@ -104,16 +104,16 @@ in
   };
 
   # GitHub runners
-  services.github-runners = {
-    runner1 = {
-      enable = true;
-      name = "sync-bot";
-      tokenFile = "/home/ryan/Documents/pat.txt";
-      url = "https://github.com/RyanCargan/Scratch";
-      workDir = "/var/lib/runner-workspace";
-      user = "ryan";
-    };
-  };
+  # services.github-runners = {
+  #   runner1 = {
+  #     enable = true;
+  #     name = "sync-bot";
+  #     tokenFile = "/home/ryan/Documents/pat.txt";
+  #     url = "https://github.com/RyanCargan/Scratch";
+  #     workDir = "/var/lib/runner-workspace";
+  #     user = "ryan";
+  #   };
+  # };
 
   # Enable virtualization.
   virtualisation.libvirtd.enable = true;
@@ -387,6 +387,7 @@ in
     torsocks
     tor
     ngrok
+    cloudflared
 
     # Editors
     marktext # Markdown
