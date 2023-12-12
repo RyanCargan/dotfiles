@@ -267,10 +267,10 @@ in
     })
 
     # nix-direnv
-    (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
+    # (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
   ];
 
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
     source-code-pro
     liberation_ttf
   ];
