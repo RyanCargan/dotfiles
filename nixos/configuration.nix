@@ -40,6 +40,7 @@ in
     };
     permittedInsecurePackages = [
       "openssl-1.1.1v"
+      "nodejs-16.20.2"
     ];
   };
 
@@ -100,6 +101,16 @@ in
   services.clamav = {
     daemon.enable = false;
     updater.enable = false;
+  };
+
+  # GitHub runners
+  services.github-runners = {
+    runner1 = {
+      enable = true;
+      name = "sync-bot";
+      tokenFile = "/home/ryan/Documents/pat.txt";
+      url = "https://github.com/RyanCargan/Scratch";
+    };
   };
 
   # Enable virtualization.
@@ -574,7 +585,7 @@ in
     input-remapper
 
     # DevOps Utils
-    openssl_1_1
+    # openssl_1_1
 
     # Productivity tools
     gnome.pomodoro
