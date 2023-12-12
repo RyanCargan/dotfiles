@@ -38,6 +38,9 @@ in
         inherit system;
       };
     };
+    permittedInsecurePackages = [
+      "openssl-1.1.1v"
+    ];
   };
 
   # Storage optimization.
@@ -569,6 +572,9 @@ in
     xfsprogs
     parted
     input-remapper
+
+    # DevOps Utils
+    openssl_1_1
 
     # Productivity tools
     gnome.pomodoro
