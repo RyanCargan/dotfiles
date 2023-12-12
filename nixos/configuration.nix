@@ -110,6 +110,8 @@ in
       name = "sync-bot";
       tokenFile = "/home/ryan/Documents/pat.txt";
       url = "https://github.com/RyanCargan/Scratch";
+      workDir = "/var/lib/runner-workspace";
+      user = "ryan";
     };
   };
 
