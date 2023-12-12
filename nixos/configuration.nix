@@ -380,7 +380,6 @@ in
 
     # Comm utils
     gnome.cheese
-    teams
     # zoom-us
     anydesk
     torsocks
