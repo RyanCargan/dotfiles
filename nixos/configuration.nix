@@ -379,6 +379,7 @@ in
 
     # Sys utils
     inxi
+    samba
 
     # Comm utils
     gnome.cheese
