@@ -549,6 +549,7 @@ in
     xterm
     mlterm
     imagemagick
+    libwebp
     lsix
     flex
     bison
