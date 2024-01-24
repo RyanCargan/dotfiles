@@ -411,6 +411,8 @@ in
     # postman
     insomnia
     mkcert
+    nodejs_20
+    ruby
 
     # Fun stuff
     duktape
@@ -509,7 +511,7 @@ in
     SDL2 # SDL2_ttf SDL2_net SDL2_gfx SDL2_mixer SDL2_image smpeg2 guile-sdl2
 
     # Shopify
-    shopify-cli
+    # shopify-cli
     function-runner
 
     # XFCE
