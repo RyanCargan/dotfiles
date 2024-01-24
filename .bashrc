@@ -7,6 +7,9 @@ export SUDO_EDITOR=nvim
 # export NODE_SKIP_PLATFORM_CHECK=1
 export ANDROID_HOME=~/Android/Sdk
 
+# Node apps
+export PATH=$HOME/.npm-packages/bin:$PATH
+
 # Deno apps
 export PATH=$HOME/.deno/bin:$PATH
 
