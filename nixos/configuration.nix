@@ -457,6 +457,7 @@ in
 
     # AWS tools
     awscli2
+    minio
 
     # Xorg tools
     xorg.xmessage
