@@ -666,6 +666,7 @@ in
       in
       python-with-my-packages
     )
+    poetry
 
     # Containers
     kube3d
