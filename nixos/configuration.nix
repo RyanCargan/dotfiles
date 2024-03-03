@@ -6,6 +6,18 @@
 with pkgs;
 let
   system = "x86_64-linux";
+
+  custom-fonts = pkgs.stdenv.mkDerivation {
+    name = "custom-fonts";
+    version = "1.000";
+    src = /fonts;
+
+    installPhase = ''
+      mkdir -p $out/share/fonts/opentype/custom-fonts
+      cp -rv $src/* $out/share/fonts/opentype/custom-fonts
+    '';
+  };
+
 in
 {
   imports =
@@ -275,6 +287,7 @@ in
   fonts.packages = with pkgs; [
     source-code-pro
     liberation_ttf
+    custom-fonts
   ];
   fonts.fontDir.enable = true;
 
