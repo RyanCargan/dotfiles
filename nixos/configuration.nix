@@ -633,6 +633,7 @@ in
     # DB utils
     dbeaver # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
     sqlite
+    sqldiff
     isso # FOSS Disqus clone
     sqlitecpp
     github-to-sqlite
