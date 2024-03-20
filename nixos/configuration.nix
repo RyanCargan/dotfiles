@@ -439,6 +439,7 @@ in
     android-studio
     android-tools
     watchman
+    libpcap
 
     #Sys Dev
     nixos-option
