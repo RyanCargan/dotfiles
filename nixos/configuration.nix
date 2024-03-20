@@ -346,7 +346,7 @@ in
     google-chrome
     tor-browser-bundle-bin
     busybox
-    electron
+    # electron # Insecure
     nodePackages.asar
 
     # Virtualization
@@ -404,12 +404,12 @@ in
     cloudflared
 
     # Editors
-    marktext # Markdown
-    apostrophe # Markdown
-    jetbrains.idea-community # Java
+    # marktext # Markdown
+    # apostrophe # Markdown
+    # jetbrains.idea-community # Java
     languagetool
     vale
-    obsidian
+    unstable.obsidian
 
     # Rec utils
     simplescreenrecorder
@@ -422,7 +422,7 @@ in
     sass
     ungoogled-chromium
     # postman
-    insomnia
+    # insomnia
     mkcert
     nodejs_20
     ruby
