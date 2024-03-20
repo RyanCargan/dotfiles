@@ -7,7 +7,7 @@
     # nix.url = "github.com:NixOS/nix/2.5-maintenance"; # Add 'nix' to outputs along with nixpkgs if needed
     # pythonOnNix.url = "github:on-nix/python/2e735762c73651cffc027ca850b2a58d87d54b49";
     # pythonOnNix.inputs.nixpkgs.follows = "nixpkgs";
-    blender.url = "github:edolstra/nix-warez?dir=blender"; # Don't pass to outputs since it isn't used immediately
+    # blender.url = "github:edolstra/nix-warez?dir=blender"; # Don't pass to outputs since it isn't used immediately
     poetry2nix.url = "github:nix-community/poetry2nix/1.26.0";
   };
   outputs = { self, nixpkgs, ... }@inputs: {

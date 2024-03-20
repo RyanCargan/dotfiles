@@ -360,7 +360,7 @@ in
     remmina
 
     # Flakes
-    inputs.blender.packages.x86_64-linux.blender_3_6
+    # inputs.blender.packages.x86_64-linux.default
     inputs.poetry2nix.packages.x86_64-linux.poetry2nix
     release2105.dos2unix
 
@@ -371,6 +371,9 @@ in
     # Educational software
     anki-bin
     d2
+
+    # 3D
+    blender
 
     # Audio & video comms
     (mumble.override { pulseSupport = true; })
