@@ -671,7 +671,8 @@ in
     jmtpfs
 
     # JVM
-    unstable.jdk20_headless
+    # unstable.jdk20_headless
+    jdk17
 
     # Python 3
     (
