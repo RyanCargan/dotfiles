@@ -437,6 +437,7 @@ in
     # Android Dev
     wmname # Java app GUI issue fix
     android-studio
+    gradle
     android-tools
     watchman
     libpcap
