@@ -350,13 +350,13 @@ in
     nodePackages.asar
 
     # Virtualization
-    (pkgs.stdenv.mkDerivation {
-      name = "virtiofsd-link";
-      buildCommand = ''
-        mkdir -p $out/bin
-        ln -s ${pkgs.qemu}/libexec/virtiofsd $out/bin/
-      '';
-    })
+    # (pkgs.stdenv.mkDerivation {
+    #   name = "virtiofsd-link";
+    #   buildCommand = ''
+    #     mkdir -p $out/bin
+    #     ln -s ${pkgs.qemu}/libexec/virtiofsd $out/bin/
+    #   '';
+    # })
     remmina
 
     # Flakes
