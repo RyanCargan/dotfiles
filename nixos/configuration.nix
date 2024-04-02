@@ -673,6 +673,7 @@ in
     # JVM
     # unstable.jdk20_headless
     jdk17
+    maven
 
     # Python 3
     (
