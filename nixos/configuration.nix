@@ -674,7 +674,7 @@ in
     # unstable.jdk20_headless
     jdk17
     maven
-    xorg.libXxf86vm.dev
+    xorg.libXxf86vm
 
     # Python 3
     (
