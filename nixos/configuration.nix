@@ -441,6 +441,7 @@ in
     android-tools
     watchman
     libpcap
+    genymotion
 
     #Sys Dev
     nixos-option
