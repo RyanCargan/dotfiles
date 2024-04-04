@@ -673,7 +673,8 @@ in
 
     # JVM
     # unstable.jdk20_headless
-    jdk17
+    # jdk17
+    oraclejdk8
     maven
     xorg.libXxf86vm
 
