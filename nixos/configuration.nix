@@ -405,6 +405,7 @@ in
     tor
     ngrok
     cloudflared
+    telegram-desktop
 
     # Editors
     # marktext # Markdown
