@@ -455,6 +455,9 @@ in
     mosh
     sshfs
 
+    # VPN
+    mullvad-vpn
+
     # Weird stuff
     eaglemode
     lagrange
@@ -675,7 +678,8 @@ in
     # JVM
     # unstable.jdk20_headless
     # jdk17
-    oraclejdk8
+    # oraclejdk8
+    jdk21
     maven
     xorg.libXxf86vm
 
