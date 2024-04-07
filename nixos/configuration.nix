@@ -109,10 +109,19 @@ in
   # Set your time zone.
   time.timeZone = "Asia/Colombo";
 
+  # SSD
+  services.fstrim.enable = true;
+
   # Disable automatic refresh of ClamAV signatures database (do this manually).
   services.clamav = {
     daemon.enable = false;
     updater.enable = false;
+  };
+
+  # VPN
+  services.mullvad-vpn = {
+    enable = true;
+    package = pkgs.mullvad-vpn;
   };
 
   # GitHub runners
@@ -372,8 +381,11 @@ in
     anki-bin
     d2
 
-    # 3D
+    # 3D art
     blender
+
+    # 2D art
+    krita
 
     # Audio & video comms
     (mumble.override { pulseSupport = true; })
@@ -456,7 +468,7 @@ in
     sshfs
 
     # VPN
-    mullvad-vpn
+    # mullvad-vpn
 
     # Weird stuff
     eaglemode
