@@ -549,6 +549,7 @@ in
     xfce.thunar
     xfce.thunar-volman
     xfce.tumbler
+    xfce.xfce4-screenshooter
     polkit_gnome
     pavucontrol
     dmenu
