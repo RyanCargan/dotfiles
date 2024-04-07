@@ -610,6 +610,7 @@ in
     k4dirstat # Sums up disk usage for directory trees
     aria # Download manager
     qbittorrent # Torrent manager
+    transmission_4-qt
     xorriso # ISO file editor (reasons for using this over cdrkit/cdrtools: https://wiki.osdev.org/Mkisofs)
     cdrtools # Provides mkisofs
     syslinux # Provides isohybrid which should NOT be used with ISOs that have been pre-treated with it like the Ubuntu ISOs
