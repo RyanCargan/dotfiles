@@ -18,6 +18,19 @@ let
     '';
   };
 
+  RStudio-with-my-packages = rstudioWrapper.override {
+    packages = with rPackages; [
+      ggplot2
+      dplyr
+      tidyr
+      xts
+      lubridate
+      readr
+      readxl
+      randomForest
+    ];
+  };
+
 in
 {
   imports =
@@ -688,6 +701,12 @@ in
 
     # Android MTP
     jmtpfs
+
+    # R
+    RStudio-with-my-packages
+
+    # Spreadsheet conversion
+    gnumeric
 
     # JVM
     # unstable.jdk20_headless
