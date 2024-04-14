@@ -28,6 +28,18 @@ let
       readr
       readxl
       randomForest
+      mice
+      FactoMineR
+      rstudioapi
+      here
+      gt
+      kableExtra
+      data_table
+      mltools
+      fastDummies
+      gridExtra
+      corrplot
+      plyr
     ];
   };
 
