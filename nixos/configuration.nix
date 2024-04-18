@@ -499,6 +499,9 @@ in
     eaglemode
     lagrange
 
+    # Project Management Tools
+    ganttproject-bin
+
     # Compiler tooling
     smlnj
 

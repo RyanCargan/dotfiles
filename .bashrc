@@ -82,6 +82,22 @@ unlock_ssh () {
 	ssh-add ~/.ssh/id_rsa
 }
 
+unlock_ssh2 () {
+	# eval `ssh-agent`
+	ssh-add ~/.ssh/id_rsa2
+}
+
+lock_ssh () {
+	# eval `ssh-agent`
+	ssh-add -d ~/.ssh/id_rsa
+}
+
+lock_ssh2 () {
+	# eval `ssh-agent`
+	ssh-add -d ~/.ssh/id_rsa2
+}
+
+
 # fzf setup
 export FZF_DEFAULT_COMMAND='fd --type f'
 
