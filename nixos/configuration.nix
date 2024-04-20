@@ -738,6 +738,7 @@ in
           fonttools
           pyside6
           pygame
+          matplotlib
         ];
         python-with-my-packages = python310.withPackages my-python-packages;
       in
