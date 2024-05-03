@@ -84,6 +84,9 @@ in
   # Storage optimization.
   nix.settings.auto-optimise-store = true;
 
+  # Limit CPU usage during builds
+  nix.settings.cores = 4;
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -521,6 +524,11 @@ in
     # AWS tools
     awscli2
     minio
+
+    # IaC
+    terraform
+    terraform-providers.aws
+    terraform-providers.cloudflare
 
     # Xorg tools
     xorg.xmessage
