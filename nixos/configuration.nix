@@ -530,6 +530,7 @@ in
     terraform-providers.aws
     terraform-providers.cloudflare
 
+
     # Xorg tools
     xorg.xmessage
     xorg.xev
@@ -827,6 +828,7 @@ in
     wine
     winetricks
     playonlinux
+    mednafen
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
