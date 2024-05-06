@@ -87,6 +87,11 @@ unlock_ssh2 () {
 	ssh-add ~/.ssh/id_rsa2
 }
 
+unlock_ssh3 () {
+	# eval `ssh-agent`
+	ssh-add ~/.ssh/id_rsa3
+}
+
 lock_ssh () {
 	# eval `ssh-agent`
 	ssh-add -d ~/.ssh/id_rsa
@@ -95,6 +100,11 @@ lock_ssh () {
 lock_ssh2 () {
 	# eval `ssh-agent`
 	ssh-add -d ~/.ssh/id_rsa2
+}
+
+lock_ssh3 () {
+	# eval `ssh-agent`
+	ssh-add -d ~/.ssh/id_rsa3
 }
 
 

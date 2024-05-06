@@ -822,6 +822,8 @@ in
     # Games
     cataclysm-dda
 
+    # Emulation
+    appimage-run
     wine
     winetricks
     playonlinux
