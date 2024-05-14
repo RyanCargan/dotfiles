@@ -16,6 +16,9 @@ export PATH=$HOME/.deno/bin:$PATH
 # Cargo apps
 export PATH=$HOME/.cargo/bin:$PATH
 
+# Misc tools
+export PATH=$HOME/Tools:$PATH
+
 # Man page settings
 export BROWSER=google-chrome-stable
 alias man-web='man --html'
@@ -207,3 +210,5 @@ esac
 [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
 
 eval "$(direnv hook bash)"
+
+complete -C /home/ryan/Tools/terraform terraform

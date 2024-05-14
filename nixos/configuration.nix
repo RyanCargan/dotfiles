@@ -748,8 +748,10 @@ in
           pyside6
           pygame
           matplotlib
+          pillow
+          pytesseract
         ];
-        python-with-my-packages = python310.withPackages my-python-packages;
+        python-with-my-packages = python311.withPackages my-python-packages;
       in
       python-with-my-packages
     )
