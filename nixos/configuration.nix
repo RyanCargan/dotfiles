@@ -521,6 +521,11 @@ in
     xorg.xdpyinfo
     xclip
 
+    # ML Tools
+    unstable.ollama
+    # (unstable.ollama.override { acceleration = "cuda"; })
+
+
     # AWS tools
     awscli2
     minio
