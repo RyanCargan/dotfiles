@@ -460,8 +460,8 @@ in
     peek
 
     # Web Dev
-    unstable.deno
-    unstable.flyctl
+    deno
+    flyctl
     go
     sass
     ungoogled-chromium
