@@ -69,9 +69,10 @@ yt_vdq () {
     fi
 }
 
-# Playlist downloader
+# Playlist downloader with subtitle embedding and separate subtitle file download
 yt_vdp () {
-	yt-dlp -f $3 -o "%(playlist)s/%(playlist_index)s - %(title)s-%(id)s.%(ext)s" $1 -I "$2"
+    local subtitle_lang="en.*,ja"
+    yt-dlp  --embed-subs --sub-langs ${subtitle_lang} --write-subs -f $3 -o "%(playlist)s/%(playlist_index)s - %(title)s-%(id)s.%(ext)s" $1 -I "$2"
 }
 
 # DroidCam

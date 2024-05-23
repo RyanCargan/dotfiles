@@ -525,6 +525,10 @@ in
     awscli2
     minio
 
+    # Azure tools
+    azure-cli
+    azuredatastudio
+
     # IaC
     terraform
     terraform-providers.aws
@@ -750,6 +754,7 @@ in
           matplotlib
           pillow
           pytesseract
+          databricks-cli
         ];
         python-with-my-packages = python311.withPackages my-python-packages;
       in
