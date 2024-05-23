@@ -319,6 +319,13 @@ in
 
     # nix-direnv
     # (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
+
+    # CatBoost with CUDA support
+    (self: super: {
+      catboost = super.catboost.override {
+        cudaSupport = true;
+      };
+    })
   ];
 
   fonts.packages = with pkgs; [
@@ -522,9 +529,7 @@ in
     xclip
 
     # ML Tools
-    unstable.ollama
-    # (unstable.ollama.override { acceleration = "cuda"; })
-
+    (unstable.ollama.override { acceleration = "cuda"; })
 
     # AWS tools
     awscli2
@@ -760,6 +765,9 @@ in
           pillow
           pytesseract
           databricks-cli
+          catboost
+          networkx
+          flask
         ];
         python-with-my-packages = python311.withPackages my-python-packages;
       in
