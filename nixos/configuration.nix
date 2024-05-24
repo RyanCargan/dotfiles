@@ -521,6 +521,7 @@ in
     # ML Tools
     (unstable.ollama.override { acceleration = "cuda"; })
     cudaPackages_12_2.cudatoolkit
+    cudaPackages_12_2.cuda_cudart
 
     # AWS tools
     awscli2
