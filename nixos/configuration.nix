@@ -152,18 +152,6 @@ in
     package = pkgs.mullvad-vpn;
   };
 
-  # GitHub runners
-  # services.github-runners = {
-  #   runner1 = {
-  #     enable = true;
-  #     name = "sync-bot";
-  #     tokenFile = "/home/ryan/Documents/pat.txt";
-  #     url = "https://github.com/RyanCargan/Scratch";
-  #     workDir = "/var/lib/runner-workspace";
-  #     user = "ryan";
-  #   };
-  # };
-
   # Enable virtualization.
   virtualisation.libvirtd.enable = true;
   boot.extraModprobeConfig = "options kvm_amd nested=1"; # Nested virtualization (requires AMD-V).
@@ -178,12 +166,6 @@ in
   nixpkgs.config.allowUnfree = true; # Had to export bash env var for flakes since this didn't work
   nixpkgs.config.cudaSupport = true;
   nixpkgs.config.allowUnfreePredicate = (pkg: true);
-
-  # unstable.config =
-  #   {
-  #     allowUnfree = true;
-  #     cudaSupport = true;
-  #   }
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -324,20 +306,6 @@ in
       });
     })
 
-    # nomacs
-    # (self: super: {
-    #   nomacs = super.nomacs.overrideAttrs (oa: rec {
-    #     buildInputs = oldAttrs.buildInputs ++ [
-    #       (pkgs.opencv4.override { cudaSupport = false; })
-    #     ];
-    #   });
-    # })
-    # (self: super: {
-    #   nomacs = super.nomacs.overrideAttrs (oldAttrs: rec {
-    #     opencv4 = opencv4WithoutCuda;
-    #   });
-    # })
-
     # nix-direnv
     # (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
 
@@ -345,12 +313,6 @@ in
     # (self: super: {
     #   catboost = super.catboost.override {
     #     cudaSupport = true;
-    #   };
-    # })
-    # (self: super: {
-    #   nomacs = super.catboost.override {
-    #     # Why would this ever even work???
-    #     cudaSupport = false;
     #   };
     # })
 
