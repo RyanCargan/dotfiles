@@ -462,7 +462,8 @@ in
     go
     sass
     ungoogled-chromium
-    # postman
+    unstable.postman
+    speedtest-cli
     # insomnia
     mkcert
     nodejs_20
