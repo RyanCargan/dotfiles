@@ -265,6 +265,11 @@ in
     '';
   };
 
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+  };
+
   #-------------------------------------------------------------------------
   # Enable redis service
   #-------------------------------------------------------------------------
@@ -694,6 +699,7 @@ in
     gnum4
     zotero
     qnotero
+    ocamlPackages.cpdf
 
     # Terminals
     hyper
@@ -708,6 +714,7 @@ in
     sqlite-utils
     sqlitebrowser
     jmeter
+    mariadb-client
 
     # GIS utils
     # qgis
