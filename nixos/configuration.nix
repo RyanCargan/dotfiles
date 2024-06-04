@@ -700,6 +700,7 @@ in
     zotero
     qnotero
     ocamlPackages.cpdf
+    exiftool
 
     # Terminals
     hyper
