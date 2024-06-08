@@ -111,6 +111,15 @@ lock_ssh3 () {
 	ssh-add -d ~/.ssh/id_rsa3
 }
 
+unlock_ed25519 () {
+	# eval `ssh-agent`
+	ssh-add ~/.ssh/id_ed25519
+}
+
+lock_ed25519 () {
+	# eval `ssh-agent`
+	ssh-add -d ~/.ssh/id_ed25519
+}
 
 # fzf setup
 export FZF_DEFAULT_COMMAND='fd --type f'
