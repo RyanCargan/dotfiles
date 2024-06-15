@@ -772,6 +772,8 @@ in
           numpy
           scikit-learn
           opencv4
+          jupyterlab
+          nbconvert
         ];
         python-with-my-packages = python311.withPackages my-python-packages;
       in
