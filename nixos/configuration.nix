@@ -330,6 +330,7 @@ in
   fonts.packages = with pkgs; [
     source-code-pro
     liberation_ttf
+    dejavu_fonts
     custom-fonts
   ];
   fonts.fontDir.enable = true;
