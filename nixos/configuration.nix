@@ -140,6 +140,10 @@ in
   # SSD
   services.fstrim.enable = true;
 
+  # Flatpak
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+
   # Disable automatic refresh of ClamAV signatures database (do this manually).
   services.clamav = {
     daemon.enable = false;
@@ -246,7 +250,7 @@ in
 
   # Database
   services.postgresql = {
-    enable = true;
+    enable = false;
     package = pkgs.postgresql_14;
     settings = {
       wal_level = "logical";
@@ -497,6 +501,7 @@ in
     # VPS
     mosh
     sshfs
+    autossh
 
     # VPN
     # mullvad-vpn
@@ -716,6 +721,7 @@ in
     sqlitebrowser
     jmeter
     mariadb-client
+    postgresql_16
 
     # GIS utils
     # qgis

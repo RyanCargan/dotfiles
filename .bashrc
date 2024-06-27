@@ -33,8 +33,8 @@ alias set-key='eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa'
 alias list-path='tr ":" "\n" <<< "$PATH"'
 
 # PostgreSQL database config
-export PGUSER=postgres
-export PGDATABASE=codinghermit
+export PGUSER=admin
+export PGDATABASE=central
 
 # Java config
 # export JAVA_HOME=$(readlink -e $(type -p javac) | sed  -e 's/\/bin\/javac//g')
