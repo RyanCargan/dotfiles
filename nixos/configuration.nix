@@ -62,10 +62,10 @@ in
 
   nixpkgs.config = {
     packageOverrides = pkgs: {
-      release2105 = import inputs.release2105 {
-        config = config.nixpkgs.config;
-        inherit system;
-      };
+      # release2105 = import inputs.release2105 {
+      #   config = config.nixpkgs.config;
+      #   inherit system;
+      # };
       release2111 = import inputs.release2111 {
         config = config.nixpkgs.config;
         inherit system;
@@ -168,7 +168,7 @@ in
 
   # Allow proprietary packages
   nixpkgs.config.allowUnfree = true; # Had to export bash env var for flakes since this didn't work
-  nixpkgs.config.cudaSupport = true;
+  # nixpkgs.config.cudaSupport = true;
   nixpkgs.config.allowUnfreePredicate = (pkg: true);
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -219,8 +219,8 @@ in
       xterm.enable = false;
       xfce.enable = true;
     };
-    displayManager.defaultSession = "xfce";
   };
+  services.displayManager.defaultSession = "xfce";
 
   services.gvfs = {
     enable = true;
@@ -341,7 +341,7 @@ in
   environment.systemPackages = with pkgs; [
     vim
     wget
-    firefox
+    # firefox
     kate
     httrack
     silver-searcher
@@ -361,7 +361,7 @@ in
     direnv
     elinks
     fbida
-    texmacs
+    # texmacs
     ghostwriter
     ffmpeg
     paprefs
@@ -370,13 +370,13 @@ in
     audacity
     emscripten
     wasmer
-    nvidia-docker
+    # nvidia-docker
     pyspread
     inkscape
     neovim
     calibre
     root
-    sageWithDoc
+    # sageWithDoc
     nyxt
     # unstable.nomacs
     maim
@@ -405,8 +405,8 @@ in
 
     # Flakes
     # inputs.blender.packages.x86_64-linux.default
-    inputs.poetry2nix.packages.x86_64-linux.poetry2nix
-    release2105.dos2unix
+    # inputs.poetry2nix.packages.x86_64-linux.poetry2nix
+    # release2105.dos2unix
 
     # nix-direnv
     direnv
@@ -460,7 +460,7 @@ in
     # jetbrains.idea-community # Java
     languagetool
     vale
-    unstable.obsidian
+    # unstable.obsidian
 
     # Rec utils
     simplescreenrecorder
@@ -508,11 +508,11 @@ in
     # mullvad-vpn
 
     # Weird stuff
-    eaglemode
-    lagrange
+    # eaglemode
+    # lagrange
 
     # Project Management Tools
-    ganttproject-bin
+    # ganttproject-bin
 
     # Compiler tooling
     smlnj
@@ -532,21 +532,21 @@ in
 
     # ML Tools
     (unstable.ollama.override { acceleration = "cuda"; })
-    cudaPackages_12_2.cudatoolkit
-    cudaPackages_12_2.cuda_cudart
+    # cudaPackages_12_2.cudatoolkit
+    # cudaPackages_12_2.cuda_cudart
 
     # AWS tools
     awscli2
     minio
 
     # Azure tools
-    azure-cli
-    azuredatastudio
+    # azure-cli
+    # azuredatastudio
 
     # IaC
-    terraform
-    terraform-providers.aws
-    terraform-providers.cloudflare
+    # terraform
+    # terraform-providers.aws
+    # terraform-providers.cloudflare
 
 
     # Xorg tools
@@ -568,9 +568,9 @@ in
 
     # Steam tools
     protontricks
-    gamescope
-    gamemode
-    mangohud
+    # gamescope
+    # gamemode
+    # mangohud
 
     # Programming utils
     bintools-unwrapped # Tools for manipulating binaries (linker, assembler, etc.)
@@ -583,20 +583,20 @@ in
     libgccjit
     gnumake # A tool to control the generation of non-source files from sources
     pkg-config
-    mdk # GNU MIX Development Kit (MDK)
-    racket # A programmable programming language
-    chicken # A portable compiler for the Scheme programming language
+    # mdk # GNU MIX Development Kit (MDK)
+    # racket # A programmable programming language
+    # chicken # A portable compiler for the Scheme programming language
     release2111.renpy # Ren'Py Visual Novel Engine
-    nwjs-sdk # An app runtime based on Chromium and node.js
-    arrayfire
-    forge
+    # nwjs-sdk # An app runtime based on Chromium and node.js
+    # arrayfire
+    # forge
 
     # Stable Diffusion Deps
     gperftools
 
     # Source code explorer & deps
     universal-ctags
-    hound # Lightning fast code searching made easy
+    # hound # Lightning fast code searching made easy
 
     # SDL2 SDK
     SDL2 # SDL2_ttf SDL2_net SDL2_gfx SDL2_mixer SDL2_image smpeg2 guile-sdl2
@@ -640,7 +640,7 @@ in
     flameshot
 
     # Emacs deps
-    texlive.combined.scheme-full
+    # texlive.combined.scheme-full
 
     # Sys utils
     st
@@ -691,20 +691,20 @@ in
     # openssl_1_1
 
     # Productivity tools
-    gnome.pomodoro
+    # gnome.pomodoro
 
     # Bluetooth
     # obexftp
 
     # Doc utils
-    xournalpp
-    pandoc
-    vale
-    gephi
+    # xournalpp
+    # pandoc
+    # vale
+    # gephi
     abiword
-    gnum4
+    # gnum4
     zotero
-    qnotero
+    # qnotero
     ocamlPackages.cpdf
     exiftool
 
@@ -712,16 +712,16 @@ in
     hyper
 
     # DB utils
-    dbeaver # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
+    dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
     sqlite
     sqldiff
     isso # FOSS Disqus clone
     sqlitecpp
-    github-to-sqlite
+    # github-to-sqlite
     sqlite-utils
     sqlitebrowser
-    jmeter
-    mariadb-client
+    # jmeter
+    # mariadb-client
     postgresql_16
 
     # GIS utils
@@ -731,9 +731,9 @@ in
     libsForQt5.ark # Archive manager
 
     # Office software
-    beancount
-    fava
-    fontforge
+    # beancount
+    # fava
+    # fontforge
 
     # Media players
     vlc # Video
@@ -749,10 +749,10 @@ in
     jmtpfs
 
     # R
-    RStudio-with-my-packages
+    # RStudio-with-my-packages
 
     # Spreadsheet conversion
-    gnumeric
+    # gnumeric
 
     # JVM
     # unstable.jdk20_headless
@@ -766,21 +766,22 @@ in
     (
       let
         my-python-packages = python-packages: with python-packages; [
-          fonttools
+          # fonttools
           pyside6
           pygame
-          matplotlib
-          pillow
-          pytesseract
-          databricks-cli
-          catboost
-          networkx
-          flask
-          numpy
-          scikit-learn
-          opencv4
-          jupyterlab
-          nbconvert
+          # matplotlib
+          # pillow
+          # pytesseract
+          # databricks-cli
+          # catboost
+          # networkx
+          # flask
+          # numpy
+          # scikit-learn
+          # opencv4
+          # jupyterlab
+          # nbconvert
+          # pynput
         ];
         python-with-my-packages = python311.withPackages my-python-packages;
       in
@@ -789,17 +790,17 @@ in
     poetry
 
     # Containers
-    kube3d
-    kubectl
-    kubernetes-helm
+    # kube3d
+    # kubectl
+    # kubernetes-helm
 
     # Misc Tools
     # graalvm-ce
-    scribus
+    # scribus
 
     # ML Tools
     fasttext
-    libtorch-bin
+    # libtorch-bin
 
     # Conda
     conda
@@ -824,11 +825,11 @@ in
     gdb
 
     # Coq
-    coq
-    coqPackages.mathcomp
+    # coq
+    # coqPackages.mathcomp
 
     # TLA+
-    tlaplusToolbox
+    # tlaplusToolbox
 
     # GIMP
     gimp
@@ -854,7 +855,7 @@ in
     unstable.vscode-fhs
 
     # Games
-    cataclysm-dda
+    # cataclysm-dda
 
     # Emulation
     appimage-run
@@ -862,6 +863,7 @@ in
     winetricks
     playonlinux
     mednafen
+    mame
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
