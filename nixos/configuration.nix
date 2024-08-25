@@ -391,6 +391,7 @@ in
     tor-browser-bundle-bin
     busybox
     # electron # Insecure
+    electron_30-bin
     nodePackages.asar
 
     # Virtualization
