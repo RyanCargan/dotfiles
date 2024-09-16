@@ -714,6 +714,7 @@ in
 
     # DB utils
     dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
+    # unstable.azuredatastudio
     sqlite
     sqldiff
     isso # FOSS Disqus clone
@@ -798,6 +799,7 @@ in
     # Misc Tools
     # graalvm-ce
     # scribus
+    exe2hex
 
     # ML Tools
     fasttext
@@ -857,6 +859,7 @@ in
 
     # Games
     # cataclysm-dda
+    gzdoom
 
     # Emulation
     appimage-run
