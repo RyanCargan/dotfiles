@@ -188,7 +188,14 @@ in
   };
   programs.nm-applet.enable = true;
   # programs.light.enable = true;
-  programs.steam.enable = true;
+  programs.steam = {
+    enable = true;
+    extraPackages = [
+      gamescope
+      steamtinkerlaunch
+      # xorg.xwininfo
+    ];
+  };
   services.logmein-hamachi.enable = true;
   programs.haguichi.enable = true;
 
@@ -569,6 +576,22 @@ in
 
     # Steam tools
     protontricks
+    steamtinkerlaunch
+    # --- steamtinkerlaunch deps
+    xorg.xwininfo
+    yad
+    # unixtools.xxd
+    xorg.xrandr
+    xorg.xprop
+    # xdotool
+    # wget
+    # unzip
+    # pgrep?
+    # make?
+    # git?
+    # bash?
+    # awk?
+    # ---
     # gamescope
     # gamemode
     # mangohud
@@ -733,6 +756,7 @@ in
     libsForQt5.ark # Archive manager
 
     # Office software
+    libreoffice-fresh
     # beancount
     # fava
     # fontforge

@@ -96,6 +96,11 @@ unlock_ssh3 () {
 	ssh-add ~/.ssh/id_rsa3
 }
 
+unlock_ssh4 () {
+	# eval `ssh-agent`
+	ssh-add ~/.ssh/id_rsa4
+}
+
 lock_ssh () {
 	# eval `ssh-agent`
 	ssh-add -d ~/.ssh/id_rsa
@@ -109,6 +114,11 @@ lock_ssh2 () {
 lock_ssh3 () {
 	# eval `ssh-agent`
 	ssh-add -d ~/.ssh/id_rsa3
+}
+
+lock_ssh4 () {
+	# eval `ssh-agent`
+	ssh-add -d ~/.ssh/id_rsa4
 }
 
 unlock_ed25519 () {
