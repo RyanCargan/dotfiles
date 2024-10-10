@@ -40,6 +40,7 @@ let
       gridExtra
       corrplot
       plyr
+      reshape2
     ];
   };
 
