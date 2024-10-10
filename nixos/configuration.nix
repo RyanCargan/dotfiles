@@ -775,7 +775,7 @@ in
     jmtpfs
 
     # R
-    # RStudio-with-my-packages
+    RStudio-with-my-packages
 
     # Spreadsheet conversion
     # gnumeric
