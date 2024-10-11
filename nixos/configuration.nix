@@ -796,7 +796,7 @@ in
           # fonttools
           pyside6
           pygame
-          # matplotlib
+          matplotlib
           # pillow
           # pytesseract
           # databricks-cli
