@@ -396,7 +396,7 @@ in
     zgrviewer
     graphviz
     google-chrome
-    tor-browser-bundle-bin
+    unstable.tor-browser-bundle-bin
     busybox
     # electron # Insecure
     electron_30-bin
@@ -424,6 +424,8 @@ in
     # Educational software
     anki-bin
     d2
+    xmind
+    freeplane
 
     # 3D art
     blender
