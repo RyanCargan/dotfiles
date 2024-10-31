@@ -895,6 +895,7 @@ in
     playonlinux
     mednafen
     mame
+    kega-fusion
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
