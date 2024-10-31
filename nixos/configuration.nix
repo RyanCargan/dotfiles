@@ -191,9 +191,17 @@ in
   networking.firewall = {
     enable = true;
     extraCommands = ''
+      # Log and drop outgoing traffic for block-outgoing.slice
+      iptables -A OUTPUT -m cgroup --path /sys/fs/cgroup/block-outgoing.slice -j LOG --log-prefix "Blocked outgoing: "
       iptables -A OUTPUT -m cgroup --path /sys/fs/cgroup/block-outgoing.slice -j DROP
-      iptables - A OUTPUT - m cgroup - -path /sys/fs/cgroup/block-net.slice - j DROP
-      iptables - A INPUT - m cgroup - -path /sys/fs/cgroup/block-net.slice - j DROP
+
+      # Log and drop outgoing traffic for block-net.slice
+      iptables -A OUTPUT -m cgroup --path /sys/fs/cgroup/block-net.slice -j LOG --log-prefix "Blocked net outgoing: "
+      iptables -A OUTPUT -m cgroup --path /sys/fs/cgroup/block-net.slice -j DROP
+
+      # Log and drop incoming traffic for block-net.slice
+      iptables -A INPUT -m cgroup --path /sys/fs/cgroup/block-net.slice -j LOG --log-prefix "Blocked net incoming: "
+      iptables -A INPUT -m cgroup --path /sys/fs/cgroup/block-net.slice -j DROP
     '';
   };
 
