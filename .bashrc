@@ -131,6 +131,61 @@ lock_ed25519 () {
 	ssh-add -d ~/.ssh/id_ed25519
 }
 
+#--- Network mgmt helper funcs---#
+
+# Function to move a PID to the outgoing block slice
+block_outgoing() {
+  if [ -z "$1" ]; then
+    echo "Usage: block_outgoing <PID>"
+    return 1
+  fi
+
+  PID=$1
+  SLICE_PATH="/sys/fs/cgroup/block-outgoing.slice/cgroup.procs"
+
+  if [ -e "$SLICE_PATH" ]; then
+    echo $PID | sudo tee $SLICE_PATH > /dev/null
+    echo "Moved PID $PID to block-outgoing.slice (blocks outgoing traffic)"
+  else
+    echo "Error: cgroup path $SLICE_PATH does not exist."
+  fi
+}
+
+# Function to move a PID to the full block slice (blocks both incoming and outgoing)
+block_net() {
+  if [ -z "$1" ]; then
+    echo "Usage: block_net <PID>"
+    return 1
+  fi
+
+  PID=$1
+  SLICE_PATH="/sys/fs/cgroup/block-net.slice/cgroup.procs"
+
+  if [ -e "$SLICE_PATH" ]; then
+    echo $PID | sudo tee $SLICE_PATH > /dev/null
+    echo "Moved PID $PID to block-net.slice (blocks incoming and outgoing traffic)"
+  else
+    echo "Error: cgroup path $SLICE_PATH does not exist."
+  fi
+}
+
+# Function to start tcpdump for a given PID
+capture_traffic() {
+  if [ -z "$1" ]; then
+    echo "Usage: capture_traffic <PID>"
+    return 1
+  fi
+
+  PID=$1
+  OUTPUT_FILE="capture_${PID}.pcap"
+
+  echo "Starting tcpdump for PID $PID..."
+  sudo tcpdump -i any -w "$OUTPUT_FILE" "pid $PID"
+
+  echo "Traffic capture started. Output saved to $OUTPUT_FILE."
+}
+
+
 # fzf setup
 export FZF_DEFAULT_COMMAND='fd --type f'
 

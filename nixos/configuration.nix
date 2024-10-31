@@ -179,6 +179,24 @@ in
   networking.interfaces.enp34s0.useDHCP = true;
   networking.interfaces.wlp3s0f0u8.useDHCP = true;
 
+  # Firewall
+  systemd.slices."block-outgoing.slice" = {
+    enable = true;
+    # memoryMax = "500M"; # Optional: Resource limits
+  };
+  systemd.slices."block-net.slice" = {
+    enable = true;
+    # memoryMax = "500M"; # Optional: Resource limits
+  };
+  networking.firewall = {
+    enable = true;
+    extraCommands = ''
+      iptables -A OUTPUT -m cgroup --path /sys/fs/cgroup/block-outgoing.slice -j DROP
+      iptables - A OUTPUT - m cgroup - -path /sys/fs/cgroup/block-net.slice - j DROP
+      iptables - A INPUT - m cgroup - -path /sys/fs/cgroup/block-net.slice - j DROP
+    '';
+  };
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -518,6 +536,10 @@ in
 
     # VPN
     # mullvad-vpn
+
+    # Networking tools
+    tcpdump
+    wireshark
 
     # Weird stuff
     # eaglemode
