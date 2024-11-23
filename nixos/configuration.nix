@@ -481,6 +481,10 @@ in
     simplescreenrecorder
     peek
 
+    # Video Editing
+    kdePackages.kdenlive
+    glaxnimate
+
     # Web Dev
     deno
     flyctl
@@ -743,6 +747,9 @@ in
     # qnotero
     ocamlPackages.cpdf
     exiftool
+
+    # AI tools
+    # openai-whisper # Use distilled model for now
 
     # Terminals
     hyper
