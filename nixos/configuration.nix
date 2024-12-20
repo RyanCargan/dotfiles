@@ -458,6 +458,7 @@ in
     # Sys utils
     inxi
     samba
+    evtest
 
     # Comm utils
     gnome.cheese
@@ -815,6 +816,7 @@ in
           pyside6
           pygame
           matplotlib
+          evdev
           # pillow
           # pytesseract
           # databricks-cli
