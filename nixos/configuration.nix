@@ -459,6 +459,7 @@ in
     inxi
     samba
     evtest
+    xautomation
 
     # Comm utils
     gnome.cheese
@@ -817,6 +818,7 @@ in
           pygame
           matplotlib
           evdev
+          python-uinput
           # pillow
           # pytesseract
           # databricks-cli
