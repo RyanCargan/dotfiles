@@ -672,7 +672,7 @@ in
     gnome.zenity
     virtualgl
     autokey
-    xautomation
+    # xautomation
     xdotool
     libnotify
     dunst
