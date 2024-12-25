@@ -728,6 +728,7 @@ in
     xfsprogs
     parted
     input-remapper
+    smartmontools
 
     # DevOps Utils
     # openssl_1_1
