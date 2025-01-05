@@ -299,6 +299,9 @@ in
     enable = true;
   };
 
+  # Misc
+  programs.gamemode.enable = true;
+
   # Overlay configuration
   nixpkgs.overlays = [
 
