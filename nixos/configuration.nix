@@ -356,7 +356,7 @@ in
   environment.systemPackages = with pkgs; [
     vim
     wget
-    # firefox
+    firefox
     kate
     httrack
     silver-searcher
@@ -683,6 +683,7 @@ in
     poppler_utils
     ksnip
     flameshot
+    findutils
 
     # Emacs deps
     # texlive.combined.scheme-full

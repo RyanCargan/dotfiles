@@ -20,7 +20,7 @@ export PATH=$HOME/.cargo/bin:$PATH
 export PATH=$HOME/Tools:$PATH
 
 # Man page settings
-export BROWSER=google-chrome-stable
+export BROWSER=firefox
 alias man-web='man --html'
 
 # Nix
