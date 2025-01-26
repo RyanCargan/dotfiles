@@ -733,6 +733,7 @@ in
     parted
     input-remapper
     smartmontools
+    zstd
 
     # DevOps Utils
     # openssl_1_1
