@@ -467,7 +467,7 @@ in
     # Comm utils
     gnome.cheese
     # zoom-us
-    anydesk
+    unstable.anydesk
     torsocks
     tor
     ngrok
