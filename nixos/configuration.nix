@@ -215,14 +215,15 @@ in
 
   # Enable NVIDIA drivers
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.opengl = {
+  hardware.nvidia.open = false;
+  hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
       libGL
     ];
-    setLdLibraryPath = true;
+    enable32Bit = true;
+    # setLdLibraryPath = true;
   };
-  hardware.opengl.driSupport32Bit = true;
   hardware.nvidia-container-toolkit.enable = true;
 
   services.xserver = {
@@ -236,19 +237,19 @@ in
 
   services.gvfs = {
     enable = true;
-    package = lib.mkForce pkgs.gnome3.gvfs;
+    package = lib.mkForce pkgs.gnome.gvfs;
   };
 
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
-  hardware.pulseaudio.enable = true;
-  hardware.pulseaudio.support32Bit = true;
-  nixpkgs.config.pulseaudio = true;
-  hardware.pulseaudio.extraConfig = ''
-    load-module module-combine-sink
-    unload-module module-suspend-on-idle
-  '';
+  # sound.enable = true;
+  # hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
+  # hardware.pulseaudio.enable = true;
+  # hardware.pulseaudio.support32Bit = true;
+  # nixpkgs.config.pulseaudio = true;
+  # hardware.pulseaudio.extraConfig = ''
+  #   load-module module-combine-sink
+  #   unload-module module-suspend-on-idle
+  # '';
 
   # Enable Bluetooth
   hardware.bluetooth.enable = false;
@@ -267,7 +268,7 @@ in
     settings = {
       wal_level = "logical";
     };
-    extraPlugins = with pkgs.postgresql_14; [
+    extensions = with pkgs.postgresql_14; [
       pgtap
       postgis
       timescaledb
@@ -339,6 +340,11 @@ in
     #     cudaSupport = true;
     #   };
     # })
+    (self: super: {
+      blender = super.blender.override {
+        cudaSupport = true;
+      };
+    })
 
   ];
 
@@ -405,8 +411,8 @@ in
     google-chrome
     unstable.tor-browser-bundle-bin
     busybox
-    # electron # Insecure
-    electron_30-bin
+    electron
+    # electron_30-bin
     nodePackages.asar
 
     # Virtualization
@@ -465,7 +471,7 @@ in
     xautomation
 
     # Comm utils
-    gnome.cheese
+    cheese
     # zoom-us
     unstable.anydesk
     torsocks
@@ -514,7 +520,7 @@ in
     android-tools
     watchman
     libpcap
-    genymotion
+    # genymotion
 
     #Sys Dev
     nixos-option
@@ -672,7 +678,7 @@ in
     konsole
     guake
     tilda
-    gnome.zenity
+    zenity
     virtualgl
     autokey
     # xautomation
@@ -760,7 +766,7 @@ in
     # openai-whisper # Use distilled model for now
 
     # Terminals
-    hyper
+    # hyper
 
     # DB utils
     dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
