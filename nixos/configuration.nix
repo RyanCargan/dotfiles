@@ -7,16 +7,16 @@ with pkgs;
 let
   system = "x86_64-linux";
 
-  custom-fonts = pkgs.stdenv.mkDerivation {
-    name = "custom-fonts";
-    version = "1.000";
-    src = /fonts;
+  # custom-fonts = pkgs.stdenv.mkDerivation {
+  #   name = "custom-fonts";
+  #   version = "1.000";
+  #   src = /fonts;
 
-    installPhase = ''
-      mkdir -p $out/share/fonts/opentype/custom-fonts
-      cp -rv $src/* $out/share/fonts/opentype/custom-fonts
-    '';
-  };
+  #   installPhase = ''
+  #     mkdir -p $out/share/fonts/opentype/custom-fonts
+  #     cp -rv $src/* $out/share/fonts/opentype/custom-fonts
+  #   '';
+  # };
 
   RStudio-with-my-packages = rstudioWrapper.override {
     packages = with rPackages; [
@@ -352,7 +352,7 @@ in
     source-code-pro
     liberation_ttf
     dejavu_fonts
-    custom-fonts
+    # custom-fonts
   ];
   fonts.fontDir.enable = true;
 
@@ -414,6 +414,7 @@ in
     electron
     # electron_30-bin
     nodePackages.asar
+    nixfmt
 
     # Virtualization
     # (pkgs.stdenv.mkDerivation {
@@ -761,6 +762,7 @@ in
     # qnotero
     ocamlPackages.cpdf
     exiftool
+    djvu2pdf
 
     # AI tools
     # openai-whisper # Use distilled model for now
