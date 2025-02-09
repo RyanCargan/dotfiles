@@ -44,13 +44,11 @@ let
     ];
   };
 
-in
-{
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+in {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   nix = {
     extraOptions = ''
@@ -99,18 +97,17 @@ in
   users.users.ryan = {
     createHome = true;
     isNormalUser = true;
-    extraGroups =
-      [
-        "wheel"
-        "libvirtd"
-        "qemu-libvirtd"
-        "audio"
-        "video"
-        "networkmanager"
-        "vglusers"
-        "lxd"
-        "docker"
-      ];
+    extraGroups = [
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "audio"
+      "video"
+      "networkmanager"
+      "vglusers"
+      "lxd"
+      "docker"
+    ];
     group = "users";
     home = "/home/ryan";
     uid = 1000;
@@ -118,18 +115,17 @@ in
   users.users.rishindu = {
     createHome = true;
     isNormalUser = true;
-    extraGroups =
-      [
-        "wheel"
-        "libvirtd"
-        "qemu-libvirtd"
-        "audio"
-        "video"
-        "networkmanager"
-        "vglusers"
-        "lxd"
-        "docker"
-      ];
+    extraGroups = [
+      "wheel"
+      "libvirtd"
+      "qemu-libvirtd"
+      "audio"
+      "video"
+      "networkmanager"
+      "vglusers"
+      "lxd"
+      "docker"
+    ];
     group = "users";
     home = "/home/rishindu";
     uid = 1001;
@@ -159,7 +155,8 @@ in
 
   # Enable virtualization.
   virtualisation.libvirtd.enable = true;
-  boot.extraModprobeConfig = "options kvm_amd nested=1"; # Nested virtualization (requires AMD-V).
+  boot.extraModprobeConfig =
+    "options kvm_amd nested=1"; # Nested virtualization (requires AMD-V).
   virtualisation.lxd.enable = false;
   virtualisation.docker = {
     enable = true;
@@ -168,7 +165,8 @@ in
   # boot.kernelModules = [ "kvm-amd" "kvm-intel" ]; # Only needed if kvm-amd/intel is not set in hardware-configuration.nix AFAIK.
 
   # Allow proprietary packages
-  nixpkgs.config.allowUnfree = true; # Had to export bash env var for flakes since this didn't work
+  nixpkgs.config.allowUnfree =
+    true; # Had to export bash env var for flakes since this didn't work
   # nixpkgs.config.cudaSupport = true;
   nixpkgs.config.allowUnfreePredicate = (pkg: true);
 
@@ -187,9 +185,7 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Wi-Fi
-  networking.networkmanager = {
-    enable = true;
-  };
+  networking.networkmanager = { enable = true; };
   programs.nm-applet.enable = true;
   # programs.light.enable = true;
   programs.steam = {
@@ -204,9 +200,7 @@ in
   programs.haguichi.enable = true;
 
   # Hosts
-  networking.extraHosts =
-    ''
-    '';
+  networking.extraHosts = "";
 
   services.openssh.enable = true;
   services.openssh.settings.X11Forwarding = true;
@@ -218,9 +212,7 @@ in
   hardware.nvidia.open = false;
   hardware.graphics = {
     enable = true;
-    extraPackages = with pkgs; [
-      libGL
-    ];
+    extraPackages = with pkgs; [ libGL ];
     enable32Bit = true;
     # setLdLibraryPath = true;
   };
@@ -265,14 +257,8 @@ in
   services.postgresql = {
     enable = false;
     package = pkgs.postgresql_14;
-    settings = {
-      wal_level = "logical";
-    };
-    extensions = with pkgs.postgresql_14; [
-      pgtap
-      postgis
-      timescaledb
-    ];
+    settings = { wal_level = "logical"; };
+    extensions = with pkgs.postgresql_14; [ pgtap postgis timescaledb ];
     authentication = lib.mkForce ''
       # Generated file; do not edit!
       # TYPE  DATABASE        USER            ADDRESS                 METHOD
@@ -296,9 +282,7 @@ in
   # Mic
   programs.droidcam.enable = true;
   services.murmur.enable = true;
-  services.avahi = {
-    enable = true;
-  };
+  services.avahi = { enable = true; };
 
   # Misc
   programs.gamemode.enable = true;
@@ -307,28 +291,25 @@ in
   nixpkgs.overlays = [
 
     # Wine
-    (self: super: {
-      wine = super.wineWowPackages.stableFull;
-    })
+    (self: super: { wine = super.wineWowPackages.stableFull; })
 
     # dwm
     (self: super: {
       dwm = super.dwm.overrideAttrs (oa: rec {
         patches = [
           (super.fetchpatch {
-            url = "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
+            url =
+              "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
             sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
           })
           (super.fetchpatch {
-            url = "https://raw.githubusercontent.com/RyanCargan/dwm/main/patches/dwm-custom-6.3.diff";
+            url =
+              "https://raw.githubusercontent.com/RyanCargan/dwm/main/patches/dwm-custom-6.3.diff";
             sha256 = "116jf166rv9w1qyg1d52sva8f1hzpg3lij9m16izz5s8y0742hy7";
           })
         ];
       });
-      st = super.st.overrideAttrs (oa: rec {
-        patches = [
-        ];
-      });
+      st = super.st.overrideAttrs (oa: rec { patches = [ ]; });
     })
 
     # nix-direnv
@@ -340,11 +321,7 @@ in
     #     cudaSupport = true;
     #   };
     # })
-    (self: super: {
-      blender = super.blender.override {
-        cudaSupport = true;
-      };
-    })
+    (self: super: { blender = super.blender.override { cudaSupport = true; }; })
 
   ];
 
@@ -583,7 +560,6 @@ in
     # terraform
     # terraform-providers.aws
     # terraform-providers.cloudflare
-
 
     # Xorg tools
     xorg.xmessage
@@ -824,9 +800,9 @@ in
     xorg.libXxf86vm
 
     # Python 3
-    (
-      let
-        my-python-packages = python-packages: with python-packages; [
+    (let
+      my-python-packages = python-packages:
+        with python-packages; [
           # fonttools
           pyside6
           pygame
@@ -846,10 +822,8 @@ in
           # nbconvert
           # pynput
         ];
-        python-with-my-packages = python311.withPackages my-python-packages;
-      in
-      python-with-my-packages
-    )
+      python-with-my-packages = python311.withPackages my-python-packages;
+    in python-with-my-packages)
     poetry
 
     # Containers
@@ -900,16 +874,14 @@ in
     gimpPlugins.gap
 
     # Octave
-    (
-      let
-        my-octave-packages = octave-packages: with octave-packages; [
+    (let
+      my-octave-packages = octave-packages:
+        with octave-packages; [
           general
           symbolic
         ];
-        octave-with-my-packages = octave.withPackages my-octave-packages;
-      in
-      octave-with-my-packages
-    )
+      octave-with-my-packages = octave.withPackages my-octave-packages;
+    in octave-with-my-packages)
 
     # PHP
     php81
