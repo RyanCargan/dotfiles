@@ -809,6 +809,25 @@ in {
 
     # Python 3
     (let
+
+      # Define fake-bpy-module-4.2 as a Nix package:
+      fake-bpy-module-4_2-pkg = python311.pkgs.buildPythonPackage rec {
+        pname = "fake_bpy_module_4_2"; # Nix package name (underscores)
+        version = "";
+        format =
+          "wheel"; # Specify wheel format for direct installation (if available)
+        src = pkgs.fetchPypi {
+          pname = "fake_bpy_module_4_2"; # PyPI name (hyphens)
+          version = "20250130";
+          sha256 =
+            "sha256-mjTzV6Ih3aDHkW0FUQ0fkdUxl1w/QiW1OJMqxo0fQWs="; # Replace with your actual sha256 hash
+        };
+        propagatedBuildInputs = with python311.pkgs;
+          [
+            typing-extensions # Dependency from Nixpkgs
+          ];
+      };
+
       my-python-packages = python-packages:
         with python-packages; [
           # fonttools
@@ -831,6 +850,7 @@ in {
           # pynput
           # torch
           torchLightning
+          fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
         ];
       python-with-my-packages = python311.withPackages my-python-packages;
     in python-with-my-packages)
