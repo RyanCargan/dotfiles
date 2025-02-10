@@ -322,6 +322,13 @@ in {
     #   };
     # })
     (self: super: { blender = super.blender.override { cudaSupport = true; }; })
+    (self: super: {
+      torch = super.python311Packages.torch.override { cudaSupport = true; };
+    })
+    (self: super: {
+      torchLightning =
+        super.python311Packages.pytorch-lightning.override { torch = torch; };
+    })
 
   ];
 
@@ -739,6 +746,7 @@ in {
     ocamlPackages.cpdf
     exiftool
     djvu2pdf
+    djvulibre
 
     # AI tools
     # openai-whisper # Use distilled model for now
@@ -821,6 +829,8 @@ in {
           # jupyterlab
           # nbconvert
           # pynput
+          # torch
+          torchLightning
         ];
       python-with-my-packages = python311.withPackages my-python-packages;
     in python-with-my-packages)
@@ -839,6 +849,8 @@ in {
     # ML Tools
     fasttext
     # libtorch-bin
+    # torch
+    # torchLightning
 
     # Conda
     conda
