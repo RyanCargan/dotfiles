@@ -773,6 +773,7 @@ in {
     # GIS utils
     qgis
     gdal
+    tilemaker
 
     # KDE utils
     libsForQt5.ark # Archive manager
