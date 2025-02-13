@@ -336,6 +336,7 @@ in {
     source-code-pro
     liberation_ttf
     dejavu_fonts
+    open-sans
     # custom-fonts
   ];
   fonts.fontDir.enable = true;
