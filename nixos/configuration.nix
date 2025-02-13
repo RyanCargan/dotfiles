@@ -771,7 +771,8 @@ in {
     postgresql_16
 
     # GIS utils
-    # qgis
+    qgis
+    gdal
 
     # KDE utils
     libsForQt5.ark # Archive manager
