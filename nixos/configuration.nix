@@ -464,6 +464,8 @@ in {
     ngrok
     cloudflared
     telegram-desktop
+    caddy
+    nginx
 
     # Editors
     # marktext # Markdown
