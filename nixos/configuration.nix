@@ -373,7 +373,6 @@ in {
     paprefs
     gparted
     unetbootin
-    audacity
     emscripten
     wasmer
     # nvidia-docker
@@ -390,6 +389,7 @@ in {
     tigervnc
     aria
     ghostscript
+    pdftk
     nix-du
     zgrviewer
     graphviz
@@ -441,6 +441,9 @@ in {
     reaper
     sonic-pi
     easyeffects
+    audacity
+    lmms
+    csound
 
     ## Language servers
     ccls
@@ -455,6 +458,8 @@ in {
     samba
     evtest
     xautomation
+    woeusb-ng
+    ventoy-full
 
     # Comm utils
     cheese
@@ -483,6 +488,7 @@ in {
     # Video Editing
     kdePackages.kdenlive
     glaxnimate
+    davinci-resolve
 
     # Web Dev
     deno

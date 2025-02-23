@@ -18,6 +18,7 @@ export PATH=$HOME/.cargo/bin:$PATH
 
 # Misc tools
 export PATH=$HOME/Tools:$PATH
+export PATH=$HOME/Tools/cabbage/bin:$PATH
 
 # Man page settings
 export BROWSER=firefox
