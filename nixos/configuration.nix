@@ -242,6 +242,20 @@ in {
 
   # Enable sound.
   services.pipewire.pulse.enable = true;
+  services.pipewire.extraConfig.pipewire = {
+    "10-latency-tuning" =
+      { # You can name this section anything, e.g., "latency-optimizations"
+        "context.properties" = {
+          "default.clock.rate" = 48000; # Example: Set sample rate to 48kHz
+          "default.clock.quantum" =
+            256; # Example: Reduce quantum to 256 (from default 1024) - Start here!
+          "default.clock.min-quantum" =
+            64; # Example: Reduce min-quantum to 64 (from default 16/32) - Be cautious!
+          "link.max-buffers" =
+            16; # Example: Reduce max buffers to 16 (from default 64) - Try this too!
+        };
+      };
+  };
   # sound.enable = true;
   # hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
   # hardware.pulseaudio.enable = true;
