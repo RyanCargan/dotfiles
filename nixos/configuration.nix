@@ -241,6 +241,7 @@ in {
   };
 
   # Enable sound.
+  services.pipewire.pulse.enable = true;
   # sound.enable = true;
   # hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
   # hardware.pulseaudio.enable = true;
@@ -445,6 +446,7 @@ in {
     (mumble.override { pulseSupport = true; })
     iproute2
     jq
+    pulseaudio
 
     # Audio utils
     reaper
