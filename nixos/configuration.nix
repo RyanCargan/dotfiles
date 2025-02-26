@@ -156,6 +156,11 @@ in {
     package = pkgs.mullvad-vpn;
   };
 
+  # Remote cams
+  services.udev.extraRules = ''
+    KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
+  '';
+
   # Enable virtualization.
   virtualisation.libvirtd.enable = true;
   boot.extraModprobeConfig =
