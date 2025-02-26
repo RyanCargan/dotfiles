@@ -93,6 +93,9 @@ in {
   # Enable NTFS-3G support
   boot.supportedFilesystems = [ "ntfs" ];
 
+  # Enable kernel modules
+  boot.kernelModules = [ "v4l2loopback" ];
+
   # Set users.
   users.users.ryan = {
     createHome = true;
@@ -370,6 +373,7 @@ in {
     # texmacs
     ghostwriter
     ffmpeg
+    linuxKernel.packages.linux_6_6.v4l2loopback
     paprefs
     gparted
     unetbootin
