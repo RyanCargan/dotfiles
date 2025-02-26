@@ -481,6 +481,7 @@ in {
     ngrok
     cloudflared
     telegram-desktop
+    discord
     caddy
     nginx
 
