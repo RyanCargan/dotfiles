@@ -94,7 +94,7 @@ in {
   boot.supportedFilesystems = [ "ntfs" ];
 
   # Enable kernel modules
-  boot.kernelModules = [ "v4l2loopback" ];
+  boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" ];
 
   # Set users.
   users.users.ryan = {
@@ -110,6 +110,7 @@ in {
       "vglusers"
       "lxd"
       "docker"
+      "jackaudio"
     ];
     group = "users";
     home = "/home/ryan";
@@ -241,21 +242,40 @@ in {
   };
 
   # Enable sound.
-  services.pipewire.pulse.enable = true;
-  services.pipewire.extraConfig.pipewire = {
-    "10-latency-tuning" =
-      { # You can name this section anything, e.g., "latency-optimizations"
-        "context.properties" = {
-          "default.clock.rate" = 48000; # Example: Set sample rate to 48kHz
-          "default.clock.quantum" =
-            256; # Example: Reduce quantum to 256 (from default 1024) - Start here!
-          "default.clock.min-quantum" =
-            64; # Example: Reduce min-quantum to 64 (from default 16/32) - Be cautious!
-          "link.max-buffers" =
-            16; # Example: Reduce max buffers to 16 (from default 64) - Try this too!
-        };
-      };
+  services.pipewire.enable = false;
+  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.support32Bit =
+    true; # # If compatibility with 32-bit applications is desired.
+  hardware.pulseaudio.package =
+    pkgs.pulseaudio.override { jackaudioSupport = true; };
+  services.jack = {
+    jackd.enable = true;
+    # support ALSA only programs via ALSA JACK PCM plugin
+    alsa.enable = false;
+    # support ALSA only programs via loopback device (supports programs like Steam)
+    loopback = {
+      enable = true;
+      # buffering parameters for dmix device to work with ALSA only semi-professional sound programs
+      #dmixConfig = ''
+      #  period_size 2048
+      #'';
+    };
   };
+  # services.pipewire.pulse.enable = true;
+  # services.pipewire.extraConfig.pipewire = {
+  #   "10-latency-tuning" =
+  #     { # You can name this section anything, e.g., "latency-optimizations"
+  #       "context.properties" = {
+  #         "default.clock.rate" = 48000; # Example: Set sample rate to 48kHz
+  #         "default.clock.quantum" =
+  #           256; # Example: Reduce quantum to 256 (from default 1024) - Start here!
+  #         "default.clock.min-quantum" =
+  #           64; # Example: Reduce min-quantum to 64 (from default 16/32) - Be cautious!
+  #         "link.max-buffers" =
+  #           16; # Example: Reduce max buffers to 16 (from default 64) - Try this too!
+  #       };
+  #     };
+  # };
   # sound.enable = true;
   # hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
   # hardware.pulseaudio.enable = true;
@@ -461,6 +481,7 @@ in {
     iproute2
     jq
     pulseaudio
+    alsa-utils
 
     # Audio utils
     reaper
@@ -689,6 +710,8 @@ in {
     xfce.xfce4-screenshooter
     polkit_gnome
     pavucontrol
+    qjackctl
+    jack2
     dmenu
     feh
     tmux
