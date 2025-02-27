@@ -712,6 +712,8 @@ in {
     pavucontrol
     qjackctl
     jack2
+    jack_capture
+    jackmix
     dmenu
     feh
     tmux
