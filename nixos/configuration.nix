@@ -412,7 +412,12 @@ in {
     fbida
     # texmacs
     ghostwriter
-    ffmpeg
+    (mumble.override { pulseSupport = true; })
+
+    (ffmpeg.override {
+      withJack = true;
+      withCuda = true;
+    })
     linuxKernel.packages.linux_6_6.v4l2loopback
     paprefs
     gparted
