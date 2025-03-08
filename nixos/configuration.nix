@@ -930,7 +930,7 @@ in {
 
     # Misc Tools
     # graalvm-ce
-    # scribus
+    scribus
     exe2hex
 
     # ML Tools
