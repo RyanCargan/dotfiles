@@ -74,6 +74,7 @@ in {
         inherit system;
       };
     };
+    allowBroken = true;
     permittedInsecurePackages = [
       # "openssl-1.1.1v"
       # "nodejs-16.20.2"
@@ -85,6 +86,18 @@ in {
 
   # Limit CPU usage during builds
   nix.settings.cores = 4;
+
+  # Cache
+  nix.settings.substituters = [
+    "https://nix-community.cachix.org"
+    "https://cuda-maintainers.cachix.org"
+  ];
+  nix.settings.trusted-public-keys = [
+    # Compare to the key published at https://nix-community.org/cache
+    "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -174,10 +187,24 @@ in {
   # boot.kernelModules = [ "kvm-amd" "kvm-intel" ]; # Only needed if kvm-amd/intel is not set in hardware-configuration.nix AFAIK.
 
   # Allow proprietary packages
-  nixpkgs.config.allowUnfree =
-    true; # Had to export bash env var for flakes since this didn't work
-  # nixpkgs.config.cudaSupport = true;
-  nixpkgs.config.allowUnfreePredicate = (pkg: true);
+  # nixpkgs.config.cudaSupport = false;
+  nixpkgs.config.allowUnfreePredicate = p:
+    builtins.all (license:
+      license.free || builtins.elem license.shortName [
+        "CUDA EULA"
+        "cuDNN EULA"
+        "cuTENSOR EULA"
+        "NVidia OptiX EULA"
+        "unfreeRedistributable"
+        "unfree"
+        "postman"
+        "bsl11"
+        "bsd3"
+        "issl"
+      ]) (if builtins.isList p.meta.license then
+        p.meta.license
+      else
+        [ p.meta.license ]);
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -365,13 +392,42 @@ in {
     #   };
     # })
     (self: super: { blender = super.blender.override { cudaSupport = true; }; })
+
     (self: super: {
-      torch = super.python311Packages.torch.override { cudaSupport = true; };
+      torch-bin =
+        super.python312Packages.torch-bin.override { cudaSupport = true; };
     })
     (self: super: {
-      torchLightning =
-        super.python311Packages.pytorch-lightning.override { torch = torch; };
+      torchvision-bin = super.python312Packages.torchvision-bin.override {
+        torch-bin = torch-bin;
+      };
     })
+    (self: super: {
+      torchaudio-bin = super.python312Packages.torchaudio-bin.override {
+        torch-bin = torch-bin;
+      };
+    })
+    (self: super: {
+      torchLightning = super.python311Packages.pytorch-lightning.override {
+        torch = torch-bin;
+      };
+    })
+    # (self: super: {
+    #   vllm = super.unstable.python312Packages.vllm.override {
+    #     cudaSupport = true;
+    #     torch = torch-bin;
+    #     torchvision = torchvision-bin;
+    #     torchaudio = torchaudio-bin;
+    #     version = "0.7.1"; # Set the desired downgraded version
+    #     src = super.fetchFromGitHub {
+    #       owner = "vllm-project";
+    #       repo = "vllm";
+    #       tag = "v0.7.1"; # Match the tag to the desired version
+    #       hash =
+    #         "sha256-<INSERT_CORRECT_HASH_HERE>"; # Replace with correct hash
+    #     };
+    #   };
+    # })
 
   ];
 
@@ -448,7 +504,7 @@ in {
     electron
     # electron_30-bin
     nodePackages.asar
-    nixfmt
+    nixfmt-classic
 
     # Virtualization
     # (pkgs.stdenv.mkDerivation {
@@ -612,7 +668,10 @@ in {
     xclip
 
     # ML Tools
-    (unstable.ollama.override { acceleration = "cuda"; })
+    (unstable.ollama.override {
+      acceleration = "cuda";
+      cudaPackages = cudaPackages_11;
+    })
     # cudaPackages_12_2.cudatoolkit
     # cudaPackages_12_2.cuda_cudart
 
@@ -878,22 +937,22 @@ in {
     (let
 
       # Define fake-bpy-module-4.2 as a Nix package:
-      fake-bpy-module-4_2-pkg = python311.pkgs.buildPythonPackage rec {
-        pname = "fake_bpy_module_4_2"; # Nix package name (underscores)
-        version = "";
-        format =
-          "wheel"; # Specify wheel format for direct installation (if available)
-        src = pkgs.fetchPypi {
-          pname = "fake_bpy_module_4_2"; # PyPI name (hyphens)
-          version = "20250130";
-          sha256 =
-            "sha256-mjTzV6Ih3aDHkW0FUQ0fkdUxl1w/QiW1OJMqxo0fQWs="; # Replace with your actual sha256 hash
-        };
-        propagatedBuildInputs = with python311.pkgs;
-          [
-            typing-extensions # Dependency from Nixpkgs
-          ];
-      };
+      # fake-bpy-module-4_2-pkg = python311.pkgs.buildPythonPackage rec {
+      #   pname = "fake_bpy_module_4_2"; # Nix package name (underscores)
+      #   version = "";
+      #   format =
+      #     "wheel"; # Specify wheel format for direct installation (if available)
+      #   src = pkgs.fetchPypi {
+      #     pname = "fake_bpy_module_4_2"; # PyPI name (hyphens)
+      #     version = "20250130";
+      #     sha256 =
+      #       "sha256-mjTzV6Ih3aDHkW0FUQ0fkdUxl1w/QiW1OJMqxo0fQWs="; # Replace with your actual sha256 hash
+      #   };
+      #   propagatedBuildInputs = with python311.pkgs;
+      #     [
+      #       typing-extensions # Dependency from Nixpkgs
+      #     ];
+      # };
 
       my-python-packages = python-packages:
         with python-packages; [
@@ -915,13 +974,27 @@ in {
           # jupyterlab
           # nbconvert
           # pynput
-          # torch
+          torch-bin
+          torchvision-bin
+          torchaudio-bin
           torchLightning
-          fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
+          # vllm
+          # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
         ];
-      python-with-my-packages = python311.withPackages my-python-packages;
+      python-with-my-packages = python312.withPackages my-python-packages;
     in python-with-my-packages)
     poetry
+
+    # CUDA
+    # cudaPackages_11.cudatoolkit
+    # cudaPackages_11.cuda_cudart
+    # cudaPackages_11.libcublas
+    # cudaPackages_11.cudnn
+    # cudaPackages_11.cuda_cuBLASLt
+    # cudaPackages_11.libcurand
+    # cudaPackages_11.libcusolver
+    # cudaPackages_11.libcusparse
+    # cudaPackages_11.cuda_nvrtc
 
     # Containers
     # kube3d
@@ -973,14 +1046,14 @@ in {
     gimpPlugins.gap
 
     # Octave
-    (let
-      my-octave-packages = octave-packages:
-        with octave-packages; [
-          general
-          symbolic
-        ];
-      octave-with-my-packages = octave.withPackages my-octave-packages;
-    in octave-with-my-packages)
+    # (let
+    #   my-octave-packages = octave-packages:
+    #     with octave-packages; [
+    #       general
+    #       symbolic
+    #     ];
+    #   octave-with-my-packages = octave.withPackages my-octave-packages;
+    # in octave-with-my-packages)
 
     # PHP
     php81
