@@ -413,13 +413,81 @@ in {
         torch = torch-bin;
       };
     })
-    (self: super: {
-      transformers = super.python312Packages.transformers.override {
-        torch = torch-bin;
-        torchaudio = torchaudio-bin;
-        torchvision = torchvision-bin;
-      };
-    })
+    # (self: super: {
+    #   transformers = super.python312Packages.transformers.override {
+    #     torch = torch-bin;
+    #     torchaudio = torchaudio-bin;
+    #     torchvision = torchvision-bin;
+    #   };
+    # })
+    # (self: super: {
+    #   transformers = super.python312Packages.transformers.override {
+    #     torch = self.torch-bin;
+    #     torchaudio = self.torchaudio-bin;
+    #     torchvision = self.torchvision-bin;
+    #   }.overridePythonAttrs (old: rec {
+    #     version = "4.49.0-Gemma-3";
+    #     src = super.fetchFromGitHub {
+    #       owner = "huggingface";
+    #       repo = "transformers";
+    #       tag = "v${version}";
+    #       sha256 = "sha256-XYZXYZXYZ";
+    #     };
+    #   });
+    # })
+
+    # (self: super: {
+    #   tokenizersCustom = super.python312Packages.tokenizers.overridePythonAttrs
+    #     (old: rec {
+    #       version = "0.21.0"; # Ensure this matches the required version range
+    #       src = super.fetchFromGitHub {
+    #         owner = "huggingface";
+    #         repo = "tokenizers";
+    #         rev = "v${version}";
+    #         hash =
+    #           "sha256-G65XiVlvJXOC9zqcVr9vWamUnpC0aa4kyYkE2v1K2iY="; # Replace with the correct hash
+    #       };
+    #       cargoHash = ""; # Temporarily set to empty
+    #     });
+
+    #   transformersCustom =
+    #     super.python312Packages.transformers.overridePythonAttrs (old: rec {
+    #       version = "4.49.0-Gemma-3";
+    #       src = super.fetchFromGitHub {
+    #         owner = "huggingface";
+    #         repo = "transformers";
+    #         rev = "v${version}";
+    #         hash = "sha256-vuUL0b0dyb5AUEDFtY4nMyI+Sye7y7EOuGd1hvr+7XM=";
+    #       };
+    #       propagatedBuildInputs = (old.propagatedBuildInputs or [ ])
+    #         ++ [ self.tokenizersCustom ];
+    #     });
+    # })
+
+    # (self: super: {
+    #   python312Packages = super.python312Packages.overrideScope'
+    #     (pself: psuper: {
+    #       tokenizers = psuper.tokenizers.overridePythonAttrs (old: rec {
+    #         version = "0.21.0"; # Use the required version
+    #         src = super.fetchFromGitHub {
+    #           owner = "huggingface";
+    #           repo = "tokenizers";
+    #           rev = "v${version}";
+    #           hash = "sha256-G65XiVlvJXOC9zqcVr9vWamUnpC0aa4kyYkE2v1K2iY=";
+    #         };
+    #       });
+
+    #       transformers = psuper.transformers.overridePythonAttrs (old: rec {
+    #         version = "4.49.0-Gemma-3";
+    #         src = super.fetchFromGitHub {
+    #           owner = "huggingface";
+    #           repo = "transformers";
+    #           rev = "v${version}";
+    #           hash = "sha256-vuUL0b0dyb5AUEDFtY4nMyI+Sye7y7EOuGd1hvr+7XM=";
+    #         };
+    #       });
+    #     });
+    # })
 
     # (self: super: {
     #   vllm = super.unstable.python312Packages.vllm.override {
@@ -987,10 +1055,15 @@ in {
           torchvision-bin
           torchaudio-bin
           torchLightning
-          transformers
           # vllm
           # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
+          # transformersCustom
         ];
+      # ] ++ (with unstable.python312Packages;
+      #   [
+      #     # Optionally pull some packages from unstable
+      #     transformers
+      #   ]);
       python-with-my-packages = python312.withPackages my-python-packages;
     in python-with-my-packages)
     poetry
