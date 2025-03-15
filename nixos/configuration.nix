@@ -394,8 +394,9 @@ in {
     (self: super: { blender = super.blender.override { cudaSupport = true; }; })
 
     (self: super: {
-      torch-bin =
-        super.python312Packages.torch-bin.override { cudaSupport = true; };
+      torch-bin = super.python312Packages.torch-bin.override {
+        cudaPackages = cudaPackages;
+      };
     })
     (self: super: {
       torchvision-bin = super.python312Packages.torchvision-bin.override {
@@ -408,10 +409,18 @@ in {
       };
     })
     (self: super: {
-      torchLightning = super.python311Packages.pytorch-lightning.override {
+      torchLightning = super.python312Packages.pytorch-lightning.override {
         torch = torch-bin;
       };
     })
+    (self: super: {
+      transformers = super.python312Packages.transformers.override {
+        torch = torch-bin;
+        torchaudio = torchaudio-bin;
+        torchvision = torchvision-bin;
+      };
+    })
+
     # (self: super: {
     #   vllm = super.unstable.python312Packages.vllm.override {
     #     cudaSupport = true;
@@ -978,6 +987,7 @@ in {
           torchvision-bin
           torchaudio-bin
           torchLightning
+          transformers
           # vllm
           # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
         ];
