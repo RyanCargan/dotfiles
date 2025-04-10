@@ -644,6 +644,7 @@ in {
     xautomation
     woeusb-ng
     ventoy-full
+    bchunk
 
     # Comm utils
     cheese
@@ -937,7 +938,7 @@ in {
 
     # Doc utils
     # xournalpp
-    # pandoc
+    pandoc
     # vale
     # gephi
     abiword
@@ -1124,6 +1125,10 @@ in {
     # TLA+
     # tlaplusToolbox
 
+    # Mathematics
+    # lean4
+    # unstable.elan
+
     # GIMP
     gimp
     gimpPlugins.gap
@@ -1148,6 +1153,7 @@ in {
     # Games
     # cataclysm-dda
     gzdoom
+    unstable.quakespasm
 
     # Emulation
     appimage-run
