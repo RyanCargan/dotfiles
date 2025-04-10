@@ -1154,6 +1154,7 @@ in {
     # cataclysm-dda
     gzdoom
     unstable.quakespasm
+    darkplaces
 
     # Emulation
     appimage-run
