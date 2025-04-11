@@ -1155,6 +1155,7 @@ in {
     gzdoom
     unstable.quakespasm
     darkplaces
+    libjpeg8
 
     # Emulation
     appimage-run
