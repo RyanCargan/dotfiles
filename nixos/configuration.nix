@@ -921,6 +921,7 @@ in {
     unzip
     newt
     gnupg
+    pinentry
     xfsprogs
     parted
     input-remapper
