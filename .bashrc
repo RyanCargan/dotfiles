@@ -6,6 +6,8 @@ export EDITOR=nvim
 export SUDO_EDITOR=nvim
 # export NODE_SKIP_PLATFORM_CHECK=1
 export ANDROID_HOME=~/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
 
 # Node apps
 export PATH=$HOME/.npm-packages/bin:$PATH

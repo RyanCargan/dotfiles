@@ -7,3 +7,5 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
    fi
    eval `cat .ssh/ssh-agent`
 fi
+
+export PATH="$HOME/.elan/bin:$PATH"
