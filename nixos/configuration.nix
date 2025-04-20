@@ -998,6 +998,9 @@ in {
     # Android MTP
     jmtpfs
 
+    # Misc libs
+    nss
+
     # R
     RStudio-with-my-packages
 
