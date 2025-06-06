@@ -269,25 +269,40 @@ in {
   };
 
   # Enable sound.
-  services.pipewire.enable = false;
-  hardware.pulseaudio.enable = true;
-  hardware.pulseaudio.support32Bit =
-    true; # # If compatibility with 32-bit applications is desired.
-  hardware.pulseaudio.package =
-    pkgs.pulseaudio.override { jackaudioSupport = true; };
-  services.jack = {
-    jackd.enable = true;
-    # support ALSA only programs via ALSA JACK PCM plugin
-    alsa.enable = false;
-    # support ALSA only programs via loopback device (supports programs like Steam)
-    loopback = {
-      enable = true;
-      # buffering parameters for dmix device to work with ALSA only semi-professional sound programs
-      #dmixConfig = ''
-      #  period_size 2048
-      #'';
-    };
+
+  # Disable PulseAudio & JACKd
+  hardware.pulseaudio.enable = false;
+  services.jack.jackd.enable = false;
+
+  # Turn on PipeWire core + bridges
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true; # provides /dev/snd/ via PipeWire
+    pulse.enable = true; # replaces PulseAudio
+    jack.enable = true; # provides JACK API
+    # package = pkgs.pipewire.override { wireplumberSupport = true; };
+    wireplumber.enable = true;
   };
+
+  # services.pipewire.enable = false;
+  # hardware.pulseaudio.enable = false;
+  # hardware.pulseaudio.support32Bit =
+  # false; # # If compatibility with 32-bit applications is desired.
+  # hardware.pulseaudio.package =
+  #   pkgs.pulseaudio.override { jackaudioSupport = true; };
+  # services.jack = {
+  #   jackd.enable = true;
+  #   # support ALSA only programs via ALSA JACK PCM plugin
+  #   alsa.enable = false;
+  #   # support ALSA only programs via loopback device (supports programs like Steam)
+  #   loopback = {
+  #     enable = true;
+  #     # buffering parameters for dmix device to work with ALSA only semi-professional sound programs
+  #     #dmixConfig = ''
+  #     #  period_size 2048
+  #     #'';
+  #   };
+  # };
   # services.pipewire.pulse.enable = true;
   # services.pipewire.extraConfig.pipewire = {
   #   "10-latency-tuning" =
@@ -618,7 +633,9 @@ in {
     (mumble.override { pulseSupport = true; })
     iproute2
     jq
-    pulseaudio
+    # pulseaudio
+    pipewire
+    wireplumber
     alsa-utils
 
     # Audio utils
@@ -852,10 +869,14 @@ in {
     xfce.xfce4-screenshooter
     polkit_gnome
     pavucontrol
-    qjackctl
-    jack2
-    jack_capture
-    jackmix
+    alsa-tools
+    # qjackctl
+    qpwgraph
+    helvum
+    easyeffects
+    # jack2
+    # jack_capture
+    # jackmix
     dmenu
     feh
     tmux
