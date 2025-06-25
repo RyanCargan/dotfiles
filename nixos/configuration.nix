@@ -158,6 +158,9 @@ in {
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
+  # Teamviewer
+  services.teamviewer.enable = true;
+
   # Disable automatic refresh of ClamAV signatures database (do this manually).
   services.clamav = {
     daemon.enable = false;
