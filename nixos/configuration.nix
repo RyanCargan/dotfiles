@@ -48,6 +48,7 @@ in {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ./cachix.nix
   ];
 
   nix = {
@@ -60,6 +61,7 @@ in {
   };
 
   nixpkgs.config = {
+    # cudaPackages = pkgs.cudaPackages;
     packageOverrides = pkgs: {
       # release2105 = import inputs.release2105 {
       #   config = config.nixpkgs.config;
@@ -274,7 +276,7 @@ in {
   # Enable sound.
 
   # Disable PulseAudio & JACKd
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   services.jack.jackd.enable = false;
 
   # Turn on PipeWire core + bridges
@@ -405,32 +407,48 @@ in {
 
     # CUDA support
     # (self: super: {
+    #   blender = super.blender.override {
+    #     cudaSupport = true;
+    #     # cudaPackages will inherit pkgs.cudaPackages
+    #   };
+
+    #   obs-studio = super.obs-studio.override { cudaSupport = true; };
+
+    #   ffmpeg = super.ffmpeg.override {
+    #     ffmpegVariant = "full"; # enable withFullDeps → full codecs/filters
+    #     withCuda = true; # turn on --enable-cuda
+    #     withNvenc = true; # turn on --enable-nvenc
+    #     withCuvid = true; # turn on --enable-cuvid
+    #   };
+    # })
+
+    # (self: super: {
     #   catboost = super.catboost.override {
     #     cudaSupport = true;
     #   };
     # })
-    (self: super: { blender = super.blender.override { cudaSupport = true; }; })
+    # (self: super: { blender = super.blender.override { cudaSupport = true; }; })
 
-    (self: super: {
-      torch-bin = super.python312Packages.torch-bin.override {
-        cudaPackages = cudaPackages;
-      };
-    })
-    (self: super: {
-      torchvision-bin = super.python312Packages.torchvision-bin.override {
-        torch-bin = torch-bin;
-      };
-    })
-    (self: super: {
-      torchaudio-bin = super.python312Packages.torchaudio-bin.override {
-        torch-bin = torch-bin;
-      };
-    })
-    (self: super: {
-      torchLightning = super.python312Packages.pytorch-lightning.override {
-        torch = torch-bin;
-      };
-    })
+    # (self: super: {
+    #   torch-bin = super.python312Packages.torch-bin.override {
+    #     cudaPackages = cudaPackages;
+    #   };
+    # })
+    # (self: super: {
+    #   torchvision-bin = super.python312Packages.torchvision-bin.override {
+    #     torch-bin = torch-bin;
+    #   };
+    # })
+    # (self: super: {
+    #   torchaudio-bin = super.python312Packages.torchaudio-bin.override {
+    #     torch-bin = torch-bin;
+    #   };
+    # })
+    # (self: super: {
+    #   torchLightning = super.python312Packages.pytorch-lightning.override {
+    #     torch = torch-bin;
+    #   };
+    # })
     # (self: super: {
     #   transformers = super.python312Packages.transformers.override {
     #     torch = torch-bin;
@@ -542,7 +560,7 @@ in {
     vim
     wget
     firefox
-    kate
+    kdePackages.kate
     httrack
     silver-searcher
     btop
@@ -554,7 +572,7 @@ in {
     git
     docker
     yt-dlp
-    obs-studio
+    (obs-studio.override { cudaSupport = true; })
     gron
     go-org
     groff
@@ -562,12 +580,14 @@ in {
     elinks
     fbida
     # texmacs
-    ghostwriter
+    kdePackages.ghostwriter
     (mumble.override { pulseSupport = true; })
 
     (ffmpeg.override {
       withJack = true;
-      withCuda = true;
+      withCuda = true; # turn on --enable-cuda
+      withNvenc = true; # turn on --enable-nvenc
+      withCuvid = true; # turn on --enable-cuvid
     })
     linuxKernel.packages.linux_6_6.v4l2loopback
     paprefs
@@ -627,7 +647,7 @@ in {
     freeplane
 
     # 3D art
-    blender
+    (blender.override { cudaSupport = true; })
 
     # 2D art
     krita
@@ -663,8 +683,9 @@ in {
     evtest
     xautomation
     woeusb-ng
-    ventoy-full
+    # ventoy-full
     bchunk
+    cachix
 
     # Comm utils
     cheese
@@ -694,7 +715,7 @@ in {
     # Video Editing
     kdePackages.kdenlive
     glaxnimate
-    davinci-resolve
+    # davinci-resolve
 
     # Web Dev
     deno
@@ -766,10 +787,10 @@ in {
     xclip
 
     # ML Tools
-    (unstable.ollama.override {
-      acceleration = "cuda";
-      cudaPackages = cudaPackages_11;
-    })
+    # (unstable.ollama.override {
+    #   acceleration = "cuda";
+    #   cudaPackages = cudaPackages_11;
+    # })
     # cudaPackages_12_2.cudatoolkit
     # cudaPackages_12_2.cuda_cudart
 
@@ -856,7 +877,7 @@ in {
 
     # Shopify
     # shopify-cli
-    function-runner
+    # function-runner
 
     # XFCE
     xfce.xfce4-whiskermenu-plugin
@@ -884,8 +905,8 @@ in {
     feh
     tmux
     volctl
-    okular
-    konsole
+    kdePackages.okular
+    kdePackages.konsole
     guake
     tilda
     zenity
@@ -1080,10 +1101,10 @@ in {
           # jupyterlab
           # nbconvert
           # pynput
-          torch-bin
-          torchvision-bin
-          torchaudio-bin
-          torchLightning
+          # torch-bin
+          # torchvision-bin
+          # torchaudio-bin
+          # torchLightning
           # vllm
           # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
           # transformersCustom
@@ -1159,7 +1180,7 @@ in {
 
     # GIMP
     gimp
-    gimpPlugins.gap
+    # gimpPlugins.gap
 
     # Octave
     # (let

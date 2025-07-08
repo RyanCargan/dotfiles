@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     # release2105.url = "github:NixOS/nixpkgs/nixos-21.05";
     release2111.url = "github:NixOS/nixpkgs/nixos-21.11";
@@ -19,8 +19,7 @@
       # 	    inherit system;
       # 	    config.allowUnfree = true;
       #       };
-      modules =
-        [ (import ./configuration.nix) ];
+      modules = [ (import ./configuration.nix) ];
       specialArgs = { inherit inputs; };
     };
   };
