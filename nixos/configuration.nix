@@ -1108,6 +1108,7 @@ in {
           # vllm
           # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
           # transformersCustom
+          vpk
         ];
       # ] ++ (with unstable.python312Packages;
       #   [
