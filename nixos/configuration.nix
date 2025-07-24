@@ -871,6 +871,7 @@ in {
     mednafen
     mame
     kega-fusion
+    unstable.xenia-canary
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
