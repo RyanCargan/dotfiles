@@ -7,16 +7,13 @@ with pkgs;
 let
   system = "x86_64-linux";
 
-  # custom-fonts = pkgs.stdenv.mkDerivation {
-  #   name = "custom-fonts";
-  #   version = "1.000";
-  #   src = /fonts;
-
-  #   installPhase = ''
-  #     mkdir -p $out/share/fonts/opentype/custom-fonts
-  #     cp -rv $src/* $out/share/fonts/opentype/custom-fonts
-  #   '';
-  # };
+  customFFmpeg = pkgs.ffmpeg.override {
+    withJack = true;
+    withCuda = true;
+    withNvenc = true;
+    withCuvid = true;
+    ffmpegVariant = "full";
+  };
 
   RStudio-with-my-packages = rstudioWrapper.override {
     packages = with rPackages; [
@@ -289,50 +286,6 @@ in {
     wireplumber.enable = true;
   };
 
-  # services.pipewire.enable = false;
-  # hardware.pulseaudio.enable = false;
-  # hardware.pulseaudio.support32Bit =
-  # false; # # If compatibility with 32-bit applications is desired.
-  # hardware.pulseaudio.package =
-  #   pkgs.pulseaudio.override { jackaudioSupport = true; };
-  # services.jack = {
-  #   jackd.enable = true;
-  #   # support ALSA only programs via ALSA JACK PCM plugin
-  #   alsa.enable = false;
-  #   # support ALSA only programs via loopback device (supports programs like Steam)
-  #   loopback = {
-  #     enable = true;
-  #     # buffering parameters for dmix device to work with ALSA only semi-professional sound programs
-  #     #dmixConfig = ''
-  #     #  period_size 2048
-  #     #'';
-  #   };
-  # };
-  # services.pipewire.pulse.enable = true;
-  # services.pipewire.extraConfig.pipewire = {
-  #   "10-latency-tuning" =
-  #     { # You can name this section anything, e.g., "latency-optimizations"
-  #       "context.properties" = {
-  #         "default.clock.rate" = 48000; # Example: Set sample rate to 48kHz
-  #         "default.clock.quantum" =
-  #           256; # Example: Reduce quantum to 256 (from default 1024) - Start here!
-  #         "default.clock.min-quantum" =
-  #           64; # Example: Reduce min-quantum to 64 (from default 16/32) - Be cautious!
-  #         "link.max-buffers" =
-  #           16; # Example: Reduce max buffers to 16 (from default 64) - Try this too!
-  #       };
-  #     };
-  # };
-  # sound.enable = true;
-  # hardware.pulseaudio.package = pkgs.pulseaudioFull.override { bluetoothSupport = false; };
-  # hardware.pulseaudio.enable = true;
-  # hardware.pulseaudio.support32Bit = true;
-  # nixpkgs.config.pulseaudio = true;
-  # hardware.pulseaudio.extraConfig = ''
-  #   load-module module-combine-sink
-  #   unload-module module-suspend-on-idle
-  # '';
-
   # Enable Bluetooth
   hardware.bluetooth.enable = false;
   services.blueman.enable = false;
@@ -402,146 +355,6 @@ in {
       st = super.st.overrideAttrs (oa: rec { patches = [ ]; });
     })
 
-    # nix-direnv
-    # (self: super: { nix-direnv = super.nix-direnv.override { enableFlakes = true; }; })
-
-    # CUDA support
-    # (self: super: {
-    #   blender = super.blender.override {
-    #     cudaSupport = true;
-    #     # cudaPackages will inherit pkgs.cudaPackages
-    #   };
-
-    #   obs-studio = super.obs-studio.override { cudaSupport = true; };
-
-    #   ffmpeg = super.ffmpeg.override {
-    #     ffmpegVariant = "full"; # enable withFullDeps → full codecs/filters
-    #     withCuda = true; # turn on --enable-cuda
-    #     withNvenc = true; # turn on --enable-nvenc
-    #     withCuvid = true; # turn on --enable-cuvid
-    #   };
-    # })
-
-    # (self: super: {
-    #   catboost = super.catboost.override {
-    #     cudaSupport = true;
-    #   };
-    # })
-    # (self: super: { blender = super.blender.override { cudaSupport = true; }; })
-
-    # (self: super: {
-    #   torch-bin = super.python312Packages.torch-bin.override {
-    #     cudaPackages = cudaPackages;
-    #   };
-    # })
-    # (self: super: {
-    #   torchvision-bin = super.python312Packages.torchvision-bin.override {
-    #     torch-bin = torch-bin;
-    #   };
-    # })
-    # (self: super: {
-    #   torchaudio-bin = super.python312Packages.torchaudio-bin.override {
-    #     torch-bin = torch-bin;
-    #   };
-    # })
-    # (self: super: {
-    #   torchLightning = super.python312Packages.pytorch-lightning.override {
-    #     torch = torch-bin;
-    #   };
-    # })
-    # (self: super: {
-    #   transformers = super.python312Packages.transformers.override {
-    #     torch = torch-bin;
-    #     torchaudio = torchaudio-bin;
-    #     torchvision = torchvision-bin;
-    #   };
-    # })
-    # (self: super: {
-    #   transformers = super.python312Packages.transformers.override {
-    #     torch = self.torch-bin;
-    #     torchaudio = self.torchaudio-bin;
-    #     torchvision = self.torchvision-bin;
-    #   }.overridePythonAttrs (old: rec {
-    #     version = "4.49.0-Gemma-3";
-    #     src = super.fetchFromGitHub {
-    #       owner = "huggingface";
-    #       repo = "transformers";
-    #       tag = "v${version}";
-    #       sha256 = "sha256-XYZXYZXYZ";
-    #     };
-    #   });
-    # })
-
-    # (self: super: {
-    #   tokenizersCustom = super.python312Packages.tokenizers.overridePythonAttrs
-    #     (old: rec {
-    #       version = "0.21.0"; # Ensure this matches the required version range
-    #       src = super.fetchFromGitHub {
-    #         owner = "huggingface";
-    #         repo = "tokenizers";
-    #         rev = "v${version}";
-    #         hash =
-    #           "sha256-G65XiVlvJXOC9zqcVr9vWamUnpC0aa4kyYkE2v1K2iY="; # Replace with the correct hash
-    #       };
-    #       cargoHash = ""; # Temporarily set to empty
-    #     });
-
-    #   transformersCustom =
-    #     super.python312Packages.transformers.overridePythonAttrs (old: rec {
-    #       version = "4.49.0-Gemma-3";
-    #       src = super.fetchFromGitHub {
-    #         owner = "huggingface";
-    #         repo = "transformers";
-    #         rev = "v${version}";
-    #         hash = "sha256-vuUL0b0dyb5AUEDFtY4nMyI+Sye7y7EOuGd1hvr+7XM=";
-    #       };
-    #       propagatedBuildInputs = (old.propagatedBuildInputs or [ ])
-    #         ++ [ self.tokenizersCustom ];
-    #     });
-    # })
-
-    # (self: super: {
-    #   python312Packages = super.python312Packages.overrideScope'
-    #     (pself: psuper: {
-    #       tokenizers = psuper.tokenizers.overridePythonAttrs (old: rec {
-    #         version = "0.21.0"; # Use the required version
-    #         src = super.fetchFromGitHub {
-    #           owner = "huggingface";
-    #           repo = "tokenizers";
-    #           rev = "v${version}";
-    #           hash = "sha256-G65XiVlvJXOC9zqcVr9vWamUnpC0aa4kyYkE2v1K2iY=";
-    #         };
-    #       });
-
-    #       transformers = psuper.transformers.overridePythonAttrs (old: rec {
-    #         version = "4.49.0-Gemma-3";
-    #         src = super.fetchFromGitHub {
-    #           owner = "huggingface";
-    #           repo = "transformers";
-    #           rev = "v${version}";
-    #           hash = "sha256-vuUL0b0dyb5AUEDFtY4nMyI+Sye7y7EOuGd1hvr+7XM=";
-    #         };
-    #       });
-    #     });
-    # })
-
-    # (self: super: {
-    #   vllm = super.unstable.python312Packages.vllm.override {
-    #     cudaSupport = true;
-    #     torch = torch-bin;
-    #     torchvision = torchvision-bin;
-    #     torchaudio = torchaudio-bin;
-    #     version = "0.7.1"; # Set the desired downgraded version
-    #     src = super.fetchFromGitHub {
-    #       owner = "vllm-project";
-    #       repo = "vllm";
-    #       tag = "v0.7.1"; # Match the tag to the desired version
-    #       hash =
-    #         "sha256-<INSERT_CORRECT_HASH_HERE>"; # Replace with correct hash
-    #     };
-    #   };
-    # })
-
   ];
 
   fonts.packages = with pkgs; [
@@ -549,7 +362,6 @@ in {
     liberation_ttf
     dejavu_fonts
     open-sans
-    # custom-fonts
   ];
   fonts.fontDir.enable = true;
 
@@ -583,12 +395,6 @@ in {
     kdePackages.ghostwriter
     (mumble.override { pulseSupport = true; })
 
-    (ffmpeg.override {
-      withJack = true;
-      withCuda = true; # turn on --enable-cuda
-      withNvenc = true; # turn on --enable-nvenc
-      withCuvid = true; # turn on --enable-cuvid
-    })
     linuxKernel.packages.linux_6_6.v4l2loopback
     paprefs
     gparted
@@ -603,7 +409,6 @@ in {
     root
     # sageWithDoc
     nyxt
-    # unstable.nomacs
     maim
     yacreader
     tigervnc
@@ -617,18 +422,10 @@ in {
     unstable.tor-browser-bundle-bin
     busybox
     electron
-    # electron_30-bin
     nodePackages.asar
     nixfmt-classic
 
     # Virtualization
-    # (pkgs.stdenv.mkDerivation {
-    #   name = "virtiofsd-link";
-    #   buildCommand = ''
-    #     mkdir -p $out/bin
-    #     ln -s ${pkgs.qemu}/libexec/virtiofsd $out/bin/
-    #   '';
-    # })
     remmina
 
     # Flakes
@@ -647,10 +444,11 @@ in {
     freeplane
 
     # 3D art
-    (blender.override { cudaSupport = true; })
+    (unstable.blender.override { cudaSupport = true; })
 
     # 2D art
     krita
+    opentabletdriver
 
     # Audio & video comms
     (mumble.override { pulseSupport = true; })
@@ -683,7 +481,6 @@ in {
     evtest
     xautomation
     woeusb-ng
-    # ventoy-full
     bchunk
     cachix
 
@@ -701,19 +498,16 @@ in {
     nginx
 
     # Editors
-    # marktext # Markdown
-    # apostrophe # Markdown
-    # jetbrains.idea-community # Java
     languagetool
     vale
-    # unstable.obsidian
 
     # Rec utils
     simplescreenrecorder
     peek
 
     # Video Editing
-    kdePackages.kdenlive
+    customFFmpeg
+    (kdePackages.kdenlive.override { "ffmpeg-full" = customFFmpeg; })
     glaxnimate
     # davinci-resolve
 
@@ -786,26 +580,9 @@ in {
     xorg.xdpyinfo
     xclip
 
-    # ML Tools
-    # (unstable.ollama.override {
-    #   acceleration = "cuda";
-    #   cudaPackages = cudaPackages_11;
-    # })
-    # cudaPackages_12_2.cudatoolkit
-    # cudaPackages_12_2.cuda_cudart
-
     # AWS tools
     awscli2
     minio
-
-    # Azure tools
-    # azure-cli
-    # azuredatastudio
-
-    # IaC
-    # terraform
-    # terraform-providers.aws
-    # terraform-providers.cloudflare
 
     # Xorg tools
     xorg.xmessage
@@ -830,21 +607,8 @@ in {
     # --- steamtinkerlaunch deps
     xorg.xwininfo
     yad
-    # unixtools.xxd
     xorg.xrandr
     xorg.xprop
-    # xdotool
-    # wget
-    # unzip
-    # pgrep?
-    # make?
-    # git?
-    # bash?
-    # awk?
-    # ---
-    # gamescope
-    # gamemode
-    # mangohud
 
     # Programming utils
     bintools-unwrapped # Tools for manipulating binaries (linker, assembler, etc.)
@@ -857,13 +621,7 @@ in {
     libgccjit
     gnumake # A tool to control the generation of non-source files from sources
     pkg-config
-    # mdk # GNU MIX Development Kit (MDK)
-    # racket # A programmable programming language
-    # chicken # A portable compiler for the Scheme programming language
     release2111.renpy # Ren'Py Visual Novel Engine
-    # nwjs-sdk # An app runtime based on Chromium and node.js
-    # arrayfire
-    # forge
 
     # Stable Diffusion Deps
     gperftools
@@ -996,24 +754,14 @@ in {
     djvu2pdf
     djvulibre
 
-    # AI tools
-    # openai-whisper # Use distilled model for now
-
-    # Terminals
-    # hyper
-
     # DB utils
     dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
-    # unstable.azuredatastudio
     sqlite
     sqldiff
     isso # FOSS Disqus clone
     sqlitecpp
-    # github-to-sqlite
     sqlite-utils
     sqlitebrowser
-    # jmeter
-    # mariadb-client
     postgresql_16
 
     # GIS utils
@@ -1026,9 +774,6 @@ in {
 
     # Office software
     libreoffice-fresh
-    # beancount
-    # fava
-    # fontforge
 
     # Media players
     vlc # Video
@@ -1053,9 +798,6 @@ in {
     # gnumeric
 
     # JVM
-    # unstable.jdk20_headless
-    # jdk17
-    # oraclejdk8
     jdk21
     maven
     xorg.libXxf86vm
@@ -1063,88 +805,25 @@ in {
     # Python 3
     (let
 
-      # Define fake-bpy-module-4.2 as a Nix package:
-      # fake-bpy-module-4_2-pkg = python311.pkgs.buildPythonPackage rec {
-      #   pname = "fake_bpy_module_4_2"; # Nix package name (underscores)
-      #   version = "";
-      #   format =
-      #     "wheel"; # Specify wheel format for direct installation (if available)
-      #   src = pkgs.fetchPypi {
-      #     pname = "fake_bpy_module_4_2"; # PyPI name (hyphens)
-      #     version = "20250130";
-      #     sha256 =
-      #       "sha256-mjTzV6Ih3aDHkW0FUQ0fkdUxl1w/QiW1OJMqxo0fQWs="; # Replace with your actual sha256 hash
-      #   };
-      #   propagatedBuildInputs = with python311.pkgs;
-      #     [
-      #       typing-extensions # Dependency from Nixpkgs
-      #     ];
-      # };
-
       my-python-packages = python-packages:
         with python-packages; [
-          # fonttools
           pyside6
           pygame
           matplotlib
           evdev
           python-uinput
-          # pillow
-          # pytesseract
-          # databricks-cli
-          # catboost
-          # networkx
-          # flask
-          # numpy
-          # scikit-learn
-          # opencv4
-          # jupyterlab
-          # nbconvert
-          # pynput
-          # torch-bin
-          # torchvision-bin
-          # torchaudio-bin
-          # torchLightning
-          # vllm
-          # fake-bpy-module-4_2-pkg # Include the newly defined Nix package here!
-          # transformersCustom
           vpk
         ];
-      # ] ++ (with unstable.python312Packages;
-      #   [
-      #     # Optionally pull some packages from unstable
-      #     transformers
-      #   ]);
       python-with-my-packages = python312.withPackages my-python-packages;
     in python-with-my-packages)
     poetry
 
-    # CUDA
-    # cudaPackages_11.cudatoolkit
-    # cudaPackages_11.cuda_cudart
-    # cudaPackages_11.libcublas
-    # cudaPackages_11.cudnn
-    # cudaPackages_11.cuda_cuBLASLt
-    # cudaPackages_11.libcurand
-    # cudaPackages_11.libcusolver
-    # cudaPackages_11.libcusparse
-    # cudaPackages_11.cuda_nvrtc
-
-    # Containers
-    # kube3d
-    # kubectl
-    # kubernetes-helm
-
     # Misc Tools
-    # graalvm-ce
     scribus
     exe2hex
 
     # ML Tools
     fasttext
-    # libtorch-bin
-    # torch
-    # torchLightning
 
     # Conda
     conda
@@ -1168,30 +847,8 @@ in {
     valgrind
     gdb
 
-    # Coq
-    # coq
-    # coqPackages.mathcomp
-
-    # TLA+
-    # tlaplusToolbox
-
-    # Mathematics
-    # lean4
-    # unstable.elan
-
     # GIMP
     gimp
-    # gimpPlugins.gap
-
-    # Octave
-    # (let
-    #   my-octave-packages = octave-packages:
-    #     with octave-packages; [
-    #       general
-    #       symbolic
-    #     ];
-    #   octave-with-my-packages = octave.withPackages my-octave-packages;
-    # in octave-with-my-packages)
 
     # PHP
     php81
@@ -1201,7 +858,6 @@ in {
     unstable.vscode-fhs
 
     # Games
-    # cataclysm-dda
     gzdoom
     unstable.quakespasm
     darkplaces
