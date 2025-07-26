@@ -524,6 +524,18 @@ in {
     nodejs_20
     ruby
 
+    # Game Dev
+    butler
+
+    # Profiling
+    linuxPackages.perf
+    flamegraph
+    hotspot
+    sysprof
+    bpftrace
+    trace-cmd
+    kernelshark
+
     # Fun stuff
     duktape
     kotlin
@@ -872,6 +884,8 @@ in {
     mame
     kega-fusion
     unstable.xenia-canary
+    cemu
+    unstable.mame
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
