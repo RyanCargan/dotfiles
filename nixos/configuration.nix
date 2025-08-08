@@ -523,6 +523,7 @@ in {
     mkcert
     nodejs_20
     ruby
+    filezilla
 
     # Game Dev
     butler
