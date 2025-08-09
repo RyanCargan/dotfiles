@@ -232,6 +232,7 @@ in {
       gamescope
       steamtinkerlaunch
       # xorg.xwininfo
+      vkbasalt
     ];
   };
   services.logmein-hamachi.enable = true;
@@ -617,6 +618,7 @@ in {
     # Steam tools
     protontricks
     steamtinkerlaunch
+    vkbasalt-cli
     # --- steamtinkerlaunch deps
     xorg.xwininfo
     yad
