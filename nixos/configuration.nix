@@ -389,7 +389,6 @@ in {
     gron
     go-org
     groff
-    direnv
     elinks
     fbida
     # texmacs
