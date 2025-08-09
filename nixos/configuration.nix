@@ -867,6 +867,9 @@ in {
       plugins = with gimpPlugins; [ gmic resynthesizer ];
     })
 
+    # Misc Image Tools
+    openimageio
+
     # PHP
     php81
     php81Packages.composer
