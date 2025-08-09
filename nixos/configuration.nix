@@ -863,7 +863,9 @@ in {
     gdb
 
     # GIMP
-    gimp
+    (gimp-with-plugins.override {
+      plugins = with gimpPlugins; [ gmic resynthesizer ];
+    })
 
     # PHP
     php81
