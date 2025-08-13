@@ -9,6 +9,7 @@
     # pythonOnNix.inputs.nixpkgs.follows = "nixpkgs";
     # blender.url = "github:edolstra/nix-warez?dir=blender"; # Don't pass to outputs since it isn't used immediately
     # poetry2nix.url = "github:nix-community/poetry2nix/1.26.0";
+    firefox.url = "github:nix-community/flake-firefox-nightly";
   };
   outputs = { self, nixpkgs, ... }@inputs: {
     #     nixpkgs.config.allowUnfree = true;

@@ -432,6 +432,7 @@ in {
     # inputs.blender.packages.x86_64-linux.default
     # inputs.poetry2nix.packages.x86_64-linux.poetry2nix
     # release2105.dos2unix
+    inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin
 
     # nix-direnv
     direnv
