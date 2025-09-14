@@ -83,8 +83,9 @@ in {
   # Storage optimization.
   nix.settings.auto-optimise-store = true;
 
-  # Limit CPU usage during builds
-  nix.settings.cores = 4;
+  # Limit CPU & RAM usage during builds
+  nix.settings.cores = 3;
+  nix.settings.max-jobs = 2;
 
   # Cache
   nix.settings.substituters = [
@@ -97,6 +98,8 @@ in {
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
 
   ];
+
+  nix.settings.trusted-users = [ "root" "ryan" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
