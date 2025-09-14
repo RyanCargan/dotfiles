@@ -23,7 +23,7 @@ export PATH=$HOME/Tools:$PATH
 export PATH=$HOME/Tools/cabbage/bin:$PATH
 
 # Man page settings
-export BROWSER=google-chrome-stable
+export BROWSER=firefox-nightly
 alias man-web='man --html'
 
 # Nix
