@@ -55,6 +55,7 @@ in {
       keep-derivations = true
     '';
     registry.nixpkgs.flake = inputs.nixpkgs;
+    package = pkgs.nixVersions.nix_2_30;
   };
 
   nixpkgs.config = {
