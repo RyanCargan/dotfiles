@@ -832,6 +832,7 @@ in {
           evdev
           python-uinput
           vpk
+          pysdl2
         ];
       python-with-my-packages = python312.withPackages my-python-packages;
     in python-with-my-packages)
