@@ -102,6 +102,8 @@ in {
 
   nix.settings.trusted-users = [ "root" "ryan" ];
 
+  nix.settings.system-features = [ "kvm" ];
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -110,7 +112,10 @@ in {
   boot.supportedFilesystems = [ "ntfs" ];
 
   # Enable kernel modules
-  boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" ];
+  boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
+
+  # Kernel params
+  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
 
   # Set users.
   users.users.ryan = {
@@ -119,6 +124,7 @@ in {
     extraGroups = [
       "wheel"
       "libvirtd"
+      "kvm"
       "qemu-libvirtd"
       "audio"
       "video"
@@ -183,6 +189,9 @@ in {
 
   # Enable virtualization.
   virtualisation.libvirtd.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
+  programs.virt-manager.enable = true;
+  users.groups.libvirtd.members = [ "ryan" ];
   boot.extraModprobeConfig =
     "options kvm_amd nested=1"; # Nested virtualization (requires AMD-V).
   virtualisation.lxd.enable = false;
@@ -190,7 +199,6 @@ in {
     enable = true;
     # enableNvidia = true; # Deprecated
   };
-  # boot.kernelModules = [ "kvm-amd" "kvm-intel" ]; # Only needed if kvm-amd/intel is not set in hardware-configuration.nix AFAIK.
 
   # Allow proprietary packages
   # nixpkgs.config.cudaSupport = false;
@@ -207,6 +215,7 @@ in {
         "bsl11"
         "bsd3"
         "issl"
+        "obsidian"
       ]) (if builtins.isList p.meta.license then
         p.meta.license
       else
@@ -252,7 +261,11 @@ in {
 
   # Enable NVIDIA drivers
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.open = false;
+  hardware.nvidia = {
+    open = false;
+    powerManagement.enable = true;
+    nvidiaSettings = true;
+  };
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [ libGL ];
@@ -260,6 +273,10 @@ in {
     # setLdLibraryPath = true;
   };
   hardware.nvidia-container-toolkit.enable = true;
+  hardware.opentabletdriver = {
+    enable = true;
+    daemon.enable = true;
+  };
 
   services.xserver = {
     enable = true;
@@ -479,6 +496,7 @@ in {
 
     # Security
     clamav
+    sparrow
 
     # Sys utils
     inxi
@@ -529,6 +547,8 @@ in {
     nodejs_20
     ruby
     filezilla
+    pnpm
+    webkitgtk_4_1
 
     # Game Dev
     butler
@@ -772,6 +792,7 @@ in {
     exiftool
     djvu2pdf
     djvulibre
+    obsidian
 
     # DB utils
     dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
@@ -833,6 +854,7 @@ in {
           python-uinput
           vpk
           pysdl2
+          uv
         ];
       python-with-my-packages = python312.withPackages my-python-packages;
     in python-with-my-packages)
@@ -844,6 +866,7 @@ in {
 
     # ML Tools
     fasttext
+    cudaPackages.cuda_nvcc
 
     # Conda
     conda
@@ -866,6 +889,12 @@ in {
     lldb_14
     valgrind
     gdb
+
+    # Nim
+    nim
+    nimble
+    nph
+    nimlangserver
 
     # GIMP
     (gimp-with-plugins.override {

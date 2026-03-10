@@ -1,3 +1,4 @@
+# shellcheck disable=SC2148
 # Path
 # PATH=/run/current-system/sw/bin:$PATH
 
@@ -38,6 +39,13 @@ alias list-path='tr ":" "\n" <<< "$PATH"'
 # PostgreSQL database config
 export PGUSER=admin
 export PGDATABASE=central
+
+# UV
+export UV_LINK_MODE="clone"
+export UV_CACHE_DIR="/run/media/ryan/nixos/.cache/uv/"
+export UV_PYTHON_PREFERENCE="only-managed"
+export UV_CONCURRENT_DOWNLOADS="3"
+export UV_NATIVE_TLS="1"
 
 # Java config
 # export JAVA_HOME=$(readlink -e $(type -p javac) | sed  -e 's/\/bin\/javac//g')
@@ -225,11 +233,11 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
-export PNPM_HOME="/home/ryan/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# export PNPM_HOME="/home/ryan/.local/share/pnpm"
+# case ":$PATH:" in
+#   *":$PNPM_HOME:"*) ;;
+#   *) export PATH="$PNPM_HOME:$PATH" ;;
+# esac
 # pnpm end
 
 # >>> conda initialize >>>
@@ -249,7 +257,7 @@ esac
 
 # tabtab source for packages
 # uninstall by removing these lines
-[ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
+# [ -f ~/.config/tabtab/bash/__tabtab.bash ] && . ~/.config/tabtab/bash/__tabtab.bash || true
 
 eval "$(direnv hook bash)"
 
