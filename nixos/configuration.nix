@@ -295,9 +295,6 @@ in {
       xterm.enable = false;
       xfce.enable = true;
     };
-    deviceSection = ''
-      Option "Coolbits" "28"
-    '';
   };
   services.displayManager.defaultSession = "xfce";
 
@@ -315,7 +312,7 @@ in {
   };
 
   services.xserver.displayManager.sessionCommands = ''
-    nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffsetAllFreqs=-100'
+    nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffset[3]=-100'
   '';
 
   services.gvfs = {
