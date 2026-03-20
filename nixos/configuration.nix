@@ -265,7 +265,18 @@ in {
     open = false;
     powerManagement.enable = true;
     nvidiaSettings = true;
+    nvidiaPersistenced = true;
+    modesetting.enable = true;
   };
+
+  services.xserver.extraConfig = ''
+    Section "Device"
+      Identifier "Device0"
+      Driver     "nvidia"
+      Option     "Coolbits" "28"
+    EndSection
+  '';
+
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [ libGL ];
@@ -284,8 +295,28 @@ in {
       xterm.enable = false;
       xfce.enable = true;
     };
+    deviceSection = ''
+      Option "Coolbits" "28"
+    '';
   };
   services.displayManager.defaultSession = "xfce";
+
+  systemd.services.nvidia-tdp = {
+    description = "Set NVIDIA power limit";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "nvidia-persistenced.service" ];
+    requires = [ "nvidia-persistenced.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart =
+        "${config.hardware.nvidia.package.bin}/bin/nvidia-smi -i 0 --power-limit=95";
+    };
+  };
+
+  services.xserver.displayManager.sessionCommands = ''
+    nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffsetAllFreqs=-100'
+  '';
 
   services.gvfs = {
     enable = true;
