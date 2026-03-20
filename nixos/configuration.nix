@@ -269,11 +269,12 @@ in {
     modesetting.enable = true;
   };
 
-  services.xserver.extraConfig = ''
-    Section "Device"
-      Identifier "Device0"
-      Driver     "nvidia"
-      Option     "Coolbits" "28"
+  environment.etc."X11/xorg.conf.d/20-nvidia-coolbits.conf".text = ''
+    Section "OutputClass"
+      Identifier "nvidia"
+      MatchDriver "nvidia-drm"
+      Driver      "nvidia"
+      Option      "Coolbits" "28"
     EndSection
   '';
 
@@ -733,6 +734,7 @@ in {
     kdePackages.okular
     kdePackages.konsole
     guake
+    tilix
     tilda
     zenity
     virtualgl
