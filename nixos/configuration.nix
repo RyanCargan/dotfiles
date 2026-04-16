@@ -160,6 +160,22 @@ in {
   # Set your time zone.
   time.timeZone = "Asia/Colombo";
 
+  # Proton memory fix
+  security.pam.loginLimits = [
+    {
+      domain = "ryan";
+      type = "soft";
+      item = "nofile";
+      value = "524288";
+    }
+    {
+      domain = "ryan";
+      type = "hard";
+      item = "nofile";
+      value = "524288";
+    }
+  ];
+
   # SSD
   services.fstrim.enable = true;
 
@@ -344,6 +360,9 @@ in {
   # Paprefs fix.
   programs.dconf.enable = true; # + gnome3.dconf
 
+  # Dynamic linking fix
+  programs.nix-ld.enable = true;
+
   # D-Bus
   services.gnome.gnome-keyring.enable = true;
 
@@ -517,6 +536,7 @@ in {
     audacity
     lmms
     csound
+    sox
 
     ## Language servers
     ccls
@@ -938,8 +958,9 @@ in {
     php81
     php81Packages.composer
 
-    # VS Code
+    # IDEs
     unstable.vscode-fhs
+    unstable.zed-editor-fhs
 
     # Games
     gzdoom
