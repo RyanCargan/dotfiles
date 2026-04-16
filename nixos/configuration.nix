@@ -181,7 +181,11 @@ in {
 
   # Flatpak
   services.flatpak.enable = true;
-  xdg.portal.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";
+  };
 
   # Teamviewer
   services.teamviewer.enable = true;
