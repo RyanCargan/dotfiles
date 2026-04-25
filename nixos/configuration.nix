@@ -559,6 +559,8 @@ in {
     woeusb-ng
     bchunk
     cachix
+    nix-ld
+    nil
 
     # Comm utils
     cheese
