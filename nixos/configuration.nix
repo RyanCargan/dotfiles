@@ -366,6 +366,10 @@ in {
 
   # Dynamic linking fix
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    openssl
+    # Add other common libraries if needed, e.g., zlib, curl, stdenv.cc.cc
+  ];
 
   # D-Bus
   services.gnome.gnome-keyring.enable = true;
@@ -445,7 +449,7 @@ in {
   environment.systemPackages = with pkgs; [
     vim
     wget
-    firefox
+    # firefox
     kdePackages.kate
     httrack
     silver-searcher
@@ -475,13 +479,13 @@ in {
     emscripten
     wasmer
     # nvidia-docker
-    pyspread
+    # pyspread
     inkscape
     neovim
     calibre
-    root
+    # root
     # sageWithDoc
-    nyxt
+    # nyxt
     maim
     yacreader
     tigervnc
@@ -494,7 +498,7 @@ in {
     google-chrome
     unstable.tor-browser-bundle-bin
     busybox
-    electron
+    # electron
     nodePackages.asar
     nixfmt-classic
 
@@ -521,7 +525,7 @@ in {
     (unstable.blender.override { cudaSupport = true; })
 
     # 2D art
-    krita
+    # krita
     opentabletdriver
 
     # Audio & video comms
@@ -561,6 +565,8 @@ in {
     cachix
     nix-ld
     nil
+    nixd
+    llvmPackages_18.clang-tools
 
     # Comm utils
     cheese
@@ -623,7 +629,7 @@ in {
 
     # Android Dev
     wmname # Java app GUI issue fix
-    android-studio
+    # android-studio
     gradle
     android-tools
     watchman
@@ -715,7 +721,7 @@ in {
     libgccjit
     gnumake # A tool to control the generation of non-source files from sources
     pkg-config
-    release2111.renpy # Ren'Py Visual Novel Engine
+    # release2111.renpy # Ren'Py Visual Novel Engine
 
     # Stable Diffusion Deps
     gperftools
@@ -858,7 +864,7 @@ in {
     sqlitecpp
     sqlite-utils
     sqlitebrowser
-    postgresql_16
+    # postgresql_16
 
     # GIS utils
     qgis
@@ -869,7 +875,7 @@ in {
     libsForQt5.ark # Archive manager
 
     # Office software
-    libreoffice-fresh
+    # libreoffice-fresh
 
     # Media players
     vlc # Video
@@ -888,7 +894,7 @@ in {
     nss
 
     # R
-    RStudio-with-my-packages
+    # RStudio-with-my-packages
 
     # Spreadsheet conversion
     # gnumeric
@@ -925,7 +931,7 @@ in {
     cudaPackages.cuda_nvcc
 
     # Conda
-    conda
+    # conda
 
     # Rust
     rustup
@@ -980,7 +986,7 @@ in {
     winetricks
     playonlinux
     mednafen
-    mame
+    # mame
     kega-fusion
     unstable.xenia-canary
     cemu
