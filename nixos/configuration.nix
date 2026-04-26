@@ -547,6 +547,7 @@ in {
     nil
     nixd
     llvmPackages_20.clang-tools
+    starship
 
     # Comm utils
     cheese

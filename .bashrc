@@ -262,3 +262,5 @@ export NVM_DIR="$HOME/.nvm"
 eval "$(direnv hook bash)"
 
 complete -C /home/ryan/Tools/terraform terraform
+
+eval "$(starship init bash)"
