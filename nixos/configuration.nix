@@ -566,7 +566,7 @@ in {
     nix-ld
     nil
     nixd
-    llvmPackages_18.clang-tools
+    llvmPackages_20.clang-tools
 
     # Comm utils
     cheese
@@ -947,7 +947,7 @@ in {
     uncrustify
     cmake
     ninja
-    clang_14
+    clang_20
     lldb_14
     valgrind
     gdb
