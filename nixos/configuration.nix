@@ -15,32 +15,6 @@ let
     ffmpegVariant = "full";
   };
 
-  RStudio-with-my-packages = rstudioWrapper.override {
-    packages = with rPackages; [
-      ggplot2
-      dplyr
-      tidyr
-      xts
-      lubridate
-      readr
-      readxl
-      randomForest
-      mice
-      FactoMineR
-      rstudioapi
-      here
-      gt
-      kableExtra
-      data_table
-      mltools
-      fastDummies
-      gridExtra
-      corrplot
-      plyr
-      reshape2
-    ];
-  };
-
 in {
   imports = [
     # Include the results of the hardware scan.
@@ -371,6 +345,12 @@ in {
     # Add other common libraries if needed, e.g., zlib, curl, stdenv.cc.cc
   ];
 
+  # Direnv
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;  # caches the nix dev env, much faster reloads
+  };
+
   # D-Bus
   services.gnome.gnome-keyring.enable = true;
 
@@ -512,8 +492,8 @@ in {
     inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin
 
     # nix-direnv
-    direnv
-    nix-direnv
+    # direnv
+    # nix-direnv
 
     # Educational software
     anki-bin
