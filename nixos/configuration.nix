@@ -590,7 +590,7 @@ in
     speedtest-cli
     # insomnia
     mkcert
-    nodejs_20
+    nodejs_22
     ruby
     filezilla
     pnpm
