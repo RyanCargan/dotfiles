@@ -212,6 +212,7 @@ in
           "bsd3"
           "issl"
           "obsidian"
+          "claude"
         ])
       (if builtins.isList p.meta.license then
         p.meta.license
@@ -962,6 +963,7 @@ in
     unstable.vscode-fhs
     # zed-editor-fhs
     inputs.zed-fork.packages.${pkgs.system}.default
+    inputs.claude-fork.packages.${pkgs.system}.default
 
     # Games
     gzdoom

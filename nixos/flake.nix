@@ -11,6 +11,7 @@
     # poetry2nix.url = "github:nix-community/poetry2nix/1.26.0";
     firefox.url = "github:nix-community/flake-firefox-nightly";
     zed-fork.url = "github:RyanCargan/zed";
+    claude-fork.url = "github:RyanCargan/nix-claude-code";
   };
   outputs = { self, nixpkgs, ... }@inputs: {
     #     nixpkgs.config.allowUnfree = true;
