@@ -90,7 +90,7 @@ in
   boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
 
   # Kernel params
-  boot.kernelParams = [ "mem_sleep_default=s2idle" ];
+  boot.kernelParams = [ "mem_sleep_default=deep" ];
 
   # Set users.
   users.users.ryan = {
@@ -862,6 +862,7 @@ in
 
     # Office software
     # libreoffice-fresh
+    # rclone
 
     # Media players
     vlc # Video
