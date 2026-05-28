@@ -90,7 +90,7 @@ in
   boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
 
   # Kernel params
-  boot.kernelParams = [ "mem_sleep_default=deep" ];
+  boot.kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" ];
 
   # Set users.
   users.users.ryan = {
