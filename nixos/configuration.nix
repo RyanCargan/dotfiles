@@ -348,7 +348,11 @@ in
     desktopManager.xterm.enable = false;
     # Removed XFCE components here to prevent corruption loop
   };
-
+  # Enable SDDM with Wayland support
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true; # Forces the login screen itself to run on Wayland
+  };
   # 3. Direct Display Manager to hand off keys to Hyprland instead of XFCE
   services.displayManager.defaultSession = "hyprland";
 
