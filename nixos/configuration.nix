@@ -554,6 +554,7 @@ in
     wl-clipboard # Clipboard manager replacement for xclip
     grim # Core screenshot utility to replace maim/screenshooter
     slurp # Allows region selection for grim screenshots
+    swappy # Snapshot editor
     hyprpaper # Fast, low-overhead wallpaper daemon to replace feh
     hyprlock # Secure lock screen to replace xfce4-screensaver
 
