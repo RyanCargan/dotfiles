@@ -336,20 +336,24 @@ in
     daemon.enable = true;
   };
 
-  services.xserver = {
+  # 1. Enable Hyprland Composite Window Manager
+  programs.hyprland = {
     enable = true;
-    desktopManager = {
-      xterm.enable = false;
-      xfce = {
-        enable = true;
-        enableScreensaver = true; # Enforces safe, native xfce4-screensaver
-      };
-    };
+    xwayland.enable = true; # Critical for running your X11 games/tools smoothly
   };
-  services.displayManager.defaultSession = "xfce";
 
-  # Gives xfce4-screensaver permission to verify your password hash on unlock
-  security.pam.services.xfce4-screensaver.unixAuth = true;
+  # 2. Update Display Server Roles
+  services.xserver = {
+    enable = true; # Keep this true so your Display Manager can spin up
+    desktopManager.xterm.enable = false;
+    # Removed XFCE components here to prevent corruption loop
+  };
+
+  # 3. Direct Display Manager to hand off keys to Hyprland instead of XFCE
+  services.displayManager.defaultSession = "hyprland";
+
+  # 4. Swap screen locker verification permissions from XFCE to Hyprlock
+  security.pam.services.hyprlock = { };
 
   systemd.services.nvidia-tdp = {
     description = "Set NVIDIA power limit";
@@ -364,9 +368,9 @@ in
     };
   };
 
-  services.xserver.displayManager.sessionCommands = ''
-    nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffset[3]=-100'
-  '';
+  # services.xserver.displayManager.sessionCommands = ''
+  #   nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffset[3]=-100'
+  # '';
 
   services.gvfs = {
     enable = true;
@@ -539,6 +543,15 @@ in
     # electron
     nodePackages.asar
     nixfmt-classic
+
+    # Hyprland Native Ecosystem Alternatives
+    waybar # Status bar replacement for XFCE panel
+    rofi-wayland # Application launcher replacement for dmenu/ulauncher
+    wl-clipboard # Clipboard manager replacement for xclip
+    grim # Core screenshot utility to replace maim/screenshooter
+    slurp # Allows region selection for grim screenshots
+    hyprpaper # Fast, low-overhead wallpaper daemon to replace feh
+    hyprlock # Secure lock screen to replace xfce4-screensaver
 
     # Virtualization
     remmina
