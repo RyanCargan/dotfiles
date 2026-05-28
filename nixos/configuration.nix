@@ -135,6 +135,46 @@ in
   # Set your time zone.
   time.timeZone = "Asia/Colombo";
 
+  # 1. Permanent System Mounts (Safe from Desktop Environment)
+  fileSystems."/mnt/nixos-storage" = {
+    device = "/dev/disk/by-uuid/9d21acb3-39de-4ed0-8f4f-0123ad151ef3";
+    fsType = "xfs";
+    options = [ "defaults" "nofail" ];
+  };
+
+  fileSystems."/mnt/ubuntu-storage" = {
+    device = "/dev/disk/by-uuid/8cbe52d8-cd1e-4aab-a57f-97966a9fb055";
+    fsType = "ext4";
+    options = [ "defaults" "nofail" ];
+  };
+
+  fileSystems."/mnt/swap-storage" = {
+    device = "/dev/disk/by-uuid/d4a5bffe-1f7b-4120-bc7e-dcced60866ce";
+    fsType = "ext4";
+    options = [ "defaults" "nofail" ];
+  };
+
+  # 2. Kernel Bind Mounts (Mirrors data to legacy paths; un-deletable by user space)
+  fileSystems."/run/media/ryan/nixos" = {
+    device = "/mnt/nixos-storage";
+    options = [ "bind" "nofail" ];
+  };
+
+  fileSystems."/run/media/ryan/ubuntu" = {
+    device = "/mnt/ubuntu-storage";
+    options = [ "bind" "nofail" ];
+  };
+
+  fileSystems."/run/media/ryan/swap" = {
+    device = "/mnt/swap-storage";
+    options = [ "bind" "nofail" ];
+  };
+
+  # Ensure the hardware buffer directory is initialized cleanly on the real storage layer
+  systemd.tmpfiles.rules = [
+    "d /mnt/ubuntu-storage/tmp 1777 root root -"
+  ];
+
   # Proton memory fix
   security.pam.loginLimits = [
     {
@@ -177,9 +217,14 @@ in
     package = pkgs.mullvad-vpn;
   };
 
-  # Remote cams
+  # Remote cams & Storage Isolation
   services.udev.extraRules = ''
     KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
+
+    # Tell udisks2 to completely ignore internal development partitions
+    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
+    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
+    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
   '';
 
   # Enable virtualization.
@@ -187,8 +232,11 @@ in
   virtualisation.spiceUSBRedirection.enable = true;
   programs.virt-manager.enable = true;
   users.groups.libvirtd.members = [ "ryan" ];
-  boot.extraModprobeConfig =
-    "options kvm_amd nested=1"; # Nested virtualization (requires AMD-V).
+  boot.extraModprobeConfig = ''
+    options kvm_amd nested=1
+    options nvidia NVreg_TemporaryFilePath=/mnt/ubuntu-storage/tmp
+    options nvidia_modeset vblank_sem_control=0
+  ''; # Nested virtualization (requires AMD-V).
   virtualisation.lxd.enable = false;
   virtualisation.docker = {
     enable = true;
@@ -292,10 +340,16 @@ in
     enable = true;
     desktopManager = {
       xterm.enable = false;
-      xfce.enable = true;
+      xfce = {
+        enable = true;
+        enableScreensaver = true; # Enforces safe, native xfce4-screensaver
+      };
     };
   };
   services.displayManager.defaultSession = "xfce";
+
+  # Gives xfce4-screensaver permission to verify your password hash on unlock
+  security.pam.services.xfce4-screensaver.unixAuth = true;
 
   systemd.services.nvidia-tdp = {
     description = "Set NVIDIA power limit";
@@ -726,7 +780,7 @@ in
     # XFCE
     xfce.xfce4-whiskermenu-plugin
     ulauncher
-    picom
+    # picom
     glava
     conky
 
