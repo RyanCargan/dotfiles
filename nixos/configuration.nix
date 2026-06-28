@@ -479,7 +479,7 @@ with pkgs;
 
       pkgsBrowsers = [
         google-chrome # Proprietary Chrome for compatibility/testing.
-        tor-browser-bundle-bin # Tor Browser bundle.
+        tor-browser # Tor Browser bundle.
         ungoogled-chromium # Chromium variant without Google integration.
         inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin # Firefox Nightly from flake input.
       ];
