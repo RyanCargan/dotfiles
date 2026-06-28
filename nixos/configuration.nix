@@ -489,7 +489,7 @@ with pkgs;
         flyctl # Fly.io deployment CLI.
         mkcert # Local trusted dev certificates.
         nodejs # Default Node.js from current nixpkgs.
-        nodePackages.asar # Electron asar archive pack/unpack tool.
+        asar # Electron asar archive pack/unpack tool.
         pnpm # JS package manager.
         sass # Sass/SCSS compiler.
         speedtest-cli # Network speed testing from CLI.
