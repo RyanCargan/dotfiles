@@ -114,20 +114,36 @@ with pkgs;
       fsType = "xfs";
       options = [ "defaults" "nofail" ];
     };
+
     "/mnt/ubuntu-storage" = {
       device = "/dev/disk/by-uuid/8cbe52d8-cd1e-4aab-a57f-97966a9fb055";
       fsType = "ext4";
       options = [ "defaults" "nofail" ];
     };
+
     "/mnt/swap-storage" = {
       device = "/dev/disk/by-uuid/d4a5bffe-1f7b-4120-bc7e-dcced60866ce";
       fsType = "ext4";
       options = [ "defaults" "nofail" ];
     };
 
-    "/run/media/ryan/nixos" = { device = "/mnt/nixos-storage"; options = [ "bind" "nofail" ]; };
-    "/run/media/ryan/ubuntu" = { device = "/mnt/ubuntu-storage"; options = [ "bind" "nofail" ]; };
-    "/run/media/ryan/swap" = { device = "/mnt/swap-storage"; options = [ "bind" "nofail" ]; };
+    "/run/media/ryan/nixos" = {
+      device = "/mnt/nixos-storage";
+      fsType = "none";
+      options = [ "bind" "nofail" ];
+    };
+
+    "/run/media/ryan/ubuntu" = {
+      device = "/mnt/ubuntu-storage";
+      fsType = "none";
+      options = [ "bind" "nofail" ];
+    };
+
+    "/run/media/ryan/swap" = {
+      device = "/mnt/swap-storage";
+      fsType = "none";
+      options = [ "bind" "nofail" ];
+    };
   };
 
   systemd = {
