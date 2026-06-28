@@ -7,14 +7,6 @@ with pkgs;
 let
   system = "x86_64-linux";
 
-  customFFmpeg = pkgs.ffmpeg.override {
-    withJack = true;
-    withCuda = true;
-    withNvenc = true;
-    withCuvid = true;
-    ffmpegVariant = "full";
-  };
-
 in
 {
   imports = [
@@ -34,16 +26,11 @@ in
   };
 
   nixpkgs.config = {
-    # cudaPackages = pkgs.cudaPackages;
     packageOverrides = pkgs: {
       # release2105 = import inputs.release2105 {
       #   config = config.nixpkgs.config;
       #   inherit system;
       # };
-      release2111 = import inputs.release2111 {
-        config = config.nixpkgs.config;
-        inherit system;
-      };
       unstable = import inputs.unstable {
         config = config.nixpkgs.config;
         inherit system;
@@ -66,12 +53,12 @@ in
   # Cache
   nix.settings.substituters = [
     "https://nix-community.cachix.org"
-    "https://cuda-maintainers.cachix.org"
+    # "https://cuda-maintainers.cachix.org"
   ];
   nix.settings.trusted-public-keys = [
     # Compare to the key published at https://nix-community.org/cache
     "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-    "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+    # "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
 
   ];
 
@@ -244,15 +231,10 @@ in
   };
 
   # Allow proprietary packages
-  # nixpkgs.config.cudaSupport = false;
   nixpkgs.config.allowUnfreePredicate = p:
     builtins.all
       (license:
         license.free || builtins.elem license.shortName [
-          "CUDA EULA"
-          "cuDNN EULA"
-          "cuTENSOR EULA"
-          "NVidia OptiX EULA"
           "unfreeRedistributable"
           "unfree"
           "postman"
@@ -330,7 +312,6 @@ in
     enable32Bit = true;
     # setLdLibraryPath = true;
   };
-  hardware.nvidia-container-toolkit.enable = true;
   hardware.opentabletdriver = {
     enable = true;
     daemon.enable = true;
@@ -507,7 +488,7 @@ in
     git
     docker
     yt-dlp
-    (obs-studio.override { cudaSupport = true; })
+    obs-studio
     gron
     go-org
     groff
@@ -515,13 +496,10 @@ in
     fbida
     # texmacs
     kdePackages.ghostwriter
-    (mumble.override { pulseSupport = true; })
-
     linuxKernel.packages.linux_6_6.v4l2loopback
     paprefs
     gparted
     unetbootin
-    emscripten
     wasmer
     # nvidia-docker
     # pyspread
@@ -534,7 +512,6 @@ in
     maim
     yacreader
     tigervnc
-    aria
     ghostscript
     pdftk
     nix-du
@@ -542,7 +519,7 @@ in
     zgrviewer
     graphviz
     google-chrome
-    unstable.tor-browser-bundle-bin
+    tor-browser-bundle-bin
     busybox
     # electron
     nodePackages.asar
@@ -578,14 +555,13 @@ in
     freeplane
 
     # 3D art
-    (unstable.blender.override { cudaSupport = true; })
+    blender
 
     # 2D art
     # krita
-    opentabletdriver
+    # opentabletdriver
 
     # Audio & video comms
-    (mumble.override { pulseSupport = true; })
     iproute2
     jq
     # pulseaudio
@@ -595,17 +571,15 @@ in
 
     # Audio utils
     reaper
-    sonic-pi
+    # sonic-pi
     easyeffects
     audacity
-    lmms
+    # lmms
     csound
     sox
 
     ## Language servers
     ccls
-    # Go
-    go-outline
 
     # Security
     clamav
@@ -629,15 +603,12 @@ in
     # Comm utils
     cheese
     # zoom-us
-    unstable.anydesk
+    anydesk
     torsocks
     tor
     ngrok
     cloudflared
     telegram-desktop
-    discord
-    caddy
-    nginx
 
     # Editors
     languagetool
@@ -648,26 +619,26 @@ in
     peek
 
     # Video Editing
-    customFFmpeg
-    (kdePackages.kdenlive.override { "ffmpeg-full" = customFFmpeg; })
+    ffmpeg-full
+    kdePackages.kdenlive
     glaxnimate
     # davinci-resolve
 
     # Web Dev
-    deno
+    # deno
     flyctl
-    go
+    # go
     sass
     ungoogled-chromium
-    unstable.postman
+    # postman
     speedtest-cli
     # insomnia
     mkcert
-    nodejs_22
-    ruby
+    nodejs
+    # ruby
     filezilla
     pnpm
-    webkitgtk_4_1
+    # webkitgtk_4_1
 
     # Game Dev
     butler
@@ -682,13 +653,13 @@ in
     kernelshark
 
     # Fun stuff
-    duktape
-    kotlin
+    # duktape
+    # kotlin
 
     # Android Dev
     wmname # Java app GUI issue fix
     # android-studio
-    gradle
+    # gradle
     android-tools
     watchman
     libpcap
@@ -722,7 +693,7 @@ in
     # ganttproject-bin
 
     # Compiler tooling
-    smlnj
+    # smlnj
 
     # Spellcheck
     aspell
@@ -730,10 +701,9 @@ in
     hunspellDicts.en_US
 
     # Virtualisation
-    libguestfs
+    # libguestfs
     virt-manager
     virtiofsd
-    vagrant
     xorg.xdpyinfo
     xclip
 
@@ -760,7 +730,7 @@ in
 
     # Steam tools
     protontricks
-    steamtinkerlaunch
+    # steamtinkerlaunch
     vkbasalt-cli
     # --- steamtinkerlaunch deps
     xorg.xwininfo
@@ -813,7 +783,6 @@ in
     # qjackctl
     qpwgraph
     helvum
-    easyeffects
     # jack2
     # jack_capture
     # jackmix
@@ -906,16 +875,15 @@ in
     # gephi
     abiword
     # gnum4
-    zotero
+    # zotero
     # qnotero
     ocamlPackages.cpdf
     exiftool
     djvu2pdf
     djvulibre
-    obsidian
 
     # DB utils
-    dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
+    # dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
     sqlite
     sqldiff
     isso # FOSS Disqus clone
@@ -925,9 +893,9 @@ in
     # postgresql_16
 
     # GIS utils
-    qgis
-    gdal
-    tilemaker
+    # qgis
+    # gdal
+    # tilemaker
 
     # KDE utils
     libsForQt5.ark # Archive manager
@@ -959,8 +927,8 @@ in
     # gnumeric
 
     # JVM
-    jdk21
-    maven
+    # jdk21
+    # maven
     xorg.libXxf86vm
 
     # Python 3
@@ -985,23 +953,16 @@ in
     poetry
 
     # Misc Tools
-    scribus
+    # scribus
     exe2hex
 
-    # ML Tools
-    fasttext
-    cudaPackages.cuda_nvcc
-
-    # Conda
-    # conda
-
     # Rust
-    rustup
-    cargo-generate
-    watchexec
-    cargo-watch
-    crate2nix
-    wasm-pack
+    # rustup
+    # cargo-generate
+    # watchexec
+    # cargo-watch
+    # crate2nix
+    # wasm-pack
 
     # C++
     cling
@@ -1009,16 +970,11 @@ in
     uncrustify
     cmake
     ninja
-    clang_20
-    lldb_14
+    clang
+    binaryen
+    lldb
     valgrind
     gdb
-
-    # Nim
-    nim
-    nimble
-    nph
-    nimlangserver
 
     # GIMP
     (gimp-with-plugins.override {
@@ -1029,18 +985,18 @@ in
     openimageio
 
     # PHP
-    php81
-    php81Packages.composer
+    # php81
+    # php81Packages.composer
 
     # IDEs
-    unstable.vscode-fhs
+    vscode-fhs
     # zed-editor-fhs
     inputs.zed-fork.packages.${pkgs.system}.default
     inputs.claude-fork.packages.${pkgs.system}.default
 
     # Games
     gzdoom
-    unstable.quakespasm
+    quakespasm
     darkplaces
     libjpeg8
 
@@ -1048,13 +1004,8 @@ in
     appimage-run
     wine
     winetricks
-    playonlinux
     mednafen
-    # mame
     kega-fusion
-    unstable.xenia-canary
-    cemu
-    unstable.mame
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
