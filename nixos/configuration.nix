@@ -450,8 +450,8 @@ with pkgs;
       ];
 
       pkgsDesktopKdeQt = [
-        libsForQt5.ark # KDE archive manager.
-        libsForQt5.kalarm # KDE alarm/reminder tool.
+        kdePackages.ark # KDE archive manager.
+        kdePackages.kalarm # KDE alarm/reminder tool.
       ];
 
       pkgsX11DevCompat = [
