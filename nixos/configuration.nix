@@ -340,7 +340,7 @@ with pkgs;
       ];
 
       pkgsFileArchiveDisk = [
-        aria # aria2 download manager frontend/package.
+        aria2 # aria2 download manager frontend/package.
         bat # Syntax-highlighted cat replacement.
         bchunk # Convert BIN/CUE CD images.
         colordiff # Colored diff output.
