@@ -1,1037 +1,592 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+{ config, pkgs, inputs, lib, ... }:
 
-{ config, pkgs, inputs, ... }:
 with pkgs;
-let
-  system = "x86_64-linux";
 
-in
 {
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-    ./cachix.nix
-  ];
+  imports = [ ./hardware-configuration.nix ./cachix.nix ];
 
   nix = {
+    package = pkgs.nixVersions.nix_2_30;
+    registry.nixpkgs.flake = inputs.nixpkgs;
     extraOptions = ''
       experimental-features = nix-command flakes
       keep-outputs = true
       keep-derivations = true
     '';
-    registry.nixpkgs.flake = inputs.nixpkgs;
-    package = pkgs.nixVersions.nix_2_30;
+
+    settings = {
+      auto-optimise-store = true;
+      cores = 3;
+      max-jobs = 2;
+      substituters = [ "https://nix-community.cachix.org" ];
+      trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+      trusted-users = [ "root" "ryan" ];
+      system-features = [ "kvm" ];
+    };
   };
 
-  nixpkgs.config = {
-    packageOverrides = pkgs: {
-      # release2105 = import inputs.release2105 {
-      #   config = config.nixpkgs.config;
-      #   inherit system;
-      # };
-      unstable = import inputs.unstable {
-        config = config.nixpkgs.config;
-        inherit system;
+  nixpkgs = {
+    config = {
+      # WARNING: global allowBroken can hide broken packages during rebuilds.
+      allowBroken = true;
+      permittedInsecurePackages = [ ];
+
+      allowUnfreePredicate = p:
+        builtins.all
+          (license: license.free || builtins.elem license.shortName [
+            "unfreeRedistributable"
+            "unfree"
+            "postman"
+            "bsl11"
+            "bsd3"
+            "issl"
+            "obsidian"
+            "claude"
+          ])
+          (if builtins.isList p.meta.license then p.meta.license else [ p.meta.license ]);
+
+      packageOverrides = pkgs: {
+        unstable = import inputs.unstable { config = config.nixpkgs.config; inherit (pkgs) system; };
       };
     };
-    allowBroken = true;
-    permittedInsecurePackages = [
-      # "openssl-1.1.1v"
-      # "nodejs-16.20.2"
+
+    overlays = [
+      (self: super: { wine = super.wineWowPackages.stableFull; })
+      (self: super: {
+        dwm = super.dwm.overrideAttrs (_: {
+          patches = [
+            (super.fetchpatch {
+              url = "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
+              sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
+            })
+            (super.fetchpatch {
+              url = "https://raw.githubusercontent.com/RyanCargan/dwm/main/patches/dwm-custom-6.3.diff";
+              sha256 = "116jf166rv9w1qyg1d52sva8f1hzpg3lij9m16izz5s8y0742hy7";
+            })
+          ];
+        });
+        st = super.st.overrideAttrs (_: { patches = [ ]; });
+      })
     ];
   };
 
-  # Storage optimization.
-  nix.settings.auto-optimise-store = true;
-
-  # Limit CPU & RAM usage during builds
-  nix.settings.cores = 3;
-  nix.settings.max-jobs = 2;
-
-  # Cache
-  nix.settings.substituters = [
-    "https://nix-community.cachix.org"
-    # "https://cuda-maintainers.cachix.org"
-  ];
-  nix.settings.trusted-public-keys = [
-    # Compare to the key published at https://nix-community.org/cache
-    "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-    # "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
-
-  ];
-
-  nix.settings.trusted-users = [ "root" "ryan" ];
-
-  nix.settings.system-features = [ "kvm" ];
-
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Enable NTFS-3G support
-  boot.supportedFilesystems = [ "ntfs" ];
-
-  # Enable kernel modules
-  boot.kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
-
-  # Kernel params
-  boot.kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" ];
-
-  # Set users.
-  users.users.ryan = {
-    createHome = true;
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "libvirtd"
-      "kvm"
-      "qemu-libvirtd"
-      "audio"
-      "video"
-      "networkmanager"
-      "vglusers"
-      "lxd"
-      "docker"
-      "jackaudio"
-    ];
-    group = "users";
-    home = "/home/ryan";
-    uid = 1000;
-  };
-  users.users.rishindu = {
-    createHome = true;
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "libvirtd"
-      "qemu-libvirtd"
-      "audio"
-      "video"
-      "networkmanager"
-      "vglusers"
-      "lxd"
-      "docker"
-    ];
-    group = "users";
-    home = "/home/rishindu";
-    uid = 1001;
+  boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+    supportedFilesystems = [ "ntfs" ];
+    kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
+    kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" ];
+    extraModprobeConfig = ''
+      options kvm_amd nested=1
+      options nvidia NVreg_TemporaryFilePath=/mnt/ubuntu-storage/tmp
+      options nvidia_modeset vblank_sem_control=0
+    '';
   };
 
-  # Set your time zone.
+  users = {
+    users.ryan = {
+      createHome = true;
+      isNormalUser = true;
+      group = "users";
+      home = "/home/ryan";
+      uid = 1000;
+      extraGroups = [ "wheel" "libvirtd" "kvm" "qemu-libvirtd" "audio" "video" "networkmanager" "vglusers" "lxd" "docker" "jackaudio" ];
+    };
+
+    users.rishindu = {
+      createHome = true;
+      isNormalUser = true;
+      group = "users";
+      home = "/home/rishindu";
+      uid = 1001;
+      extraGroups = [ "wheel" "libvirtd" "qemu-libvirtd" "audio" "video" "networkmanager" "vglusers" "lxd" "docker" ];
+    };
+
+    groups.libvirtd.members = [ "ryan" ];
+  };
+
   time.timeZone = "Asia/Colombo";
 
-  # 1. Permanent System Mounts (Safe from Desktop Environment)
-  fileSystems."/mnt/nixos-storage" = {
-    device = "/dev/disk/by-uuid/9d21acb3-39de-4ed0-8f4f-0123ad151ef3";
-    fsType = "xfs";
-    options = [ "defaults" "nofail" ];
+  fileSystems = {
+    "/mnt/nixos-storage" = {
+      device = "/dev/disk/by-uuid/9d21acb3-39de-4ed0-8f4f-0123ad151ef3";
+      fsType = "xfs";
+      options = [ "defaults" "nofail" ];
+    };
+    "/mnt/ubuntu-storage" = {
+      device = "/dev/disk/by-uuid/8cbe52d8-cd1e-4aab-a57f-97966a9fb055";
+      fsType = "ext4";
+      options = [ "defaults" "nofail" ];
+    };
+    "/mnt/swap-storage" = {
+      device = "/dev/disk/by-uuid/d4a5bffe-1f7b-4120-bc7e-dcced60866ce";
+      fsType = "ext4";
+      options = [ "defaults" "nofail" ];
+    };
+
+    "/run/media/ryan/nixos" = { device = "/mnt/nixos-storage"; options = [ "bind" "nofail" ]; };
+    "/run/media/ryan/ubuntu" = { device = "/mnt/ubuntu-storage"; options = [ "bind" "nofail" ]; };
+    "/run/media/ryan/swap" = { device = "/mnt/swap-storage"; options = [ "bind" "nofail" ]; };
   };
 
-  fileSystems."/mnt/ubuntu-storage" = {
-    device = "/dev/disk/by-uuid/8cbe52d8-cd1e-4aab-a57f-97966a9fb055";
-    fsType = "ext4";
-    options = [ "defaults" "nofail" ];
+  systemd = {
+    tmpfiles.rules = [ "d /mnt/ubuntu-storage/tmp 1777 root root -" ];
+
+    services.nvidia-tdp = {
+      description = "Set NVIDIA power limit";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "nvidia-persistenced.service" ];
+      requires = [ "nvidia-persistenced.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${config.hardware.nvidia.package.bin}/bin/nvidia-smi -i 0 --power-limit=95";
+      };
+    };
   };
 
-  fileSystems."/mnt/swap-storage" = {
-    device = "/dev/disk/by-uuid/d4a5bffe-1f7b-4120-bc7e-dcced60866ce";
-    fsType = "ext4";
-    options = [ "defaults" "nofail" ];
+  security.pam = {
+    loginLimits = [
+      { domain = "ryan"; type = "soft"; item = "nofile"; value = "524288"; }
+      { domain = "ryan"; type = "hard"; item = "nofile"; value = "524288"; }
+    ];
+    services.hyprlock = { };
   };
 
-  # 2. Kernel Bind Mounts (Mirrors data to legacy paths; un-deletable by user space)
-  fileSystems."/run/media/ryan/nixos" = {
-    device = "/mnt/nixos-storage";
-    options = [ "bind" "nofail" ];
+  networking = {
+    useDHCP = false;
+    interfaces.enp34s0.useDHCP = true;
+    interfaces.wlp3s0f0u8.useDHCP = true;
+    networkmanager.enable = true;
+    extraHosts = "";
+    firewall.allowedTCPPorts = [ 6443 ];
   };
 
-  fileSystems."/run/media/ryan/ubuntu" = {
-    device = "/mnt/ubuntu-storage";
-    options = [ "bind" "nofail" ];
+  services = {
+    fstrim.enable = true;
+    flatpak.enable = true;
+    teamviewer.enable = true;
+    opensnitch.enable = true;
+    logmein-hamachi.enable = true;
+    openssh = { enable = true; settings.X11Forwarding = true; };
+
+    clamav = { daemon.enable = false; updater.enable = false; };
+    mullvad-vpn = { enable = true; package = pkgs.mullvad-vpn; };
+
+    xserver = {
+      enable = true;
+      videoDrivers = [ "nvidia" ];
+      desktopManager.xterm.enable = false;
+    };
+
+    displayManager = {
+      defaultSession = "hyprland";
+      sddm = { enable = true; wayland.enable = true; };
+    };
+
+    gvfs = { enable = true; package = lib.mkForce pkgs.gnome.gvfs; };
+
+    pulseaudio.enable = false;
+    jack.jackd.enable = false;
+    pipewire = { enable = true; alsa.enable = true; pulse.enable = true; jack.enable = true; wireplumber.enable = true; };
+
+    blueman.enable = false;
+    gnome.gnome-keyring.enable = true;
+
+    postgresql = {
+      enable = false;
+      package = pkgs.postgresql_14;
+      settings.wal_level = "logical";
+      extensions = with pkgs.postgresql_14; [ pgtap postgis timescaledb ];
+      authentication = lib.mkForce ''
+        local   all   all             trust
+        host    all   all 127.0.0.1/32 trust
+        host    all   all ::1/128      trust
+      '';
+    };
+
+    mysql = { enable = true; package = pkgs.mariadb; };
+    redis.servers."talos" = { enable = true; port = 6379; };
+    murmur.enable = true;
+    avahi.enable = true;
+
+    udev.extraRules = ''
+      KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
+
+      # Keep internal development partitions hidden from desktop automounters.
+      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
+      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
+      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
+    '';
   };
 
-  fileSystems."/run/media/ryan/swap" = {
-    device = "/mnt/swap-storage";
-    options = [ "bind" "nofail" ];
+  virtualisation = {
+    libvirtd.enable = true;
+    spiceUSBRedirection.enable = true;
+    lxd.enable = false;
+    docker.enable = true;
   };
 
-  # Ensure the hardware buffer directory is initialized cleanly on the real storage layer
-  systemd.tmpfiles.rules = [
-    "d /mnt/ubuntu-storage/tmp 1777 root root -"
-  ];
+  programs = {
+    virt-manager.enable = true;
+    nm-applet.enable = true;
+    haguichi.enable = true;
+    hyprland = { enable = true; xwayland.enable = true; };
+    dconf.enable = true;
+    droidcam.enable = true;
+    gamemode.enable = true;
+    nix-ld = { enable = true; libraries = [ openssl ]; };
+    direnv = { enable = true; nix-direnv.enable = true; };
 
-  # Proton memory fix
-  security.pam.loginLimits = [
-    {
-      domain = "ryan";
-      type = "soft";
-      item = "nofile";
-      value = "524288";
-    }
-    {
-      domain = "ryan";
-      type = "hard";
-      item = "nofile";
-      value = "524288";
-    }
-  ];
+    steam = {
+      enable = true;
+      extraPackages = [ gamescope steamtinkerlaunch vkbasalt ];
+    };
+  };
 
-  # SSD
-  services.fstrim.enable = true;
-
-  # Flatpak
-  services.flatpak.enable = true;
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     config.common.default = "*";
   };
 
-  # Teamviewer
-  services.teamviewer.enable = true;
+  hardware = {
+    bluetooth.enable = false;
 
-  # Disable automatic refresh of ClamAV signatures database (do this manually).
-  services.clamav = {
-    daemon.enable = false;
-    updater.enable = false;
-  };
+    nvidia = {
+      open = false; # WARNING: keep false on Pascal-era NVIDIA GPUs.
+      powerManagement.enable = true;
+      nvidiaSettings = true;
+      nvidiaPersistenced = true;
+      modesetting.enable = true;
+    };
 
-  # VPN
-  services.mullvad-vpn = {
-    enable = true;
-    package = pkgs.mullvad-vpn;
-  };
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+      extraPackages = [ libGL ];
+    };
 
-  # Remote cams & Storage Isolation
-  services.udev.extraRules = ''
-    KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
-
-    # Tell udisks2 to completely ignore internal development partitions
-    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
-    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
-    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
-  '';
-
-  # Enable virtualization.
-  virtualisation.libvirtd.enable = true;
-  virtualisation.spiceUSBRedirection.enable = true;
-  programs.virt-manager.enable = true;
-  users.groups.libvirtd.members = [ "ryan" ];
-  boot.extraModprobeConfig = ''
-    options kvm_amd nested=1
-    options nvidia NVreg_TemporaryFilePath=/mnt/ubuntu-storage/tmp
-    options nvidia_modeset vblank_sem_control=0
-  ''; # Nested virtualization (requires AMD-V).
-  virtualisation.lxd.enable = false;
-  virtualisation.docker = {
-    enable = true;
-    # enableNvidia = true; # Deprecated
-  };
-
-  # Allow proprietary packages
-  nixpkgs.config.allowUnfreePredicate = p:
-    builtins.all
-      (license:
-        license.free || builtins.elem license.shortName [
-          "unfreeRedistributable"
-          "unfree"
-          "postman"
-          "bsl11"
-          "bsd3"
-          "issl"
-          "obsidian"
-          "claude"
-        ])
-      (if builtins.isList p.meta.license then
-        p.meta.license
-      else
-        [ p.meta.license ]);
-
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.enp34s0.useDHCP = true;
-  networking.interfaces.wlp3s0f0u8.useDHCP = true;
-
-  # Firewall
-  services.opensnitch.enable = true;
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Wi-Fi
-  networking.networkmanager = { enable = true; };
-  programs.nm-applet.enable = true;
-  # programs.light.enable = true;
-  programs.steam = {
-    enable = true;
-    extraPackages = [
-      gamescope
-      steamtinkerlaunch
-      # xorg.xwininfo
-      vkbasalt
-    ];
-  };
-  services.logmein-hamachi.enable = true;
-  programs.haguichi.enable = true;
-
-  # Hosts
-  networking.extraHosts = "";
-
-  services.openssh.enable = true;
-  services.openssh.settings.X11Forwarding = true;
-
-  networking.firewall.allowedTCPPorts = [ 6443 ];
-
-  # Enable NVIDIA drivers
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia = {
-    open = false;
-    powerManagement.enable = true;
-    nvidiaSettings = true;
-    nvidiaPersistenced = true;
-    modesetting.enable = true;
+    opentabletdriver = { enable = true; daemon.enable = true; };
   };
 
   environment.etc."X11/xorg.conf.d/20-nvidia-coolbits.conf".text = ''
     Section "OutputClass"
       Identifier "nvidia"
       MatchDriver "nvidia-drm"
-      Driver      "nvidia"
-      Option      "Coolbits" "28"
+      Driver "nvidia"
+      Option "Coolbits" "28"
     EndSection
   '';
 
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [ libGL ];
-    enable32Bit = true;
-    # setLdLibraryPath = true;
-  };
-  hardware.opentabletdriver = {
-    enable = true;
-    daemon.enable = true;
+  fonts = {
+    packages = [ source-code-pro liberation_ttf dejavu_fonts open-sans ];
+    fontDir.enable = true;
   };
 
-  # 1. Enable Hyprland Composite Window Manager
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true; # Critical for running your X11 games/tools smoothly
-  };
-
-  # 2. Update Display Server Roles
-  services.xserver = {
-    enable = true; # Keep this true so your Display Manager can spin up
-    desktopManager.xterm.enable = false;
-    # Removed XFCE components here to prevent corruption loop
-  };
-  # Enable SDDM with Wayland support
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true; # Forces the login screen itself to run on Wayland
-  };
-  # 3. Direct Display Manager to hand off keys to Hyprland instead of XFCE
-  services.displayManager.defaultSession = "hyprland";
-
-  # 4. Swap screen locker verification permissions from XFCE to Hyprlock
-  security.pam.services.hyprlock = { };
-
-  systemd.services.nvidia-tdp = {
-    description = "Set NVIDIA power limit";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "nvidia-persistenced.service" ];
-    requires = [ "nvidia-persistenced.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart =
-        "${config.hardware.nvidia.package.bin}/bin/nvidia-smi -i 0 --power-limit=95";
-    };
-  };
-
-  # services.xserver.displayManager.sessionCommands = ''
-  #   nvidia-settings -a '[gpu:0]/GPUGraphicsClockOffset[3]=-100'
-  # '';
-
-  services.gvfs = {
-    enable = true;
-    package = lib.mkForce pkgs.gnome.gvfs;
-  };
-
-  # Enable sound.
-
-  # Disable PulseAudio & JACKd
-  services.pulseaudio.enable = false;
-  services.jack.jackd.enable = false;
-
-  # Turn on PipeWire core + bridges
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true; # provides /dev/snd/ via PipeWire
-    pulse.enable = true; # replaces PulseAudio
-    jack.enable = true; # provides JACK API
-    # package = pkgs.pipewire.override { wireplumberSupport = true; };
-    wireplumber.enable = true;
-  };
-
-  # Enable Bluetooth
-  hardware.bluetooth.enable = false;
-  services.blueman.enable = false;
-
-  # Paprefs fix.
-  programs.dconf.enable = true; # + gnome3.dconf
-
-  # Dynamic linking fix
-  programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-    openssl
-    # Add other common libraries if needed, e.g., zlib, curl, stdenv.cc.cc
-  ];
-
-  # Direnv
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true; # caches the nix dev env, much faster reloads
-  };
-
-  # D-Bus
-  services.gnome.gnome-keyring.enable = true;
-
-  # Database
-  services.postgresql = {
-    enable = false;
-    package = pkgs.postgresql_14;
-    settings = { wal_level = "logical"; };
-    extensions = with pkgs.postgresql_14; [ pgtap postgis timescaledb ];
-    authentication = lib.mkForce ''
-      # Generated file; do not edit!
-      # TYPE  DATABASE        USER            ADDRESS                 METHOD
-      local   all             all                                     trust
-      host    all             all             127.0.0.1/32            trust
-      host    all             all             ::1/128                 trust
-    '';
-  };
-
-  services.mysql = {
-    enable = true;
-    package = pkgs.mariadb;
-  };
-
-  #-------------------------------------------------------------------------
-  # Enable redis service
-  #-------------------------------------------------------------------------
-  services.redis.servers."talos".enable = true;
-  services.redis.servers."talos".port = 6379;
-
-  # Mic
-  programs.droidcam.enable = true;
-  services.murmur.enable = true;
-  services.avahi = { enable = true; };
-
-  # Misc
-  programs.gamemode.enable = true;
-
-  # Overlay configuration
-  nixpkgs.overlays = [
-
-    # Wine
-    (self: super: { wine = super.wineWowPackages.stableFull; })
-
-    # dwm
-    (self: super: {
-      dwm = super.dwm.overrideAttrs (oa: rec {
-        patches = [
-          (super.fetchpatch {
-            url =
-              "https://dwm.suckless.org/patches/systray/dwm-systray-6.3.diff";
-            sha256 = "1plzfi5l8zwgr8zfjmzilpv43n248n4178j98qdbwpgb4r793mdj";
-          })
-          (super.fetchpatch {
-            url =
-              "https://raw.githubusercontent.com/RyanCargan/dwm/main/patches/dwm-custom-6.3.diff";
-            sha256 = "116jf166rv9w1qyg1d52sva8f1hzpg3lij9m16izz5s8y0742hy7";
-          })
-        ];
-      });
-      st = super.st.overrideAttrs (oa: rec { patches = [ ]; });
-    })
-  ];
-
-  fonts.packages = with pkgs; [
-    source-code-pro
-    liberation_ttf
-    dejavu_fonts
-    open-sans
-  ];
-  fonts.fontDir.enable = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    # firefox
-    kdePackages.kate
-    httrack
-    silver-searcher
-    btop
-    ccache
-    fzf
-    fd
-    ripgrep
-    ripgrep-all
-    git
-    docker
-    yt-dlp
-    obs-studio
-    gron
-    go-org
-    groff
-    elinks
-    fbida
-    # texmacs
-    kdePackages.ghostwriter
-    linuxKernel.packages.linux_6_6.v4l2loopback
-    paprefs
-    gparted
-    unetbootin
-    wasmer
-    # nvidia-docker
-    # pyspread
-    inkscape
-    neovim
-    calibre
-    # root
-    # sageWithDoc
-    # nyxt
-    maim
-    yacreader
-    tigervnc
-    ghostscript
-    pdftk
-    nix-du
-    nix-prefetch-git
-    zgrviewer
-    graphviz
-    google-chrome
-    tor-browser-bundle-bin
-    busybox
-    # electron
-    nodePackages.asar
-    nixfmt-classic
-
-    # Hyprland Native Ecosystem Alternatives
-    waybar # Status bar replacement for XFCE panel
-    rofi-wayland # Application launcher replacement for dmenu/ulauncher
-    wl-clipboard # Clipboard manager replacement for xclip
-    grim # Core screenshot utility to replace maim/screenshooter
-    slurp # Allows region selection for grim screenshots
-    swappy # Snapshot editor
-    hyprpaper # Fast, low-overhead wallpaper daemon to replace feh
-    hyprlock # Secure lock screen to replace xfce4-screensaver
-
-    # Virtualization
-    remmina
-
-    # Flakes
-    # inputs.blender.packages.x86_64-linux.default
-    # inputs.poetry2nix.packages.x86_64-linux.poetry2nix
-    # release2105.dos2unix
-    inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin
-
-    # nix-direnv
-    # direnv
-    # nix-direnv
-
-    # Educational software
-    anki-bin
-    d2
-    xmind
-    freeplane
-
-    # 3D art
-    blender
-
-    # 2D art
-    # krita
-    # opentabletdriver
-
-    # Audio & video comms
-    iproute2
-    jq
-    # pulseaudio
-    pipewire
-    wireplumber
-    alsa-utils
-
-    # Audio utils
-    reaper
-    # sonic-pi
-    easyeffects
-    audacity
-    # lmms
-    csound
-    sox
-
-    ## Language servers
-    ccls
-
-    # Security
-    clamav
-    sparrow
-
-    # Sys utils
-    inxi
-    samba
-    evtest
-    xautomation
-    woeusb-ng
-    bchunk
-    cachix
-    nix-ld
-    nil
-    nixd
-    llvmPackages_20.clang-tools
-    starship
-    erdtree
-
-    # Comm utils
-    cheese
-    # zoom-us
-    anydesk
-    torsocks
-    tor
-    ngrok
-    cloudflared
-    telegram-desktop
-
-    # Editors
-    languagetool
-    vale
-
-    # Rec utils
-    simplescreenrecorder
-    peek
-
-    # Video Editing
-    ffmpeg-full
-    kdePackages.kdenlive
-    glaxnimate
-    # davinci-resolve
-
-    # Web Dev
-    # deno
-    flyctl
-    # go
-    sass
-    ungoogled-chromium
-    # postman
-    speedtest-cli
-    # insomnia
-    mkcert
-    nodejs
-    # ruby
-    filezilla
-    pnpm
-    # webkitgtk_4_1
-
-    # Game Dev
-    butler
-
-    # Profiling
-    linuxPackages.perf
-    flamegraph
-    hotspot
-    sysprof
-    bpftrace
-    trace-cmd
-    kernelshark
-
-    # Fun stuff
-    # duktape
-    # kotlin
-
-    # Android Dev
-    wmname # Java app GUI issue fix
-    # android-studio
-    # gradle
-    android-tools
-    watchman
-    libpcap
-    # genymotion
-
-    #Sys Dev
-    nixos-option
-    nixpkgs-fmt
-
-    # Data analysis
-    pspp
-
-    # VPS
-    mosh
-    sshfs
-    autossh
-
-    # VPN
-    # mullvad-vpn
-
-    # Networking tools
-    tcpdump
-    wireshark
-    opensnitch-ui
-
-    # Weird stuff
-    # eaglemode
-    # lagrange
-
-    # Project Management Tools
-    # ganttproject-bin
-
-    # Compiler tooling
-    # smlnj
-
-    # Spellcheck
-    aspell
-    hunspell
-    hunspellDicts.en_US
-
-    # Virtualisation
-    # libguestfs
-    virt-manager
-    virtiofsd
-    xorg.xdpyinfo
-    xclip
-
-    # AWS tools
-    awscli2
-    minio
-
-    # Xorg tools
-    xorg.xmessage
-    xorg.xev
-    xorg.xmodmap
-    xorg.xhost
-
-    # Xorg gpu.js deps
-    xorg.libX11
-    xorg.libXi
-    xorg.libXext
-
-    # NixOS tools
-    nix-index
-
-    # Debian tools
-    dpkg
-
-    # Steam tools
-    protontricks
-    # steamtinkerlaunch
-    vkbasalt-cli
-    # --- steamtinkerlaunch deps
-    xorg.xwininfo
-    yad
-    xorg.xrandr
-    xorg.xprop
-
-    # Programming utils
-    bintools-unwrapped # Tools for manipulating binaries (linker, assembler, etc.)
-    colordiff
-    cpulimit
-
-    # SDKs
-    git-lfs # Git extension for versioning large files
-    gcc # GNU Compiler Collection, version 10.3.0 (wrapper script)
-    libgccjit
-    gnumake # A tool to control the generation of non-source files from sources
-    pkg-config
-    # release2111.renpy # Ren'Py Visual Novel Engine
-
-    # Stable Diffusion Deps
-    gperftools
-
-    # Source code explorer & deps
-    universal-ctags
-    # hound # Lightning fast code searching made easy
-
-    # SDL2 SDK
-    SDL2 # SDL2_ttf SDL2_net SDL2_gfx SDL2_mixer SDL2_image smpeg2 guile-sdl2
-
-    # Shopify
-    # shopify-cli
-    # function-runner
-
-    # XFCE
-    xfce.xfce4-whiskermenu-plugin
-    ulauncher
-    # picom
-    glava
-    conky
-
-    # Desktop environment utils
-    xfce.thunar
-    xfce.thunar-volman
-    xfce.tumbler
-    xfce.xfce4-screenshooter
-    polkit_gnome
-    pavucontrol
-    alsa-tools
-    # qjackctl
-    qpwgraph
-    helvum
-    # jack2
-    # jack_capture
-    # jackmix
-    dmenu
-    feh
-    tmux
-    volctl
-    kdePackages.okular
-    kdePackages.konsole
-    guake
-    tilix
-    tilda
-    zenity
-    virtualgl
-    autokey
-    # xautomation
-    xdotool
-    libnotify
-    dunst
-    mkvtoolnix
-    poppler_utils
-    ksnip
-    flameshot
-    findutils
-
-    # Emacs deps
-    # texlive.combined.scheme-full
-
-    # Sys utils
-    st
-    xterm
-    mlterm
-    imagemagick
-    libwebp
-    lsix
-    flex
-    bison
-    tree
-    p7zip
-    parallel
-    desktop-file-utils # Command line utilities for working with .desktop files
-    xdg-utils # A set of command line tools that assist applications with a variety of desktop integration tasks
-    nethogs # A small 'net top' tool, grouping bandwidth by process
-    file # A program that shows the type of files
-    grub2_efi # Bootloader (not activated)
-    exfatprogs # GParted exFAT support
-    gptfdisk # Set of partitioning tools for GPT disks
-    pciutils # Provides lspci
-    k4dirstat # Sums up disk usage for directory trees
-    aria # Download manager
-    qbittorrent # Torrent manager
-    transmission_4-qt
-    xorriso # ISO file editor (reasons for using this over cdrkit/cdrtools: https://wiki.osdev.org/Mkisofs)
-    cdrtools # Provides mkisofs
-    syslinux # Provides isohybrid which should NOT be used with ISOs that have been pre-treated with it like the Ubuntu ISOs
-    libsForQt5.kalarm # KDE alarm
-    ifmetric # Networking
-    lshw # Hardware config intro
-    hwinfo # Hardware detection tool from openSUSE
-    bat # A cat(1) clone with syntax highlighting and Git integration
-    zip # Compressor/archiver for creating and modifying zipfiles
-    unrar
-    ncdu_2
-    subversion
-    trash-cli
-    nmap
-    unzip
-    newt
-    gnupg
-    pinentry
-    xfsprogs
-    parted
-    input-remapper
-    smartmontools
-    zstd
-
-    # DevOps Utils
-    # openssl_1_1
-
-    # Productivity tools
-    # gnome.pomodoro
-
-    # Bluetooth
-    # obexftp
-
-    # Doc utils
-    # xournalpp
-    pandoc
-    # vale
-    # gephi
-    abiword
-    # gnum4
-    # zotero
-    # qnotero
-    ocamlPackages.cpdf
-    exiftool
-    djvu2pdf
-    djvulibre
-
-    # DB utils
-    # dbeaver-bin # Universal SQL Client for developers, DBA and analysts. Supports MySQL, PostgreSQL, MariaDB, SQLite, and more.
-    sqlite
-    sqldiff
-    isso # FOSS Disqus clone
-    sqlitecpp
-    sqlite-utils
-    sqlitebrowser
-    # postgresql_16
-
-    # GIS utils
-    # qgis
-    # gdal
-    # tilemaker
-
-    # KDE utils
-    libsForQt5.ark # Archive manager
-
-    # Office software
-    # libreoffice-fresh
-    # rclone
-
-    # Media players
-    vlc # Video
-    lightspark # Flash
-
-    # Media fetcher
-    hakuneko
-
-    # Kernel headers
-    linuxHeaders
-
-    # Android MTP
-    jmtpfs
-
-    # Misc libs
-    nss
-
-    # R
-    # RStudio-with-my-packages
-
-    # Spreadsheet conversion
-    # gnumeric
-
-    # JVM
-    # jdk21
-    # maven
-    xorg.libXxf86vm
-
-    # Python 3
-    (
-      let
-
-        my-python-packages = python-packages:
-          with python-packages; [
-            pyside6
-            pygame
-            matplotlib
-            evdev
-            python-uinput
-            vpk
-            pysdl2
-            uv
-          ];
-        python-with-my-packages = python312.withPackages my-python-packages;
-      in
-      python-with-my-packages
-    )
-    poetry
-
-    # Misc Tools
-    # scribus
-    exe2hex
-
-    # Rust
-    # rustup
-    # cargo-generate
-    # watchexec
-    # cargo-watch
-    # crate2nix
-    # wasm-pack
-
-    # C++
-    cling
-    cppzmq
-    uncrustify
-    cmake
-    ninja
-    clang
-    binaryen
-    lldb
-    valgrind
-    gdb
-
-    # GIMP
-    (gimp-with-plugins.override {
-      plugins = with gimpPlugins; [ gmic resynthesizer ];
-    })
-
-    # Misc Image Tools
-    openimageio
-
-    # PHP
-    # php81
-    # php81Packages.composer
-
-    # IDEs
-    vscode-fhs
-    # zed-editor-fhs
-    inputs.zed-fork.packages.${pkgs.system}.default
-    inputs.claude-fork.packages.${pkgs.system}.default
-
-    # Games
-    gzdoom
-    quakespasm
-    darkplaces
-    libjpeg8
-
-    # Emulation
-    appimage-run
-    wine
-    winetricks
-    mednafen
-    kega-fusion
-  ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  environment.systemPackages = with pkgs;
+    let
+      pythonWithTools = python312.withPackages (p: with p; [
+        pyside6
+        pygame
+        matplotlib
+        evdev
+        python-uinput
+        vpk
+        pysdl2
+        uv
+      ]);
+    in
+    [
+      # Core CLI / Nix
+      vim
+      wget
+      git
+      docker
+      jq
+      fzf
+      fd
+      ripgrep
+      ripgrep-all
+      silver-searcher
+      btop
+      ccache
+      yt-dlp
+      gron
+      go-org
+      groff
+      elinks
+      fbida
+      busybox
+      nixfmt-classic
+      nixpkgs-fmt
+      nixos-option
+      nix-du
+      nix-prefetch-git
+      nix-index
+      cachix
+      nix-ld
+      nil
+      nixd
+      starship
+      erdtree
+
+      # Files / archives / disks / terminal utilities
+      aria
+      bat
+      bchunk
+      colordiff
+      cpulimit
+      desktop-file-utils
+      dpkg
+      evtest
+      exfatprogs
+      file
+      findutils
+      gparted
+      gptfdisk
+      grub2_efi
+      httrack
+      hwinfo
+      ifmetric
+      inxi
+      k4dirstat
+      lshw
+      lsix
+      ncdu_2
+      nethogs
+      newt
+      p7zip
+      parallel
+      parted
+      pciutils
+      smartmontools
+      subversion
+      trash-cli
+      tree
+      unrar
+      unzip
+      xfsprogs
+      zip
+      zstd
+      cdrtools
+      syslinux
+      xorriso
+
+      # Network / remote / security
+      anydesk
+      autossh
+      awscli2
+      cheese
+      clamav
+      cloudflared
+      iproute2
+      libpcap
+      minio
+      mosh
+      ngrok
+      nmap
+      opensnitch-ui
+      remmina
+      samba
+      sparrow
+      sshfs
+      tcpdump
+      telegram-desktop
+      tigervnc
+      tor
+      torsocks
+      wireshark
+
+      # Desktop / Wayland / X11
+      autokey
+      conky
+      dmenu
+      dunst
+      feh
+      flameshot
+      glava
+      grim
+      guake
+      hyprlock
+      hyprpaper
+      ksnip
+      libnotify
+      libsForQt5.ark
+      libsForQt5.kalarm
+      maim
+      mlterm
+      polkit_gnome
+      rofi-wayland
+      slurp
+      st
+      swappy
+      tilda
+      tilix
+      tmux
+      ulauncher
+      virtualgl
+      volctl
+      waybar
+      wl-clipboard
+      xclip
+      xdotool
+      xorg.libX11
+      xorg.libXext
+      xorg.libXi
+      xorg.libXxf86vm
+      xorg.xdpyinfo
+      xorg.xev
+      xorg.xhost
+      xorg.xmessage
+      xorg.xmodmap
+      xorg.xprop
+      xorg.xrandr
+      xorg.xwininfo
+      xterm
+      yad
+      zenity
+      xfce.thunar
+      xfce.thunar-volman
+      xfce.tumbler
+      xfce.xfce4-screenshooter
+      xfce.xfce4-whiskermenu-plugin
+
+      # Browsers / web / comms
+      google-chrome
+      tor-browser-bundle-bin
+      ungoogled-chromium
+      inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin
+      filezilla
+      flyctl
+      mkcert
+      nodejs
+      nodePackages.asar
+      pnpm
+      sass
+      speedtest-cli
+
+      # Editors / writing / documents
+      abiword
+      calibre
+      djvu2pdf
+      djvulibre
+      exiftool
+      ghostscript
+      kdePackages.ghostwriter
+      kdePackages.kate
+      kdePackages.okular
+      languagetool
+      ocamlPackages.cpdf
+      pandoc
+      pdftk
+      poppler_utils
+      vale
+      yacreader
+      zgrviewer
+      graphviz
+
+      # Media / art / audio
+      alsa-tools
+      alsa-utils
+      audacity
+      blender
+      csound
+      easyeffects
+      ffmpeg-full
+      (gimp-with-plugins.override { plugins = with gimpPlugins; [ gmic resynthesizer ]; })
+      glaxnimate
+      inkscape
+      kdePackages.kdenlive
+      mkvtoolnix
+      obs-studio
+      openimageio
+      pavucontrol
+      pipewire
+      qpwgraph
+      reaper
+      simplescreenrecorder
+      sox
+      vlc
+      wireplumber
+
+      # Education / misc GUI
+      anki-bin
+      butler
+      d2
+      freeplane
+      hakuneko
+      input-remapper
+      jmtpfs
+      lightspark
+      pspp
+      xmind
+
+      # Databases / local services clients
+      isso
+      sqlite
+      sqlite-utils
+      sqlitebrowser
+      sqlitecpp
+      sqldiff
+
+      # C / C++ / systems / profiling
+      binaryen
+      bintools-unwrapped
+      bison
+      ccls
+      clang
+      cling
+      cmake
+      cppzmq
+      flex
+      flamegraph
+      gcc
+      gdb
+      git-lfs
+      gnumake
+      gperftools
+      kernelshark
+      libgccjit
+      linuxHeaders
+      linuxKernel.packages.linux_6_6.v4l2loopback
+      linuxPackages.perf
+      lldb
+      ninja
+      pkg-config
+      SDL2
+      sysprof
+      trace-cmd
+      universal-ctags
+      uncrustify
+      valgrind
+      wasmer
+
+      # Python / Android / package ecosystems
+      android-tools
+      poetry
+      pythonWithTools
+      watchman
+      wmname
+
+      # Gaming / Windows compatibility / emulation
+      appimage-run
+      darkplaces
+      gzdoom
+      kega-fusion
+      libjpeg8
+      mednafen
+      protontricks
+      quakespasm
+      vkbasalt-cli
+      wine
+      winetricks
+
+      # IDEs / agents
+      vscode-fhs
+      inputs.zed-fork.packages.${pkgs.system}.default
+      inputs.claude-fork.packages.${pkgs.system}.default
+    ];
+
+  system.stateVersion = "21.11"; # WARNING: do not change after install unless you know the migration impact.
 }
