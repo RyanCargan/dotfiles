@@ -361,7 +361,7 @@ with pkgs;
         qdirstat # GUI disk-usage visualizer.
         lshw # Hardware inventory tool.
         lsix # Terminal image thumbnail helper.
-        ncdu_2 # Terminal disk-usage explorer.
+        ncdu # Terminal disk-usage explorer.
         nethogs # Per-process network bandwidth monitor.
         newt # Dialog/whiptail-style TUI library/tools.
         p7zip # 7z archive support.
