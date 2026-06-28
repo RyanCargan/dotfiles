@@ -389,7 +389,7 @@ with pkgs;
         cloudflared # Cloudflare tunnel client.
         iproute2 # ip/ss/tc networking tools.
         libpcap # Packet capture library/tools dependency.
-        minio # S3-compatible object storage tooling/server.
+        garage_2 # S3-compatible object store for small self-hosted geo-distributed deployments
         mosh # Roaming/latency-tolerant SSH alternative.
         ngrok # Public tunnels to local services.
         nmap # Network scanning and service discovery.
@@ -510,7 +510,7 @@ with pkgs;
         ocamlPackages.cpdf # Command-line PDF manipulation tool.
         pandoc # Universal document converter.
         pdftk # PDF toolkit for splitting/merging/forms.
-        poppler_utils # PDF utilities like pdftotext/pdfinfo.
+        poppler-utils # PDF utilities like pdftotext/pdfinfo.
         vale # Prose/style linter.
         yacreader # Comic/manga reader.
         zgrviewer # Graphviz/DOT graph viewer.
@@ -635,6 +635,7 @@ with pkgs;
       pkgsWasm = [
         binaryen # WebAssembly optimizer/tool suite; provides wasm-opt.
         wasmer # WebAssembly runtime for running WASM modules.
+        emscripten # LLVM-to-JavaScript Compiler
       ];
 
       pkgsVulkanRuntimeDev = [
@@ -667,7 +668,7 @@ with pkgs;
 
       pkgsProfilingMemory = [
         heaptrack # Heap allocation profiler.
-        massif-visualizer # GUI for Valgrind Massif heap profiles.
+        kdePackages.kcachegrind # GUI to profilers such as Valgrind
       ];
 
       pkgsTracingKernel = [
