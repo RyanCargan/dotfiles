@@ -223,7 +223,6 @@ with pkgs;
   virtualisation = {
     libvirtd.enable = true;
     spiceUSBRedirection.enable = true;
-    lxd.enable = false;
     docker.enable = true;
   };
 
