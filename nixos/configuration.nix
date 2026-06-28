@@ -414,7 +414,7 @@ with pkgs;
         grim # Wayland screenshot capture.
         hyprlock # Hyprland lock screen.
         hyprpaper # Hyprland wallpaper daemon.
-        rofi-wayland # Wayland app launcher/menu.
+        rofi # Wayland app launcher/menu.
         slurp # Wayland region selector for screenshots.
         swappy # Screenshot annotation/editor.
         waybar # Wayland status bar.
