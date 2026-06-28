@@ -358,7 +358,7 @@ with pkgs;
         hwinfo # Hardware probing utility.
         ifmetric # Adjust network interface route metrics.
         inxi # Human-readable system information summary.
-        k4dirstat # GUI disk-usage visualizer.
+        qdirstat # GUI disk-usage visualizer.
         lshw # Hardware inventory tool.
         lsix # Terminal image thumbnail helper.
         ncdu_2 # Terminal disk-usage explorer.
