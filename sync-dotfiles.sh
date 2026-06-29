@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage:
-#   ./sync-dotfiles pull   # repo -> live system
-#   ./sync-dotfiles push   # live system -> repo
-#   ./sync-dotfiles diff   # inspect differences
-#
-# Run `pull` manually first after cloning/restoring this repo.
-
 FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
@@ -22,7 +15,7 @@ FILES=(
   "/etc/nixos/flake.lock:./nixos/flake.lock"
 )
 
-cmd="${1:-diff}"
+cmd="${1:-status}"
 
 copy_file() {
   local src="$1"
@@ -63,6 +56,45 @@ diff_file() {
   diff -u "$repo" "$live" || true
 }
 
+status_file() {
+  local live="$1"
+  local repo="$2"
+  local live_lines repo_lines live_time repo_time newer
+
+  if [[ ! -e "$live" && ! -e "$repo" ]]; then
+    return
+  fi
+
+  if [[ ! -e "$live" ]]; then
+    echo "MISSING LIVE  $live <- $repo"
+    return
+  fi
+
+  if [[ ! -e "$repo" ]]; then
+    echo "MISSING REPO  $repo <- $live"
+    return
+  fi
+
+  if cmp -s "$live" "$repo"; then
+    return
+  fi
+
+  live_lines="$(wc -l < "$live")"
+  repo_lines="$(wc -l < "$repo")"
+  live_time="$(stat -c '%y' "$live" | cut -d. -f1)"
+  repo_time="$(stat -c '%y' "$repo" | cut -d. -f1)"
+
+  if [[ "$live" -nt "$repo" ]]; then
+    newer="live newer"
+  elif [[ "$repo" -nt "$live" ]]; then
+    newer="repo newer"
+  else
+    newer="same mtime"
+  fi
+
+  echo "DIFF  $live <-> $repo | lines live:$live_lines repo:$repo_lines | $newer | live:$live_time repo:$repo_time"
+}
+
 case "$cmd" in
   pull)
     for pair in "${FILES[@]}"; do
@@ -90,8 +122,16 @@ case "$cmd" in
     done
     ;;
 
+  status)
+    for pair in "${FILES[@]}"; do
+      live="${pair%%:*}"
+      repo="${pair##*:}"
+      status_file "$live" "$repo"
+    done
+    ;;
+
   *)
-    echo "usage: $0 {pull|push|diff}" >&2
+    echo "usage: $0 {pull|push|diff|status}" >&2
     exit 1
     ;;
 esac
