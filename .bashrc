@@ -2,6 +2,13 @@
 # Path
 # PATH=/run/current-system/sw/bin:$PATH
 
+# Local secrets; never committed.
+if [ -f "$HOME/.config/secrets/env" ]; then
+  set -a
+  . "$HOME/.config/secrets/env"
+  set +a
+fi
+
 # Env vars
 export EDITOR=nvim
 export SUDO_EDITOR=nvim
@@ -264,3 +271,22 @@ eval "$(direnv hook bash)"
 complete -C /home/ryan/Tools/terraform terraform
 
 eval "$(starship init bash)"
+
+# 1. OpenRouter Connection
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="${OPENROUTER_API_KEY:-}"
+export ANTHROPIC_API_KEY=""
+
+# 2. Free Model Assignments
+# Main coding task (High performance code generation)
+export ANTHROPIC_DEFAULT_SONNET_MODEL="tencent/hy3-preview:free"
+
+# Complex reasoning / architectural decisions
+export ANTHROPIC_DEFAULT_OPUS_MODEL="meta-llama/llama-3.3-70b-instruct:free"
+
+# Quick summaries and simple completions
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="google/gemma-3-12b-it:free"
+
+# Your requested sub-agent model
+export CLAUDE_CODE_SUBAGENT_MODEL="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+export PATH="$HOME/.local/bin:$PATH"

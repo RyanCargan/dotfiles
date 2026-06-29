@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Usage:
+#   ./sync-dotfiles.sh status   # coarse divergence summary only
+#   ./sync-dotfiles.sh diff     # full unified diff
+#   ./sync-dotfiles.sh pull     # live system -> repo
+#   sudo ./sync-dotfiles.sh push # repo -> live system
+
 FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
@@ -21,13 +27,12 @@ copy_file() {
   local src="$1"
   local dst="$2"
 
-  mkdir -p "$(dirname "$dst")"
-
   if [[ ! -e "$src" ]]; then
     echo "skip missing: $src"
     return
   fi
 
+  mkdir -p "$(dirname "$dst")"
   rsync -av --mkpath "$src" "$dst"
 }
 
@@ -38,20 +43,9 @@ diff_file() {
   echo
   echo "== $live <-> $repo =="
 
-  if [[ ! -e "$live" && ! -e "$repo" ]]; then
-    echo "missing both"
-    return
-  fi
-
-  if [[ ! -e "$live" ]]; then
-    echo "missing live: $live"
-    return
-  fi
-
-  if [[ ! -e "$repo" ]]; then
-    echo "missing repo: $repo"
-    return
-  fi
+  [[ ! -e "$live" && ! -e "$repo" ]] && { echo "missing both"; return; }
+  [[ ! -e "$live" ]] && { echo "missing live: $live"; return; }
+  [[ ! -e "$repo" ]] && { echo "missing repo: $repo"; return; }
 
   diff -u "$repo" "$live" || true
 }
@@ -61,23 +55,10 @@ status_file() {
   local repo="$2"
   local live_lines repo_lines live_time repo_time newer
 
-  if [[ ! -e "$live" && ! -e "$repo" ]]; then
-    return
-  fi
-
-  if [[ ! -e "$live" ]]; then
-    echo "MISSING LIVE  $live <- $repo"
-    return
-  fi
-
-  if [[ ! -e "$repo" ]]; then
-    echo "MISSING REPO  $repo <- $live"
-    return
-  fi
-
-  if cmp -s "$live" "$repo"; then
-    return
-  fi
+  [[ ! -e "$live" && ! -e "$repo" ]] && return
+  [[ ! -e "$live" ]] && { echo "MISSING LIVE  $live <- $repo"; return; }
+  [[ ! -e "$repo" ]] && { echo "MISSING REPO  $repo <- $live"; return; }
+  cmp -s "$live" "$repo" && return
 
   live_lines="$(wc -l < "$live")"
   repo_lines="$(wc -l < "$repo")"
@@ -96,42 +77,38 @@ status_file() {
 }
 
 case "$cmd" in
-  pull)
+  status)
+    # Coarse summary only; skips identical files.
     for pair in "${FILES[@]}"; do
-      live="${pair%%:*}"
-      repo="${pair##*:}"
-      copy_file "$repo" "$live"
+      status_file "${pair%%:*}" "${pair##*:}"
     done
-    echo "Pulled repo dotfiles into live locations."
-    ;;
-
-  push)
-    for pair in "${FILES[@]}"; do
-      live="${pair%%:*}"
-      repo="${pair##*:}"
-      copy_file "$live" "$repo"
-    done
-    echo "Pushed live dotfiles into repo."
     ;;
 
   diff)
+    # Full unified diff.
     for pair in "${FILES[@]}"; do
-      live="${pair%%:*}"
-      repo="${pair##*:}"
-      diff_file "$live" "$repo"
+      diff_file "${pair%%:*}" "${pair##*:}"
     done
     ;;
 
-  status)
+  pull)
+    # Pull current live machine state into this repo.
     for pair in "${FILES[@]}"; do
-      live="${pair%%:*}"
-      repo="${pair##*:}"
-      status_file "$live" "$repo"
+      copy_file "${pair%%:*}" "${pair##*:}"
     done
+    echo "Pulled live dotfiles into repo."
+    ;;
+
+  push)
+    # Push repo files into live machine locations.
+    for pair in "${FILES[@]}"; do
+      copy_file "${pair##*:}" "${pair%%:*}"
+    done
+    echo "Pushed repo dotfiles into live locations."
     ;;
 
   *)
-    echo "usage: $0 {pull|push|diff|status}" >&2
+    echo "usage: $0 {status|diff|pull|push}" >&2
     exit 1
     ;;
 esac

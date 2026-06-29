@@ -1,0 +1,6 @@
+# local secrets
+.config/secrets/
+secrets/
+*.secret
+*.env
+.env
