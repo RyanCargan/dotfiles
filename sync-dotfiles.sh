@@ -4,9 +4,14 @@ set -euo pipefail
 # Usage:
 #   ./sync-dotfiles.sh status   # coarse divergence summary only
 #   ./sync-dotfiles.sh diff     # full unified diff
-#   ./sync-dotfiles.sh pull     # live system -> repo
-#   sudo ./sync-dotfiles.sh push # repo -> live system
+#   ./sync-dotfiles.sh bundle   # regenerate vendored shared chunks
+#   ./sync-dotfiles.sh pull     # live system/project -> repo
+#   sudo ./sync-dotfiles.sh push # repo -> live system/project
 
+PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
+
+# Human-edited live <-> repo files.
+# Generated/vendor shared chunks are intentionally NOT listed here.
 FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
@@ -19,6 +24,10 @@ FILES=(
   "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
   "/etc/nixos/flake.nix:./nixos/flake.nix"
   "/etc/nixos/flake.lock:./nixos/flake.lock"
+
+  "$PROTO/flake.nix:./devflake/flake.nix"
+  "$PROTO/flake.lock:./devflake/flake.lock"
+  "$PROTO/.envrc:./devflake/.envrc"
 )
 
 cmd="${1:-status}"
@@ -57,7 +66,7 @@ status_file() {
 
   [[ ! -e "$live" && ! -e "$repo" ]] && return
   [[ ! -e "$live" ]] && { echo "MISSING LIVE  $live <- $repo"; return; }
-  [[ ! -e "$repo" ]] && { echo "MISSING REPO  $repo <- $live"; return; }
+  [[ ! -e "$repo" ]] && { echo "MISSING REPO   $repo <- $live"; return; }
   cmp -s "$live" "$repo" && return
 
   live_lines="$(wc -l < "$live")"
@@ -76,39 +85,89 @@ status_file() {
   echo "DIFF  $live <-> $repo | lines live:$live_lines repo:$repo_lines | $newer | live:$live_time repo:$repo_time"
 }
 
+bundle_shared() {
+  # Source of truth:
+  #   ./shared/dev-pkgs.nix
+  #
+  # Vendored/generated copies:
+  #   ./nixos/shared/dev-pkgs.nix
+  #   ./devflake/shared/dev-pkgs.nix
+  #
+  # Edit only the source of truth, then run bundle.
+  copy_file "./shared/dev-pkgs.nix" "./nixos/shared/dev-pkgs.nix"
+  copy_file "./shared/dev-pkgs.nix" "./devflake/shared/dev-pkgs.nix"
+}
+
+status_generated() {
+  local src="./shared/dev-pkgs.nix"
+  local nixos_copy="./nixos/shared/dev-pkgs.nix"
+  local devflake_copy="./devflake/shared/dev-pkgs.nix"
+
+  [[ ! -e "$src" ]] && { echo "MISSING SOURCE ./shared/dev-pkgs.nix"; return; }
+
+  if [[ ! -e "$nixos_copy" ]]; then
+    echo "STALE GENERATED  $nixos_copy missing"
+  elif ! cmp -s "$src" "$nixos_copy"; then
+    echo "STALE GENERATED  $nixos_copy differs from $src"
+  fi
+
+  if [[ ! -e "$devflake_copy" ]]; then
+    echo "STALE GENERATED  $devflake_copy missing"
+  elif ! cmp -s "$src" "$devflake_copy"; then
+    echo "STALE GENERATED  $devflake_copy differs from $src"
+  fi
+}
+
 case "$cmd" in
   status)
-    # Coarse summary only; skips identical files.
+    # Coarse summary only; skips identical human-edited files.
     for pair in "${FILES[@]}"; do
       status_file "${pair%%:*}" "${pair##*:}"
     done
+    status_generated
     ;;
 
   diff)
-    # Full unified diff.
+    # Full unified diff for human-edited files only.
     for pair in "${FILES[@]}"; do
       diff_file "${pair%%:*}" "${pair##*:}"
     done
+    status_generated
+    ;;
+
+  bundle)
+    # Regenerate vendored shared chunks from canonical source.
+    bundle_shared
+    echo "Bundled shared Nix chunks."
     ;;
 
   pull)
-    # Pull current live machine state into this repo.
+    # Pull current live machine/project state into this repo.
+    # Does not pull generated shared chunks; edit ./shared/dev-pkgs.nix instead.
     for pair in "${FILES[@]}"; do
       copy_file "${pair%%:*}" "${pair##*:}"
     done
-    echo "Pulled live dotfiles into repo."
+    bundle_shared
+    echo "Pulled live dotfiles into repo and refreshed generated chunks."
     ;;
 
   push)
-    # Push repo files into live machine locations.
+    # Push repo files into live machine/project locations.
+    # Bundles first so generated copies are fresh.
+    bundle_shared
+
     for pair in "${FILES[@]}"; do
       copy_file "${pair##*:}" "${pair%%:*}"
     done
+
+    copy_file "./nixos/shared/dev-pkgs.nix" "/etc/nixos/shared/dev-pkgs.nix"
+    copy_file "./devflake/shared/dev-pkgs.nix" "$PROTO/shared/dev-pkgs.nix"
+
     echo "Pushed repo dotfiles into live locations."
     ;;
 
   *)
-    echo "usage: $0 {status|diff|pull|push}" >&2
+    echo "usage: $0 {status|diff|bundle|pull|push}" >&2
     exit 1
     ;;
 esac

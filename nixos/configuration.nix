@@ -309,6 +309,10 @@ with pkgs;
 
   environment.systemPackages = with pkgs;
     let
+      devPkgs = import ./shared/dev-pkgs.nix {
+        inherit pkgs lib;
+      };
+
       pythonWithTools = python3.withPackages (p: with p; [
         pyside6 # Qt/Python GUI bindings for small native tools and experiments.
         pygame # Python SDL/game-loop experiments and simple media prototypes.
@@ -742,49 +746,55 @@ with pkgs;
         inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default # Claude Code package from flake input.
       ];
     in
-    pkgsShellCore
-    ++ pkgsNixTooling
-    ++ pkgsFileArchiveDisk
-    ++ pkgsNetworkRemote
-    ++ pkgsCommsPresence
-    ++ pkgsWaylandHypr
-    ++ pkgsDesktopCommon
-    ++ pkgsDesktopKdeQt
-    ++ pkgsX11DevCompat
-    ++ pkgsXfceCompat
-    ++ pkgsBrowsers
-    ++ pkgsWebDev
-    ++ pkgsDocsWriting
-    ++ pkgsAudioCore
-    ++ pkgsAudioProduction
-    ++ pkgsVideoMedia
-    ++ pkgsArtImage3d
-    ++ pkgsEducationMiscGui
-    ++ pkgsDbSqlite
-    ++ pkgsDbServices
-    ++ pkgsCppCompilers
-    ++ pkgsCppBuildLink
-    ++ pkgsCppLlvmRuntime
-    ++ pkgsCppStaticAnalysis
-    ++ pkgsCppDebug
-    ++ pkgsCppLibraries
-    ++ pkgsCppParsingCodegen
-    ++ pkgsCppInteractive
-    ++ pkgsCppSystemHeaders
-    ++ pkgsWasm
-    ++ pkgsVulkanRuntimeDev
-    ++ pkgsShaderToolchain
-    ++ pkgsGpuDebug
-    ++ pkgsProfilingCpu
-    ++ pkgsProfilingMemory
-    ++ pkgsTracingKernel
-    ++ pkgsProfilingInstrumentation
-    ++ pkgsPython
-    ++ pkgsAndroid
-    ++ pkgsGameLaunchCompat
-    ++ pkgsGamesNative
-    ++ pkgsEmulation
-    ++ pkgsIdeEditorsAgents;
+    lib.unique (
+      pkgsShellCore
+      ++ pkgsNixTooling
+      ++ pkgsFileArchiveDisk
+      ++ pkgsNetworkRemote
+      ++ pkgsCommsPresence
+      ++ pkgsWaylandHypr
+      ++ pkgsDesktopCommon
+      ++ pkgsDesktopKdeQt
+      ++ pkgsX11DevCompat
+      ++ pkgsXfceCompat
+      ++ pkgsBrowsers
+      ++ pkgsWebDev
+      ++ pkgsDocsWriting
+      ++ pkgsAudioCore
+      ++ pkgsAudioProduction
+      ++ pkgsVideoMedia
+      ++ pkgsArtImage3d
+      ++ pkgsEducationMiscGui
+      ++ pkgsDbSqlite
+      ++ pkgsDbServices
+      ++ pkgsCppCompilers
+      ++ pkgsCppBuildLink
+      ++ pkgsCppLlvmRuntime
+      ++ pkgsCppStaticAnalysis
+      ++ pkgsCppDebug
+      ++ pkgsCppLibraries
+      ++ pkgsCppParsingCodegen
+      ++ pkgsCppInteractive
+      ++ pkgsCppSystemHeaders
+      ++ pkgsWasm
+      ++ pkgsVulkanRuntimeDev
+      ++ pkgsShaderToolchain
+      ++ pkgsGpuDebug
+      ++ pkgsProfilingCpu
+      ++ pkgsProfilingMemory
+      ++ pkgsTracingKernel
+      ++ pkgsProfilingInstrumentation
+      ++ pkgsPython
+      ++ pkgsAndroid
+      ++ pkgsGameLaunchCompat
+      ++ pkgsGamesNative
+      ++ pkgsEmulation
+      ++ pkgsIdeEditorsAgents
+
+      # Shared system/dev package inventory.
+      # System config remains the superset; dev flake remains the exposure shim/subset.
+      ++ devPkgs.systemPackages
+    );
 
   system.stateVersion = "21.11"; # WARNING: do not change after install unless you know the migration impact.
 }

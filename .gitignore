@@ -1,6 +1,37 @@
-# local secrets
-.config/secrets/
-secrets/
-*.secret
-*.env
+# Secrets
 .env
+*.env
+*.secret
+secrets/
+.config/secrets/
+
+# Nix build outputs / roots
+result
+result-*
+*-gcroot-result
+
+# direnv / nix-direnv
+.direnv/
+.envrc.local
+
+# Editor junk
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+tmp/
+temp/
+nixos/shared/dev-pkgs.nix
+devflake/shared/dev-pkgs.nix
+
+# Large local caches
+node_modules/
+.cache/
