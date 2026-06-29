@@ -3,14 +3,14 @@
     "nil": {
       "initialization_options": {
         "formatting": {
-          "command": ["nixpkgs-fmt"]
-        }
-      }
-    }
+          "command": ["nixpkgs-fmt"],
+        },
+      },
+    },
   },
   "languages": {
     "Nix": {
-      "format_on_save": "on"
-    }
-  }
+      "format_on_save": "on",
+    },
+  },
 }
