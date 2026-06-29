@@ -1,0 +1,36 @@
+* {
+    font-family: "Source Code Pro", monospace;
+    font-size: 13px;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(20, 20, 20, 0.92);
+    color: #eeeeee;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #aaaaaa;
+}
+
+#workspaces button.active {
+    color: #ffffff;
+}
+
+#window {
+    padding: 0 12px;
+}
+
+#pulseaudio,
+#network,
+#clock,
+#tray {
+    padding: 0 10px;
+}
+
+#pulseaudio.muted {
+    color: #888888;
+}
