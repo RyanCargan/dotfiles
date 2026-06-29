@@ -18,7 +18,10 @@ with pkgs;
       auto-optimise-store = true;
       cores = 3;
       max-jobs = 2;
-      substituters = [ "https://nix-community.cachix.org" ];
+      substituters = [
+        "https://cache.nixos.org"
+        "https://nix-community.cachix.org"
+      ];
       trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
       trusted-users = [ "root" "ryan" ];
       system-features = [ "kvm" ];
@@ -46,12 +49,12 @@ with pkgs;
           (if builtins.isList p.meta.license then p.meta.license else [ p.meta.license ]);
 
       packageOverrides = pkgs: {
-        unstable = import inputs.unstable { config = config.nixpkgs.config; inherit (pkgs) system; };
+        unstable = import inputs.unstable { config = config.nixpkgs.config; inherit (pkgs.stdenv.hostPlatform) system; };
       };
     };
 
     overlays = [
-      (self: super: { wine = super.wineWowPackages.stableFull; })
+      (self: super: { wine = super.wineWow64Packages.stableFull; })
       (self: super: {
         dwm = super.dwm.overrideAttrs (_: {
           patches = [
@@ -328,7 +331,7 @@ with pkgs;
 
       pkgsNixTooling = [
         cachix # Cachix binary-cache CLI.
-        nixfmt-classic # Classic Nix formatter.
+        nixfmt # Classic Nix formatter.
         nixpkgs-fmt # Alternative Nix formatter used by older nixpkgs style.
         nixos-option # Query resolved NixOS option values.
         nix-du # Analyze Nix store/disk usage.
@@ -455,26 +458,26 @@ with pkgs;
       ];
 
       pkgsX11DevCompat = [
-        xorg.libX11 # X11 client library, useful for native builds.
-        xorg.libXext # X11 extension library for native builds.
-        xorg.libXi # XInput library for input-heavy native apps.
-        xorg.libXxf86vm # XF86VidMode library for old GL/game deps.
-        xorg.xdpyinfo # Inspect X display capabilities.
-        xorg.xev # Inspect X events/input.
-        xorg.xhost # Manage X server access control.
-        xorg.xmessage # Tiny X11 message dialog utility.
-        xorg.xmodmap # Inspect/edit X keymaps.
-        xorg.xprop # Inspect X window properties.
-        xorg.xrandr # X display layout/monitor control.
-        xorg.xwininfo # Inspect X window geometry/properties.
+        libX11 # X11 client library, useful for native builds.
+        libXext # X11 extension library for native builds.
+        libXi # XInput library for input-heavy native apps.
+        libXxf86vm # XF86VidMode library for old GL/game deps.
+        xdpyinfo # Inspect X display capabilities.
+        xev # Inspect X events/input.
+        xhost # Manage X server access control.
+        xmessage # Tiny X11 message dialog utility.
+        xmodmap # Inspect/edit X keymaps.
+        xprop # Inspect X window properties.
+        xrandr # X display layout/monitor control.
+        xwininfo # Inspect X window geometry/properties.
       ];
 
       pkgsXfceCompat = [
-        xfce.thunar # Lightweight file manager.
-        xfce.thunar-volman # Thunar removable-volume integration.
-        xfce.tumbler # Thumbnail service for Thunar/desktop apps.
-        xfce.xfce4-screenshooter # XFCE screenshot utility kept for compatibility.
-        xfce.xfce4-whiskermenu-plugin # XFCE menu plugin kept for legacy session pieces.
+        thunar # Lightweight file manager.
+        thunar-volman # Thunar removable-volume integration.
+        tumbler # Thumbnail service for Thunar/desktop apps.
+        xfce4-screenshooter # XFCE screenshot utility kept for compatibility.
+        xfce4-whiskermenu-plugin # XFCE menu plugin kept for legacy session pieces.
       ];
 
       pkgsBrowsers = [
@@ -660,7 +663,7 @@ with pkgs;
       ];
 
       pkgsProfilingCpu = [
-        linuxPackages.perf # Linux perf profiler matching kernel package set.
+        perf # Linux perf profiler matching kernel package set.
         flamegraph # Generate flame graphs from profiling stacks.
         hotspot # GUI for perf.data analysis.
         gperftools # Google performance tools: tcmalloc, CPU/heap profiler.
