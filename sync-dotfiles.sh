@@ -35,7 +35,6 @@ PROTO_FILES=(
   "$PROTO/flake.nix:./devflake/flake.nix"
   "$PROTO/flake.lock:./devflake/flake.lock"
   "$PROTO/.envrc:./devflake/.envrc"
-  "$PROTO/README.md:./devflake/README.md"
 )
 
 cmd="${1:-status}"
