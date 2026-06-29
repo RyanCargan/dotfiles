@@ -284,8 +284,27 @@ with pkgs;
   '';
 
   fonts = {
-    packages = [ source-code-pro liberation_ttf dejavu_fonts open-sans ];
+    packages = with pkgs; [
+      source-code-pro
+      liberation_ttf
+      dejavu_fonts
+      open-sans
+
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-color-emoji
+
+      nerd-fonts.symbols-only
+    ];
+
     fontDir.enable = true;
+
+    fontconfig.defaultFonts = {
+      monospace = [ "Source Code Pro" "Symbols Nerd Font" "Noto Color Emoji" ];
+      sansSerif = [ "Open Sans" "Noto Sans" "Noto Color Emoji" ];
+      serif = [ "Liberation Serif" "Noto Serif" "Noto Color Emoji" ];
+      emoji = [ "Noto Color Emoji" ];
+    };
   };
 
   environment.systemPackages = with pkgs;
