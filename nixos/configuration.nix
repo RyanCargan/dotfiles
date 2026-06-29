@@ -483,7 +483,7 @@ with pkgs;
         google-chrome # Proprietary Chrome for compatibility/testing.
         tor-browser # Tor Browser bundle.
         ungoogled-chromium # Chromium variant without Google integration.
-        inputs.firefox.packages.${pkgs.system}.firefox-nightly-bin # Firefox Nightly from flake input.
+        inputs.firefox.packages.${pkgs.stdenv.hostPlatform.system}.firefox-nightly-bin # Firefox Nightly from flake input.
       ];
 
       pkgsWebDev = [
@@ -717,8 +717,8 @@ with pkgs;
 
       pkgsIdeEditorsAgents = [
         vscode-fhs # VS Code in FHS environment for extension/binary compatibility.
-        inputs.zed-fork.packages.${pkgs.system}.default # Zed editor from flake input.
-        inputs.claude-fork.packages.${pkgs.system}.default # Claude Code package from flake input.
+        inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default # Zed editor from flake input.
+        inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default # Claude Code package from flake input.
       ];
     in
     pkgsShellCore
