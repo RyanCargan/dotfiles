@@ -285,7 +285,7 @@ with pkgs;
 
   environment.systemPackages = with pkgs;
     let
-      pythonWithTools = python312.withPackages (p: with p; [
+      pythonWithTools = python3.withPackages (p: with p; [
         pyside6 # Qt/Python GUI bindings for small native tools and experiments.
         pygame # Python SDL/game-loop experiments and simple media prototypes.
         matplotlib # Plotting and quick numerical/data visualizations.
