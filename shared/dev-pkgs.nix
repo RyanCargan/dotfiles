@@ -12,7 +12,6 @@ let
     python-uinput # Python uinput bindings for virtual input-device experiments.
     vpk # Valve Pak archive tooling for Source-engine/game asset work.
     pysdl2 # Python SDL2 bindings for lightweight graphics/input prototypes.
-    uv # Fast Python package/environment tool.
   ]);
 in
 rec {
@@ -30,11 +29,11 @@ rec {
       zip
       zstd
       ccache
-
       shellcheck
       shfmt
     ];
 
+    # Nix/flake/dev-shell tooling.
     nix = with pkgs; [
       cachix
       nixfmt
@@ -43,16 +42,22 @@ rec {
       nix-du
       nix-prefetch-git
       nix-index
+      nix-ld
       nil
       nixd
     ];
 
+    # JS/web/project tooling.
     web = with pkgs; [
       nodejs
       pnpm
       sass
+      asar
+      mkcert
+      flyctl
     ];
 
+    # SQLite and small local DB tooling.
     db = with pkgs; [
       sqlite
       sqlite-utils
@@ -61,6 +66,7 @@ rec {
       sqldiff
     ];
 
+    # C/C++/Zig compilers.
     cppCompilers = with pkgs; [
       clang
       gcc
@@ -68,6 +74,7 @@ rec {
       zls
     ];
 
+    # Build/link tooling.
     cppBuildLink = with pkgs; [
       bintools-unwrapped
       cmake
@@ -77,6 +84,7 @@ rec {
       pkg-config
     ];
 
+    # LLVM runtime/toolchain pieces.
     cppLlvmRuntime = with pkgs; [
       clang-tools
       llvmPackages.compiler-rt
@@ -84,6 +92,7 @@ rec {
       llvmPackages.lld
     ];
 
+    # Static analysis/indexing/formatting.
     cppStaticAnalysis = with pkgs; [
       ccls
       cppcheck
@@ -92,29 +101,34 @@ rec {
       uncrustify
     ];
 
+    # Native debugging.
     cppDebug = with pkgs; [
       gdb
       lldb
       valgrind
-    ] ++ lib.optionals isX86Linux [
-      pkgs.rr
-    ];
+    ] ++ lib.optionals isX86Linux (with pkgs; [
+      rr
+    ]);
 
+    # Parser/codegen tools.
     cppParsingCodegen = with pkgs; [
       bison
       flex
     ];
 
+    # Interactive C++.
     cppInteractive = with pkgs; [
       cling
     ];
 
+    # WebAssembly / browser-native tooling.
     wasm = with pkgs; [
       binaryen
       wasmer
       emscripten
     ];
 
+    # Vulkan runtime/dev tools.
     vulkanRuntimeDev = lib.optionals isLinux (with pkgs; [
       vulkan-headers
       vulkan-loader
@@ -123,6 +137,7 @@ rec {
       vulkan-extension-layer
     ]);
 
+    # Shader toolchain.
     shaderToolchain = lib.optionals isLinux (with pkgs; [
       shader-slang
       shaderc
@@ -132,10 +147,12 @@ rec {
       spirv-tools
     ]);
 
+    # GPU debugging. RenderDoc is mostly relevant on x86 Linux.
     gpuDebug = lib.optionals isX86Linux (with pkgs; [
       renderdoc
     ]);
 
+    # CPU profiling.
     profilingCpu = with pkgs; [
       perf
       flamegraph
@@ -143,11 +160,13 @@ rec {
       gperftools
     ];
 
+    # Memory profiling.
     profilingMemory = with pkgs; [
       heaptrack
       kdePackages.kcachegrind
     ];
 
+    # Kernel/system tracing.
     tracingKernel = with pkgs; [
       bpftrace
       kernelshark
@@ -155,16 +174,20 @@ rec {
       trace-cmd
     ];
 
+    # Instrumentation profiler.
     profilingInstrumentation = with pkgs; [
       tracy
     ];
 
+    # Python project tooling.
     python = with pkgs; [
       poetry
-      pythonWithTools
       uv
+      pythonWithTools
     ];
 
+    # Mostly headless dev shell.
+    # This is the safe portable default for Unix/WSL users.
     headless =
       shellCore
       ++ nix
@@ -179,11 +202,13 @@ rec {
       ++ cppInteractive
       ++ python;
 
+    # Explicit graphics/game/native-app dev layer.
     graphics =
       vulkanRuntimeDev
       ++ shaderToolchain
       ++ gpuDebug;
 
+    # Full local dev inventory.
     full =
       headless
       ++ wasm
@@ -195,6 +220,8 @@ rec {
   };
 
   libs = rec {
+    # Core build/runtime libraries whose dev outputs/headers/pkg-config metadata
+    # are useful inside project shells.
     core = with pkgs; [
       zlib
       openssl
@@ -207,6 +234,7 @@ rec {
       libgccjit
     ];
 
+    # Graphics/windowing/input/rendering libraries.
     graphics = lib.optionals isLinux (with pkgs; [
       SDL2
 
@@ -230,14 +258,21 @@ rec {
     full = core ++ graphics;
   };
 
-  # System config imports this to preserve:
+  # Imported by configuration.nix.
+  #
+  # Policy:
   #   system config = superset / inventory owner
+  #   dev flake     = subset / exposure shim
+  #
+  # So the system installs the whole shared dev inventory.
   systemPackages =
     tools.full
     ++ libs.full;
 
-  # Dev flake imports this as an exposure shim:
-  #   dev shell = subset of system + dev-output/header/pkg-config/libpath exposure
+  # Imported by devflake/flake.nix.
+  #
+  # The dev shell uses these lists to expose dev outputs, headers,
+  # pkg-config paths, library paths, and shell variables.
   shells = {
     coreTools = tools.headless;
     coreLibs = libs.core;

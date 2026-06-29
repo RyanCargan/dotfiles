@@ -22,7 +22,9 @@ with pkgs;
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
       ];
-      trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+      trusted-public-keys = [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
       trusted-users = [ "root" "ryan" ];
       system-features = [ "kvm" ];
     };
@@ -49,7 +51,10 @@ with pkgs;
           (if builtins.isList p.meta.license then p.meta.license else [ p.meta.license ]);
 
       packageOverrides = pkgs: {
-        unstable = import inputs.unstable { config = config.nixpkgs.config; inherit (pkgs.stdenv.hostPlatform) system; };
+        unstable = import inputs.unstable {
+          config = config.nixpkgs.config;
+          inherit (pkgs.stdenv.hostPlatform) system;
+        };
       };
     };
 
@@ -78,8 +83,16 @@ with pkgs;
     loader.efi.canTouchEfiVariables = true;
     supportedFilesystems = [ "ntfs" ];
     kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
-    kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" "nvidia-drm.modeset=1" "nvidia-drm.fbdev=1" ];
-    kernel.sysctl = { "kernel.perf_event_paranoid" = 1; "kernel.kptr_restrict" = 0; };
+    kernelParams = [
+      "mem_sleep_default=deep"
+      "usbcore.autosuspend=-1"
+      "nvidia-drm.modeset=1"
+      "nvidia-drm.fbdev=1"
+    ];
+    kernel.sysctl = {
+      "kernel.perf_event_paranoid" = 1;
+      "kernel.kptr_restrict" = 0;
+    };
     extraModprobeConfig = ''
       options kvm_amd nested=1
       options nvidia NVreg_TemporaryFilePath=/mnt/ubuntu-storage/tmp
@@ -94,7 +107,19 @@ with pkgs;
       group = "users";
       home = "/home/ryan";
       uid = 1000;
-      extraGroups = [ "wheel" "libvirtd" "kvm" "qemu-libvirtd" "audio" "video" "networkmanager" "vglusers" "lxd" "docker" "jackaudio" ];
+      extraGroups = [
+        "wheel"
+        "libvirtd"
+        "kvm"
+        "qemu-libvirtd"
+        "audio"
+        "video"
+        "networkmanager"
+        "vglusers"
+        "lxd"
+        "docker"
+        "jackaudio"
+      ];
     };
 
     users.rishindu = {
@@ -103,7 +128,17 @@ with pkgs;
       group = "users";
       home = "/home/rishindu";
       uid = 1001;
-      extraGroups = [ "wheel" "libvirtd" "qemu-libvirtd" "audio" "video" "networkmanager" "vglusers" "lxd" "docker" ];
+      extraGroups = [
+        "wheel"
+        "libvirtd"
+        "qemu-libvirtd"
+        "audio"
+        "video"
+        "networkmanager"
+        "vglusers"
+        "lxd"
+        "docker"
+      ];
     };
 
     groups.libvirtd.members = [ "ryan" ];
@@ -188,10 +223,21 @@ with pkgs;
     teamviewer.enable = true;
     opensnitch.enable = true;
     logmein-hamachi.enable = true;
-    openssh = { enable = true; settings.X11Forwarding = true; };
 
-    clamav = { daemon.enable = false; updater.enable = false; };
-    mullvad-vpn = { enable = true; package = pkgs.mullvad-vpn; };
+    openssh = {
+      enable = true;
+      settings.X11Forwarding = true;
+    };
+
+    clamav = {
+      daemon.enable = false;
+      updater.enable = false;
+    };
+
+    mullvad-vpn = {
+      enable = true;
+      package = pkgs.mullvad-vpn;
+    };
 
     xserver = {
       enable = true;
@@ -201,14 +247,28 @@ with pkgs;
 
     displayManager = {
       defaultSession = "hyprland";
-      sddm = { enable = true; wayland.enable = true; };
+      sddm = {
+        enable = true;
+        wayland.enable = true;
+      };
     };
 
-    gvfs = { enable = true; package = lib.mkForce pkgs.gnome.gvfs; };
+    gvfs = {
+      enable = true;
+      package = lib.mkForce pkgs.gnome.gvfs;
+    };
 
     pulseaudio.enable = false;
     jack.jackd.enable = false;
-    pipewire = { enable = true; alsa.enable = true; pulse.enable = true; jack.enable = true; wireplumber.enable = true; };
+
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+      jack.enable = true;
+      wireplumber.enable = true;
+    };
+
     blueman.enable = false;
     gnome.gnome-keyring.enable = true;
     avahi.enable = true;
@@ -233,16 +293,33 @@ with pkgs;
     virt-manager.enable = true;
     nm-applet.enable = true;
     haguichi.enable = true;
-    hyprland = { enable = true; xwayland.enable = true; };
+
+    hyprland = {
+      enable = true;
+      xwayland.enable = true;
+    };
+
     dconf.enable = true;
     droidcam.enable = true;
     gamemode.enable = true;
-    nix-ld = { enable = true; libraries = [ openssl ]; };
-    direnv = { enable = true; nix-direnv.enable = true; };
+
+    nix-ld = {
+      enable = true;
+      libraries = [ openssl ];
+    };
+
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
 
     steam = {
       enable = true;
-      extraPackages = [ gamescope steamtinkerlaunch vkbasalt ];
+      extraPackages = [
+        gamescope
+        steamtinkerlaunch
+        vkbasalt
+      ];
     };
   };
 
@@ -271,7 +348,10 @@ with pkgs;
       extraPackages = [ libGL ];
     };
 
-    opentabletdriver = { enable = true; daemon.enable = true; };
+    opentabletdriver = {
+      enable = true;
+      daemon.enable = true;
+    };
   };
 
   environment.etc."X11/xorg.conf.d/20-nvidia-coolbits.conf".text = ''
@@ -300,491 +380,333 @@ with pkgs;
     fontDir.enable = true;
 
     fontconfig.defaultFonts = {
-      monospace = [ "Source Code Pro" "Symbols Nerd Font" "Noto Color Emoji" ];
-      sansSerif = [ "Open Sans" "Noto Sans" "Noto Color Emoji" ];
-      serif = [ "Liberation Serif" "Noto Serif" "Noto Color Emoji" ];
+      monospace = [
+        "Source Code Pro"
+        "Symbols Nerd Font"
+        "Noto Color Emoji"
+      ];
+      sansSerif = [
+        "Open Sans"
+        "Noto Sans"
+        "Noto Color Emoji"
+      ];
+      serif = [
+        "Liberation Serif"
+        "Noto Serif"
+        "Noto Color Emoji"
+      ];
       emoji = [ "Noto Color Emoji" ];
     };
   };
 
   environment.systemPackages = with pkgs;
     let
+      # Shared dev/toolchain inventory.
+      #
+      # Policy:
+      #   system config = superset / inventory owner
+      #   dev flake     = subset / exposure shim
       devPkgs = import ./shared/dev-pkgs.nix {
         inherit pkgs lib;
       };
 
-      pythonWithTools = python3.withPackages (p: with p; [
-        pyside6 # Qt/Python GUI bindings for small native tools and experiments.
-        pygame # Python SDL/game-loop experiments and simple media prototypes.
-        matplotlib # Plotting and quick numerical/data visualizations.
-        evdev # Python Linux input-device access for tablet/input tooling.
-        python-uinput # Python uinput bindings for virtual input-device experiments.
-        vpk # Valve Pak archive tooling for Source-engine/game asset work.
-        pysdl2 # Python SDL2 bindings for lightweight graphics/input prototypes.
-        uv # Fast Python package/environment tool.
-      ]);
-
       gimpFull = gimp-with-plugins.override {
         plugins = with gimpPlugins; [
-          gmic # GIMP image-processing/filter suite.
-          resynthesizer # GIMP content-aware fill / texture synthesis plugin.
+          gmic
+          resynthesizer
         ];
       };
 
+      # OS/rescue/shell basics that are not specifically dev-shell inventory.
       pkgsShellCore = [
-        vim # Always-available terminal editor for config recovery.
-        wget # Basic HTTP/file downloader.
-        git # Version control baseline.
-        jq # JSON query/filter tool for scripts and APIs.
-        fzf # Fuzzy finder for shell navigation and pickers.
-        fd # Fast ergonomic find replacement.
-        ripgrep # Fast source/text search.
-        ripgrep-all # ripgrep wrapper for PDFs, archives, docs, and rich files.
-        silver-searcher # Older ag search tool; useful for muscle-memory/scripts.
-        btop # Interactive process/resource monitor.
-        ccache # Compiler cache for faster C/C++ rebuilds.
-        yt-dlp # Media downloader/archiver.
-        gron # Flatten JSON into greppable assignments.
-        go-org # Org-mode parser/exporter utility.
-        groff # Classic roff/manpage/document formatter.
-        elinks # Text-mode browser for terminal/debug use.
-        fbida # Framebuffer image/PDF viewers.
-        busybox # Compact Unix tool collection for rescue/minimal scripts.
-        starship # Cross-shell prompt.
-        erdtree # Modern tree/disk-structure viewer.
-      ];
-
-      pkgsNixTooling = [
-        cachix # Cachix binary-cache CLI.
-        nixfmt # Classic Nix formatter.
-        nixpkgs-fmt # Alternative Nix formatter used by older nixpkgs style.
-        nixos-option # Query resolved NixOS option values.
-        nix-du # Analyze Nix store/disk usage.
-        nix-prefetch-git # Prefetch Git sources and hashes for Nix expressions.
-        nix-index # Build/query command-not-found package index.
-        nix-ld # Dynamic linker compatibility helper for foreign binaries.
-        nil # Nix language server.
-        nixd # Alternative Nix language server.
+        vim
+        wget
+        ripgrep-all
+        silver-searcher
+        btop
+        yt-dlp
+        gron
+        go-org
+        groff
+        elinks
+        fbida
+        busybox
+        starship
+        erdtree
       ];
 
       pkgsFileArchiveDisk = [
-        aria2 # aria2 download manager frontend/package.
-        bat # Syntax-highlighted cat replacement.
-        bchunk # Convert BIN/CUE CD images.
-        colordiff # Colored diff output.
-        cpulimit # Limit CPU usage of a process.
-        desktop-file-utils # Validate/update .desktop launcher metadata.
-        dpkg # Debian package inspection/extraction tools.
-        evtest # Inspect Linux input events.
-        exfatprogs # exFAT filesystem utilities.
-        file # Identify file types by magic bytes.
-        findutils # GNU find/xargs utilities.
-        gparted # GUI partition editor.
-        gptfdisk # GPT partitioning tools like gdisk/sgdisk.
-        grub2_efi # GRUB EFI tooling; not the active bootloader here.
-        httrack # Website mirroring/offline archive tool.
-        hwinfo # Hardware probing utility.
-        ifmetric # Adjust network interface route metrics.
-        inxi # Human-readable system information summary.
-        qdirstat # GUI disk-usage visualizer.
-        lshw # Hardware inventory tool.
-        lsix # Terminal image thumbnail helper.
-        ncdu # Terminal disk-usage explorer.
-        nethogs # Per-process network bandwidth monitor.
-        newt # Dialog/whiptail-style TUI library/tools.
-        p7zip # 7z archive support.
-        parallel # GNU parallel job runner.
-        parted # Partition manipulation CLI.
-        pciutils # lspci and PCI inspection tools.
-        smartmontools # SMART disk health tools.
-        subversion # SVN client for legacy repos/assets.
-        trash-cli # Freedesktop trash operations from CLI.
-        tree # Directory tree printer.
-        unrar # RAR archive extractor.
-        unzip # ZIP extractor.
-        xfsprogs # XFS filesystem tools.
-        zip # ZIP archive creator/updater.
-        zstd # Zstandard compression tools.
-        cdrtools # ISO/CD tooling including mkisofs-style utilities.
-        syslinux # Syslinux/isohybrid boot media tooling.
-        xorriso # ISO authoring/editing tool.
+        aria2
+        bat
+        bchunk
+        colordiff
+        cpulimit
+        desktop-file-utils
+        dpkg
+        evtest
+        exfatprogs
+        findutils
+        gparted
+        gptfdisk
+        grub2_efi
+        httrack
+        hwinfo
+        ifmetric
+        inxi
+        qdirstat
+        lshw
+        lsix
+        ncdu
+        nethogs
+        newt
+        p7zip
+        parallel
+        parted
+        pciutils
+        smartmontools
+        subversion
+        trash-cli
+        unrar
+        xfsprogs
+        cdrtools
+        syslinux
+        xorriso
       ];
 
       pkgsNetworkRemote = [
-        autossh # Persistent/restarting SSH tunnels.
-        awscli2 # AWS command-line tooling.
-        cloudflared # Cloudflare tunnel client.
-        iproute2 # ip/ss/tc networking tools.
-        libpcap # Packet capture library/tools dependency.
-        garage_2 # S3-compatible object store for small self-hosted geo-distributed deployments
-        mosh # Roaming/latency-tolerant SSH alternative.
-        ngrok # Public tunnels to local services.
-        nmap # Network scanning and service discovery.
-        opensnitch-ui # GUI for OpenSnitch firewall prompts/logs.
-        remmina # Remote desktop client for RDP/VNC/SPICE/etc.
-        samba # SMB/CIFS sharing/client tooling.
-        sshfs # Mount remote filesystems over SSH.
-        tcpdump # Packet capture CLI.
-        tigervnc # VNC client/server tooling.
-        tor # Tor daemon/client tooling.
-        torsocks # Route individual CLI apps through Tor.
-        wireshark # GUI packet analyzer.
+        autossh
+        awscli2
+        cloudflared
+        iproute2
+        libpcap
+        garage_2
+        mosh
+        ngrok
+        nmap
+        opensnitch-ui
+        remmina
+        samba
+        sshfs
+        tcpdump
+        tigervnc
+        tor
+        torsocks
+        wireshark
       ];
 
       pkgsCommsPresence = [
-        cheese # Webcam test/capture utility.
-        sparrow # Wallet/security app currently kept from prior config.
-        telegram-desktop # Telegram desktop client.
+        cheese
+        sparrow
+        telegram-desktop
       ];
 
       pkgsWaylandHypr = [
-        grim # Wayland screenshot capture.
-        hyprlock # Hyprland lock screen.
-        hyprpaper # Hyprland wallpaper daemon.
-        rofi # Wayland app launcher/menu.
-        slurp # Wayland region selector for screenshots.
-        swappy # Screenshot annotation/editor.
-        waybar # Wayland status bar.
-        wl-clipboard # Wayland clipboard CLI tools.
+        grim
+        hyprlock
+        hyprpaper
+        rofi
+        slurp
+        swappy
+        waybar
+        wl-clipboard
       ];
 
       pkgsDesktopCommon = [
-        autokey # Desktop automation/hotkey scripting.
-        conky # Desktop/system monitor overlay.
-        dmenu # Minimal X11 menu/launcher.
-        dunst # Lightweight notification daemon.
-        feh # Lightweight image viewer/wallpaper setter.
-        flameshot # Screenshot UI.
-        glava # Audio visualizer overlay.
-        guake # Drop-down terminal.
-        ksnip # Screenshot capture/annotation tool.
-        libnotify # notify-send and notification helpers.
-        maim # X11 screenshot utility.
-        mlterm # Multilingual terminal emulator.
-        polkit_gnome # Polkit authentication agent.
-        st # suckless simple terminal.
-        tilda # Drop-down terminal.
-        tilix # Tiling terminal emulator.
-        tmux # Terminal multiplexer.
-        ulauncher # Desktop app launcher.
-        virtualgl # Run GL apps through alternate GPU/display paths.
-        volctl # Volume tray/control utility.
-        xclip # X11 clipboard CLI.
-        xdotool # X11 automation tool.
-        xterm # Baseline X terminal.
-        yad # GUI dialogs from shell scripts.
-        zenity # GNOME-style GUI dialogs from shell scripts.
+        autokey
+        conky
+        dmenu
+        dunst
+        feh
+        flameshot
+        glava
+        guake
+        ksnip
+        libnotify
+        maim
+        mlterm
+        polkit_gnome
+        st
+        tilda
+        tilix
+        tmux
+        ulauncher
+        virtualgl
+        volctl
+        xclip
+        xdotool
+        xterm
+        yad
+        zenity
       ];
 
       pkgsDesktopKdeQt = [
-        kdePackages.ark # KDE archive manager.
-        kdePackages.kalarm # KDE alarm/reminder tool.
+        kdePackages.ark
+        kdePackages.kalarm
       ];
 
-      pkgsX11DevCompat = [
-        libX11 # X11 client library, useful for native builds.
-        libXext # X11 extension library for native builds.
-        libXi # XInput library for input-heavy native apps.
-        libXxf86vm # XF86VidMode library for old GL/game deps.
-        xdpyinfo # Inspect X display capabilities.
-        xev # Inspect X events/input.
-        xhost # Manage X server access control.
-        xmessage # Tiny X11 message dialog utility.
-        xmodmap # Inspect/edit X keymaps.
-        xprop # Inspect X window properties.
-        xrandr # X display layout/monitor control.
-        xwininfo # Inspect X window geometry/properties.
+      # X11 inspection/compat utilities.
+      # X11 dev libraries moved to shared/dev-pkgs.nix.
+      pkgsX11Tools = [
+        xdpyinfo
+        xev
+        xhost
+        xmessage
+        xmodmap
+        xprop
+        xrandr
+        xwininfo
       ];
 
       pkgsXfceCompat = [
-        thunar # Lightweight file manager.
-        thunar-volman # Thunar removable-volume integration.
-        tumbler # Thumbnail service for Thunar/desktop apps.
-        xfce4-screenshooter # XFCE screenshot utility kept for compatibility.
-        xfce4-whiskermenu-plugin # XFCE menu plugin kept for legacy session pieces.
+        thunar
+        thunar-volman
+        tumbler
+        xfce4-screenshooter
+        xfce4-whiskermenu-plugin
       ];
 
       pkgsBrowsers = [
-        google-chrome # Proprietary Chrome for compatibility/testing.
-        tor-browser # Tor Browser bundle.
-        ungoogled-chromium # Chromium variant without Google integration.
-        inputs.firefox.packages.${pkgs.stdenv.hostPlatform.system}.firefox-nightly-bin # Firefox Nightly from flake input.
+        google-chrome
+        tor-browser
+        ungoogled-chromium
+        inputs.firefox.packages.${pkgs.stdenv.hostPlatform.system}.firefox-nightly-bin
       ];
 
-      pkgsWebDev = [
-        filezilla # FTP/SFTP GUI client.
-        flyctl # Fly.io deployment CLI.
-        mkcert # Local trusted dev certificates.
-        nodejs # Default Node.js from current nixpkgs.
-        asar # Electron asar archive pack/unpack tool.
-        pnpm # JS package manager.
-        sass # Sass/SCSS compiler.
-        speedtest-cli # Network speed testing from CLI.
+      # Non-core web/network user tools.
+      # nodejs/pnpm/sass/mkcert/flyctl/asar moved to shared/dev-pkgs.nix.
+      pkgsWebUserTools = [
+        filezilla
+        speedtest-cli
       ];
 
       pkgsDocsWriting = [
-        abiword # Lightweight word processor.
-        calibre # Ebook manager/converter.
-        djvu2pdf # Convert DjVu documents to PDF.
-        djvulibre # DjVu tools and libraries.
-        exiftool # Metadata reader/writer for media/doc files.
-        ghostscript # PostScript/PDF interpreter and converter.
-        graphviz # Dot graph rendering.
-        kdePackages.ghostwriter # Markdown editor.
-        kdePackages.kate # KDE text/code editor.
-        kdePackages.okular # PDF/document viewer.
-        languagetool # Grammar/style checker.
-        ocamlPackages.cpdf # Command-line PDF manipulation tool.
-        pandoc # Universal document converter.
-        pdftk # PDF toolkit for splitting/merging/forms.
-        poppler-utils # PDF utilities like pdftotext/pdfinfo.
-        vale # Prose/style linter.
-        yacreader # Comic/manga reader.
-        zgrviewer # Graphviz/DOT graph viewer.
+        abiword
+        calibre
+        djvu2pdf
+        djvulibre
+        exiftool
+        ghostscript
+        graphviz
+        kdePackages.ghostwriter
+        kdePackages.kate
+        kdePackages.okular
+        languagetool
+        ocamlPackages.cpdf
+        pandoc
+        pdftk
+        poppler-utils
+        vale
+        yacreader
+        zgrviewer
       ];
 
       pkgsAudioCore = [
-        alsa-tools # ALSA diagnostic and control tools.
-        alsa-utils # aplay/arecord/amixer and ALSA basics.
-        easyeffects # PipeWire audio effects processor.
-        pavucontrol # PulseAudio/PipeWire volume control GUI.
-        pipewire # PipeWire user tools.
-        qpwgraph # PipeWire/JACK patchbay graph UI.
-        wireplumber # PipeWire session manager tools.
+        alsa-tools
+        alsa-utils
+        easyeffects
+        pavucontrol
+        pipewire
+        qpwgraph
+        wireplumber
       ];
 
       pkgsAudioProduction = [
-        audacity # Audio editor/recorder.
-        csound # Sound synthesis/audio programming system.
-        reaper # DAW for audio production.
-        sox # Swiss-army audio conversion/processing CLI.
+        audacity
+        csound
+        reaper
+        sox
       ];
 
       pkgsVideoMedia = [
-        ffmpeg-full # Full FFmpeg build with broad codec/filter support.
-        glaxnimate # 2D vector animation tool, useful with Kdenlive.
-        kdePackages.kdenlive # Video editor.
-        mkvtoolnix # Matroska/MKV inspection and muxing tools.
-        obs-studio # Recording/streaming studio.
-        simplescreenrecorder # Simple X11 screen recorder fallback.
-        vlc # General media player.
+        ffmpeg-full
+        glaxnimate
+        kdePackages.kdenlive
+        mkvtoolnix
+        obs-studio
+        simplescreenrecorder
+        vlc
       ];
 
       pkgsArtImage3d = [
-        blender # 3D modeling/rendering/animation suite.
-        gimpFull # GIMP plus selected plugins.
-        inkscape # Vector graphics editor.
-        openimageio # Image IO/conversion tools for VFX/render pipelines.
+        blender
+        gimpFull
+        inkscape
+        openimageio
       ];
 
       pkgsEducationMiscGui = [
-        anki-bin # Spaced-repetition flashcards.
-        d2 # Text-to-diagram renderer.
-        freeplane # Mind-mapping/outlining tool.
-        hakuneko # Manga/comic downloader.
-        input-remapper # GUI input remapping utility.
-        jmtpfs # Android MTP FUSE filesystem.
-        lightspark # Flash player implementation.
-        pspp # SPSS-like statistics tool.
-        xmind # Mind-mapping app.
-      ];
-
-      pkgsDbSqlite = [
-        sqlite # SQLite CLI/library.
-        sqlite-utils # Ergonomic SQLite import/query utility.
-        sqlitebrowser # GUI SQLite database browser.
-        sqlitecpp # C++ SQLite wrapper library.
-        sqldiff # SQLite database diff tool.
+        anki-bin
+        d2
+        freeplane
+        hakuneko
+        input-remapper
+        jmtpfs
+        lightspark
+        pspp
+        xmind
       ];
 
       pkgsDbServices = [
-        isso # Lightweight self-hosted comment server.
+        isso
       ];
 
-      pkgsCppCompilers = [
-        clang # LLVM C/C++ compiler; current nixpkgs default.
-        gcc # GNU C/C++ compiler; useful for compatibility comparisons.
-        zig # Zig compiler/build system; useful as build.zig orchestrator and C toolchain wrapper.
-        zls # Zig language server.
-      ];
-
-      pkgsCppBuildLink = [
-        bintools-unwrapped # Raw binutils tools for linker/assembler/object work.
-        cmake # Cross-platform build-system generator.
-        gnumake # Make build tool.
-        mold # Fast modern linker.
-        ninja # Fast low-overhead build executor.
-        pkg-config # Discover compiler/linker flags for libraries.
-      ];
-
-      pkgsCppLlvmRuntime = [
-        clang-tools # clangd/clang-tidy/clang-format and related LLVM tools.
-        llvmPackages.compiler-rt # LLVM runtime libs including sanitizer runtimes.
-        llvmPackages.libcxx # LLVM C++ standard library for libc++ testing.
-        llvmPackages.lld # LLVM linker.
-      ];
-
-      pkgsCppStaticAnalysis = [
-        ccls # C/C++ language server alternative to clangd.
-        cppcheck # Static analyzer for C/C++ bugs and style issues.
-        include-what-you-use # Header include hygiene analyzer.
-        universal-ctags # Source symbol index generator.
-        uncrustify # C/C++/C-like source formatter.
-      ];
-
-      pkgsCppDebug = [
-        gdb # GNU debugger; also used with rr replay.
-        lldb # LLVM debugger.
-        rr # Record/replay debugger for deterministic reverse debugging.
-        valgrind # Dynamic analysis suite; includes Memcheck, Cachegrind, Callgrind, Massif, etc.
-      ];
-
-      pkgsCppLibraries = [
-        cppzmq # Header-only C++ bindings for ZeroMQ.
-        libgccjit # GCC JIT library, useful for compiler/runtime experiments.
-        SDL2 # SDL2 game/input/window/audio development library.
-      ];
-
-      pkgsCppParsingCodegen = [
-        bison # Parser generator.
-        flex # Lexer generator.
-      ];
-
-      pkgsCppInteractive = [
-        cling # Interactive C++ interpreter/repl.
-      ];
-
-      pkgsCppSystemHeaders = [
-        linuxHeaders # Linux kernel headers for low-level/system builds.
-        linuxKernel.packages.linux_6_6.v4l2loopback # v4l2loopback package matching linux_6_6.
-      ];
-
-      pkgsWasm = [
-        binaryen # WebAssembly optimizer/tool suite; provides wasm-opt.
-        wasmer # WebAssembly runtime for running WASM modules.
-        emscripten # LLVM-to-JavaScript Compiler
-      ];
-
-      pkgsVulkanRuntimeDev = [
-        vulkan-headers # Vulkan C headers for builds.
-        vulkan-loader # Vulkan ICD loader library.
-        vulkan-tools # vulkaninfo and other Vulkan diagnostics.
-        vulkan-validation-layers # Khronos validation layers for debugging Vulkan API use.
-        vulkan-extension-layer # Extra Vulkan extension emulation/layer support.
-      ];
-
-      pkgsShaderToolchain = [
-        shader-slang # Slang shader language/compiler for modular shader codebases.
-        shaderc # GLSL/HLSL to SPIR-V compiler library/tools.
-        glslang # Khronos GLSL/HLSL front-end and validator.
-        spirv-cross # SPIR-V reflection and cross-compilation tool.
-        spirv-headers # SPIR-V registry headers.
-        spirv-tools # SPIR-V assembler/disassembler/validator/optimizer tools.
-      ];
-
-      pkgsGpuDebug = [
-        renderdoc # GPU frame capture/debugger for graphics APIs.
-      ];
-
-      pkgsProfilingCpu = [
-        perf # Linux perf profiler matching kernel package set.
-        flamegraph # Generate flame graphs from profiling stacks.
-        hotspot # GUI for perf.data analysis.
-        gperftools # Google performance tools: tcmalloc, CPU/heap profiler.
-      ];
-
-      pkgsProfilingMemory = [
-        heaptrack # Heap allocation profiler.
-        kdePackages.kcachegrind # GUI to profilers such as Valgrind
-      ];
-
-      pkgsTracingKernel = [
-        bpftrace # High-level eBPF tracing language/tool.
-        kernelshark # GUI trace visualizer for ftrace/trace-cmd data.
-        sysprof # System-wide profiler with GUI integration.
-        trace-cmd # ftrace command-line recorder/report tool.
-      ];
-
-      pkgsProfilingInstrumentation = [
-        tracy # Real-time instrumentation profiler.
-      ];
-
-      pkgsPython = [
-        poetry # Python dependency/project manager.
-        pythonWithTools # Custom Python 3.12 environment defined above.
+      pkgsSystemHeaders = [
+        linuxHeaders
+        linuxKernel.packages.linux_6_6.v4l2loopback
       ];
 
       pkgsAndroid = [
-        android-tools # adb/fastboot Android device tools.
-        watchman # File-watching service used by some mobile/dev workflows.
-        wmname # Set WM name to placate some Java GUI apps.
+        android-tools
+        watchman
+        wmname
       ];
 
       pkgsGameLaunchCompat = [
-        appimage-run # Run AppImage binaries on NixOS.
-        protontricks # Winetricks-like helper for Proton prefixes.
-        vkbasalt-cli # vkBasalt Vulkan post-processing control CLI.
-        wine # Windows compatibility layer.
-        winetricks # Helper for Wine DLL/runtime setup.
+        appimage-run
+        protontricks
+        vkbasalt-cli
+        wine
+        winetricks
       ];
 
       pkgsGamesNative = [
-        darkplaces # Quake engine port.
-        gzdoom # Doom engine source port.
-        quakespasm # Quake engine source port.
+        darkplaces
+        gzdoom
+        quakespasm
       ];
 
       pkgsEmulation = [
-        kega-fusion # Sega emulator.
-        libjpeg8 # Legacy JPEG library kept for old binary/game compatibility.
-        mednafen # Multi-system emulator.
+        kega-fusion
+        libjpeg8
+        mednafen
       ];
 
       pkgsIdeEditorsAgents = [
-        vscode-fhs # VS Code in FHS environment for extension/binary compatibility.
-        inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default # Zed editor from flake input.
-        inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default # Claude Code package from flake input.
+        vscode-fhs
+        inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
+        inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
     in
     lib.unique (
       pkgsShellCore
-      ++ pkgsNixTooling
       ++ pkgsFileArchiveDisk
       ++ pkgsNetworkRemote
       ++ pkgsCommsPresence
       ++ pkgsWaylandHypr
       ++ pkgsDesktopCommon
       ++ pkgsDesktopKdeQt
-      ++ pkgsX11DevCompat
+      ++ pkgsX11Tools
       ++ pkgsXfceCompat
       ++ pkgsBrowsers
-      ++ pkgsWebDev
+      ++ pkgsWebUserTools
       ++ pkgsDocsWriting
       ++ pkgsAudioCore
       ++ pkgsAudioProduction
       ++ pkgsVideoMedia
       ++ pkgsArtImage3d
       ++ pkgsEducationMiscGui
-      ++ pkgsDbSqlite
       ++ pkgsDbServices
-      ++ pkgsCppCompilers
-      ++ pkgsCppBuildLink
-      ++ pkgsCppLlvmRuntime
-      ++ pkgsCppStaticAnalysis
-      ++ pkgsCppDebug
-      ++ pkgsCppLibraries
-      ++ pkgsCppParsingCodegen
-      ++ pkgsCppInteractive
-      ++ pkgsCppSystemHeaders
-      ++ pkgsWasm
-      ++ pkgsVulkanRuntimeDev
-      ++ pkgsShaderToolchain
-      ++ pkgsGpuDebug
-      ++ pkgsProfilingCpu
-      ++ pkgsProfilingMemory
-      ++ pkgsTracingKernel
-      ++ pkgsProfilingInstrumentation
-      ++ pkgsPython
+      ++ pkgsSystemHeaders
       ++ pkgsAndroid
       ++ pkgsGameLaunchCompat
       ++ pkgsGamesNative
@@ -792,9 +714,10 @@ with pkgs;
       ++ pkgsIdeEditorsAgents
 
       # Shared system/dev package inventory.
-      # System config remains the superset; dev flake remains the exposure shim/subset.
+      # This keeps the system config as the superset and lets the dev flake
+      # remain only an exposure shim.
       ++ devPkgs.systemPackages
     );
 
-  system.stateVersion = "21.11"; # WARNING: do not change after install unless you know the migration impact.
+  system.stateVersion = "21.11";
 }

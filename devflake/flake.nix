@@ -1,7 +1,7 @@
 {
-  description = "Portable all-purpose dev shell for prototype work";
+  description = "Portable prototype dev shell; subset of Ryan's NixOS system dev inventory";
 
-  # On your NixOS machine this resolves through the system registry.
+  # On Ryan's NixOS machine this resolves through the system registry.
   # Once flake.lock is committed, other users get the exact pinned nixpkgs.
   inputs.nixpkgs.url = "nixpkgs";
 
@@ -21,131 +21,108 @@
         let
           lib = pkgs.lib;
           isLinux = pkgs.stdenv.hostPlatform.isLinux;
-          isX86Linux = system == "x86_64-linux";
 
-          coreTools = with pkgs; [
-            bashInteractive
-            git
-            gnumake
-            cmake
-            ninja
-            pkg-config
-            ccache
+          devPkgs = import ./shared/dev-pkgs.nix {
+            inherit pkgs lib;
+          };
 
-            clang
-            clang-tools
-            gcc
-            lldb
+          mkPath = paths: lib.makeBinPath paths;
 
-            jq
-            fd
-            ripgrep
-            fzf
-            tree
-            file
-            unzip
-            zip
-            zstd
+          mkLibPath = libs: lib.makeLibraryPath libs;
 
-            shellcheck
-            shfmt
+          mkIncludePath = libs:
+            lib.makeSearchPathOutput "dev" "include" libs;
 
-            nodejs
-            pnpm
+          mkPkgConfigPath = libs:
+            lib.concatStringsSep ":" [
+              (lib.makeSearchPathOutput "dev" "lib/pkgconfig" libs)
+              (lib.makeSearchPathOutput "dev" "share/pkgconfig" libs)
+            ];
 
-            python313
-            uv
-
-            nil
-            nixd
-          ] ++ lib.optionals isLinux (with pkgs; [
-            mold
-            gdb
-            valgrind
-          ]);
-
-          cppLibs = with pkgs; [
-            zlib
-            openssl
-            libffi
-            sqlite
-            SDL2
-          ];
-
-          linuxGraphicsLibs = lib.optionals isLinux (with pkgs; [
-            libGL
-            libxkbcommon
-            wayland
-            wayland-protocols
-
-            vulkan-headers
-            vulkan-loader
-            vulkan-validation-layers
-
-            shaderc
-            glslang
-            spirv-tools
-            spirv-cross
-          ]);
-
-          linuxX11Libs = lib.optionals isLinux (with pkgs; [
-            libx11
-            libxext
-            libxi
-            libxxf86vm
-          ]);
-
-          graphicsTools = lib.optionals isLinux (with pkgs; [
-            vulkan-tools
-            renderdoc
-            shader-slang
-          ]);
-
-          wasmTools = with pkgs; [
-            emscripten
-            binaryen
-            wasmer
-          ];
-
-          debugTools = lib.optionals isX86Linux (with pkgs; [
-            rr
-          ]);
-
-          runtimeLibs =
-            cppLibs
-            ++ linuxGraphicsLibs
-            ++ linuxX11Libs;
-
-          mkDevShell = extraTools:
+          mkDevShell =
+            { name
+            , tools
+            , libs
+            , extraHook ? ""
+            }:
             pkgs.mkShell {
-              packages = coreTools ++ extraTools;
+              inherit name;
 
-              # buildInputs expose headers, pkg-config files, and dev outputs.
-              buildInputs = runtimeLibs;
+              packages = tools;
+
+              # This is the main point of the dev flake:
+              # expose dev outputs, headers, CMake/pkg-config metadata, and libs.
+              buildInputs = libs;
 
               shellHook = ''
-                export DEV_SHELL_NAME=prototype
+                export DEV_SHELL_NAME="${name}"
+
                 export CC=clang
                 export CXX=clang++
                 export CMAKE_GENERATOR=Ninja
 
+                # Make shell-local tool paths explicit for non-Nix-aware scripts.
+                export PATH="${mkPath tools}:$PATH"
+
                 ${lib.optionalString isLinux ''
-                  export LD_LIBRARY_PATH="${lib.makeLibraryPath runtimeLibs}:''${LD_LIBRARY_PATH:-}"
+                  export LD_LIBRARY_PATH="${mkLibPath libs}:''${LD_LIBRARY_PATH:-}"
+                  export LIBRARY_PATH="${mkLibPath libs}:''${LIBRARY_PATH:-}"
+                  export CPATH="${mkIncludePath libs}:''${CPATH:-}"
+                  export PKG_CONFIG_PATH="${mkPkgConfigPath libs}:''${PKG_CONFIG_PATH:-}"
                 ''}
 
-                echo "dev shell: $DEV_SHELL_NAME (${system})"
-                echo "cc:  $CC"
-                echo "cxx: $CXX"
+                ${extraHook}
+
+                echo "dev shell: $DEV_SHELL_NAME"
+                echo "system:    ${system}"
+                echo "cc:        $CC"
+                echo "cxx:       $CXX"
               '';
             };
         in
         rec {
-          core = mkDevShell [ ];
-          graphics = mkDevShell graphicsTools;
-          wasm = mkDevShell wasmTools;
-          full = mkDevShell (graphicsTools ++ wasmTools ++ debugTools);
+          # Portable/headless default.
+          # Good for WSL, servers, SSH sessions, and non-GUI Unix users.
+          core = mkDevShell {
+            name = "prototype-core";
+            tools = devPkgs.shells.coreTools;
+            libs = devPkgs.shells.coreLibs;
+          };
 
-          default = full;
+          # Native graphics/app dev.
+          # Vulkan, SDL2, Wayland/X11 libs, shader tools, RenderDoc where available.
+          gfx = mkDevShell {
+            name = "prototype-gfx";
+            tools = devPkgs.shells.coreTools ++ devPkgs.shells.gfxTools;
+            libs = devPkgs.shells.coreLibs ++ devPkgs.shells.gfxLibs;
+          };
+
+          # Browser/WebAssembly dev.
+          # Emscripten, Binaryen, Wasmer.
+          wasm = mkDevShell {
+            name = "prototype-wasm";
+            tools = devPkgs.shells.coreTools ++ devPkgs.shells.wasmTools;
+            libs = devPkgs.shells.coreLibs;
+
+            extraHook = ''
+              export EMSCRIPTEN_ROOT="${pkgs.emscripten}"
+            '';
+          };
+
+          # Local everything shell.
+          # Use this on Ryan's workstation when doing mixed native/GFX/WASM work.
+          full = mkDevShell {
+            name = "prototype-full";
+            tools = devPkgs.shells.fullTools;
+            libs = devPkgs.shells.fullLibs;
+
+            extraHook = ''
+              export EMSCRIPTEN_ROOT="${pkgs.emscripten}"
+            '';
+          };
+
+          # Default must stay headless/portable.
+          default = core;
         });
     };
 }
