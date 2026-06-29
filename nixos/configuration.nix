@@ -386,7 +386,6 @@ with pkgs;
       ];
 
       pkgsNetworkRemote = [
-        anydesk # Remote desktop client/server.
         autossh # Persistent/restarting SSH tunnels.
         awscli2 # AWS command-line tooling.
         cloudflared # Cloudflare tunnel client.
