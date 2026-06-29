@@ -78,7 +78,7 @@ with pkgs;
     loader.efi.canTouchEfiVariables = true;
     supportedFilesystems = [ "ntfs" ];
     kernelModules = [ "v4l2loopback" "snd-seq" "snd-rawmidi" "kvm-amd" ];
-    kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" ];
+    kernelParams = [ "mem_sleep_default=deep" "usbcore.autosuspend=-1" "nvidia-drm.modeset=1" "nvidia-drm.fbdev=1" ];
     kernel.sysctl = { "kernel.perf_event_paranoid" = 1; "kernel.kptr_restrict" = 0; };
     extraModprobeConfig = ''
       options kvm_amd nested=1
@@ -256,7 +256,9 @@ with pkgs;
     bluetooth.enable = false;
 
     nvidia = {
-      open = false; # WARNING: keep false on Pascal-era NVIDIA GPUs.
+      open = false;
+      package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+
       powerManagement.enable = true;
       nvidiaSettings = true;
       nvidiaPersistenced = true;
