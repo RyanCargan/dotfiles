@@ -688,6 +688,7 @@ with pkgs;
         epkgs.evil
         epkgs.evil-collection
         epkgs.general
+        epkgs.gptel
         epkgs.magit
         epkgs.marginalia
         epkgs.orderless

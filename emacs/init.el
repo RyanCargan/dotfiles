@@ -71,6 +71,19 @@
 (require 'pi-coding-agent)
 (defalias 'pi #'pi-coding-agent)
 
+(require 'auth-source)
+(require 'use-package)
+
+(use-package gptel
+  :config
+  (setq gptel-model 'gemini-3.1-flash-lite
+        gptel-backend
+        (gptel-make-gemini "Gemini"
+          :key (lambda ()
+                 (auth-source-pick-first-password
+                  :host "generativelanguage.googleapis.com"))
+          :stream t)))
+
 ;; Preserve Pi's native chat keymap; prompts should be ready for composing.
 (evil-set-initial-state 'pi-coding-agent-chat-mode 'emacs)
 (evil-set-initial-state 'pi-coding-agent-input-mode 'insert)
