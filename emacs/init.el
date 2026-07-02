@@ -19,8 +19,8 @@
 (require 'pi-coding-agent)
 (defalias 'pi #'pi-coding-agent)
 
-;; Chat is for navigation; prompt buffers should be ready for composing.
-(evil-set-initial-state 'pi-coding-agent-chat-mode 'normal)
+;; Preserve Pi's native chat keymap; prompts should be ready for composing.
+(evil-set-initial-state 'pi-coding-agent-chat-mode 'emacs)
 (evil-set-initial-state 'pi-coding-agent-input-mode 'insert)
 
 (global-set-key (kbd "C-c a") #'pi-coding-agent)
