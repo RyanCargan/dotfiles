@@ -24,3 +24,23 @@ committed.
 Start the Emacs frontend with `M-x pi`, `C-c a`, or `SPC a p` in Evil normal
 state. Use `C-c C-c` in the input pane to send a prompt and `C-c C-p` to open
 the Pi command menu.
+
+Press `SPC` in Evil normal mode to open the contextual key guide. Common entry
+points are:
+
+| Key | Action |
+| --- | --- |
+| `F1` / `SPC ?` | Show bindings for the current mode |
+| `SPC p p` | Open a project in a named tab |
+| `SPC p f` | Find a file in the current project |
+| `SPC p s` | Search the project with ripgrep |
+| `SPC p a` | Start Pi at the current project root |
+| `SPC f t` | Toggle Treemacs |
+| `SPC g g` | Open Magit status |
+| `SPC o d` | Open Dired for the current file |
+| `SPC o a` | Open the Org agenda |
+| `SPC o c` | Open Calc |
+
+Use `C-x C-f` or `SPC o r` with a TRAMP path such as
+`/ssh:user@host:/path/to/file` to open remote files. In Dired, use `C-x C-q` to
+enter Wdired and edit filenames as text.

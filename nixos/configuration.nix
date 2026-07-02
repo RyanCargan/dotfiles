@@ -682,8 +682,19 @@ with pkgs;
       ];
 
       emacsPi = (emacsPackagesFor emacs-pgtk).emacsWithPackages (epkgs: [
+        epkgs.consult
+        epkgs.corfu
+        epkgs.doom-modeline
         epkgs.evil
+        epkgs.evil-collection
+        epkgs.general
+        epkgs.magit
+        epkgs.marginalia
+        epkgs.orderless
         epkgs.pi-coding-agent
+        epkgs.treemacs
+        epkgs.vertico
+        epkgs.which-key
       ]);
 
       pkgsIdeEditorsAgents = [
