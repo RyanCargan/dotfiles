@@ -76,7 +76,7 @@
 
 (use-package gptel
   :config
-  (setq gptel-model 'gemini-3.1-flash-lite
+  (setq gptel-model 'gemini-3.1-flash-lite-preview
         gptel-backend
         (gptel-make-gemini "Gemini"
           :key (lambda ()
