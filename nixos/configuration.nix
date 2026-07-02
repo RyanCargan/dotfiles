@@ -428,8 +428,10 @@ with pkgs;
         gron
         go-org
         groff
+        gnupg
         elinks
         fbida
+        pinentry-gnome3
         busybox
         starship
         erdtree
