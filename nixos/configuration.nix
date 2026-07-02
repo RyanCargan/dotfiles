@@ -681,7 +681,14 @@ with pkgs;
         mednafen
       ];
 
+      emacsPi = (emacsPackagesFor emacs-pgtk).emacsWithPackages (epkgs: [
+        epkgs.evil
+        epkgs.pi-coding-agent
+      ]);
+
       pkgsIdeEditorsAgents = [
+        emacsPi
+        pi-coding-agent
         vscode-fhs
         inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
         inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default

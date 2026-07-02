@@ -14,6 +14,7 @@ PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
 USER_FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
+  "$HOME/.emacs.d/init.el:./emacs/init.el"
 
   "$HOME/.config/hypr/hyprland.conf:./hypr/hyprland.conf"
   "$HOME/.config/waybar/config:./waybar/config"
