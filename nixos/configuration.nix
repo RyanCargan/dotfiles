@@ -698,6 +698,10 @@ with pkgs;
         epkgs.treemacs
         epkgs.vertico
         epkgs.which-key
+        epkgs.transient
+        epkgs.embark
+        epkgs.embark-consult
+        epkgs.helpful
       ]);
 
       pkgsIdeEditorsAgents = [

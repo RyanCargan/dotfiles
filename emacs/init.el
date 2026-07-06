@@ -71,6 +71,7 @@
 (require 'pi-coding-agent)
 (defalias 'pi #'pi-coding-agent)
 
+(setq epg-pinentry-mode 'loopback)
 (require 'auth-source)
 (require 'use-package)
 
