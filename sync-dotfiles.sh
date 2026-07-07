@@ -14,7 +14,18 @@ PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
 USER_FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
+
+  # Emacs entrypoint.
   "$HOME/.emacs.d/init.el:./emacs/init.el"
+
+  # Emacs sidecar modules.
+  "$HOME/.emacs.d/lisp/core.el:./emacs/lisp/core.el"
+  "$HOME/.emacs.d/lisp/completion.el:./emacs/lisp/completion.el"
+  "$HOME/.emacs.d/lisp/place.el:./emacs/lisp/place.el"
+  "$HOME/.emacs.d/lisp/discovery.el:./emacs/lisp/discovery.el"
+  "$HOME/.emacs.d/lisp/terminal.el:./emacs/lisp/terminal.el"
+  "$HOME/.emacs.d/lisp/ai.el:./emacs/lisp/ai.el"
+  "$HOME/.emacs.d/lisp/cockpit.el:./emacs/lisp/cockpit.el"
 
   "$HOME/.config/hypr/hyprland.conf:./hypr/hyprland.conf"
   "$HOME/.config/waybar/config:./waybar/config"

@@ -684,24 +684,25 @@ with pkgs;
       ];
 
       emacsPi = (emacsPackagesFor emacs-pgtk).emacsWithPackages (epkgs: [
-        epkgs.consult
-        epkgs.corfu
-        epkgs.doom-modeline
-        epkgs.evil
-        epkgs.evil-collection
-        epkgs.general
-        epkgs.gptel
-        epkgs.magit
-        epkgs.marginalia
-        epkgs.orderless
-        epkgs.pi-coding-agent
-        epkgs.treemacs
-        epkgs.vertico
-        epkgs.which-key
-        epkgs.transient
-        epkgs.embark
-        epkgs.embark-consult
-        epkgs.helpful
+        epkgs.consult # Consult = practical search/navigation commands over buffers, files, grep, imenu, etc.
+        epkgs.corfu # Corfu = completion popup at point while editing code/text.
+        epkgs.doom-modeline # Doom modeline = compact mode/status display without relying on icons.
+        epkgs.eat # Eat = Emacs-native terminal emulator.
+        epkgs.evil # Evil = Vim-style modal editing core.
+        epkgs.evil-collection # Evil Collection = Evil bindings for many non-core Emacs modes.
+        epkgs.embark # Embark = act on thing/candidate at point or in minibuffer.
+        epkgs.embark-consult # Embark Consult = glue for acting/exporting Consult search results.
+        epkgs.general # General = ergonomic leader-key/keybinding definition layer.
+        epkgs.gptel # gptel = general LLM chat/composition client inside Emacs.
+        epkgs.helpful # Helpful = richer C-h introspection for commands/functions/variables/keys.
+        epkgs.magit # Magit = Git porcelain and canonical Transient-powered command UI.
+        epkgs.marginalia # Marginalia = annotations beside minibuffer completion candidates.
+        epkgs.orderless # Orderless = unordered fragment matching for completion.
+        epkgs.pi-coding-agent # Pi = project-oriented coding agent inside Emacs.
+        epkgs.transient # Transient = Magit-style command cockpits/menus; explicit even though Magit pulls it.
+        epkgs.treemacs # Treemacs = project/file tree sidebar.
+        epkgs.vertico # Vertico = vertical minibuffer completion UI.
+        epkgs.which-key # which-key = show available key continuations after a prefix.
       ]);
 
       pkgsIdeEditorsAgents = [
