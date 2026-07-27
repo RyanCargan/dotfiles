@@ -706,8 +706,8 @@ with pkgs;
       ]);
 
       pkgsIdeEditorsAgents = [
-        emacsPi
-        pi-coding-agent
+        # emacsPi
+        # pi-coding-agent
         vscode-fhs
         inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
         inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
