@@ -31,6 +31,10 @@ rec {
       ccache
       shellcheck
       shfmt
+      ghostty
+      zsh
+      tmux
+      neovim
     ];
 
     # Nix/flake/dev-shell tooling.

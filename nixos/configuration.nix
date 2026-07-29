@@ -530,7 +530,6 @@ with pkgs;
         st
         tilda
         tilix
-        tmux
         ulauncher
         virtualgl
         volctl
