@@ -7,6 +7,29 @@ Apply the repository state with:
 sudo nixos-rebuild switch --flake /etc/nixos#nixos
 ```
 
+## Shell: zsh
+
+The default shell is now **zsh**. The repo tracks `.zshrc` (ported from
+`.bashrc`) and the NixOS config sets `users.ryan.shell = pkgs.zsh` plus
+`programs.zsh` with autosuggestions, syntax highlighting, and oh-my-zsh.
+
+Key differences from the old `.bashrc`:
+- `direnv hook zsh` instead of `direnv hook bash`
+- `starship init zsh` instead of `starship init bash`
+- `tabtab` zsh completion path instead of bash
+- `conda init` block is commented out (same as before)
+- `complete -C` for terraform works in zsh via the `compinit` integration
+
+## tmux
+
+Config lives at `.config/tmux/tmux.conf` and is synced to `~/.tmux.conf`
+(via the sync script). TPM plugins are installed at `~/.tmux/plugins/`.
+
+## nvim
+
+Config lives at `.config/nvim/init.vim` and is synced to
+`~/.config/nvim/init.vim`. Uses vim-plug for plugin management.
+
 ## Emacs, Evil, and Pi
 
 The NixOS configuration installs Emacs with Evil and `pi-coding-agent.el`, plus

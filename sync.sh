@@ -6,10 +6,14 @@ FILES=(
   # "$HOME/path/to/source/file2:~/path/to/destination/file2"
 	"$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
+  "$HOME/.zshrc:./.zshrc"
   "/etc/nixos/configuration.nix:./nixos/configuration.nix"
   "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
   "/etc/nixos/flake.nix:./nixos/flake.nix"
   "/etc/nixos/flake.lock:./nixos/flake.lock"
+  "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
+  "$HOME/.config/nvim/init.vim:./.config/nvim/init.vim"
+  "$HOME/.config/starship.toml:./.config/starship.toml"
   # Add more file pairs as needed
 )
 

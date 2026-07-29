@@ -107,6 +107,7 @@ with pkgs;
       group = "users";
       home = "/home/ryan";
       uid = 1000;
+      shell = pkgs.zsh;
       extraGroups = [
         "wheel"
         "libvirtd"
@@ -142,6 +143,22 @@ with pkgs;
     };
 
     groups.libvirtd.members = [ "ryan" ];
+  };
+
+  programs.zsh = {
+    enable = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    ohMyZsh = {
+      enable = true;
+      theme = "robbyrussell";
+      plugins = [ "git" "sudo" "history" "dirhistory" "copyfile" "copypath" ];
+    };
+    shellAliases = {
+      ll = "ls -l";
+      la = "ls -la";
+      l = "ls -lah";
+    };
   };
 
   time.timeZone = "Asia/Colombo";

@@ -14,6 +14,7 @@ PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
 USER_FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
+  "$HOME/.zshrc:./.zshrc"
 
   # Emacs entrypoint.
   "$HOME/.emacs.d/init.el:./emacs/init.el"
@@ -30,6 +31,11 @@ USER_FILES=(
   "$HOME/.config/hypr/hyprland.conf:./hypr/hyprland.conf"
   "$HOME/.config/waybar/config:./waybar/config"
   "$HOME/.config/waybar/style.css:./waybar/style.css"
+
+  "$HOME/.config/starship.toml:./.config/starship.toml"
+
+  "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
+  "$HOME/.config/nvim/init.vim:./.config/nvim/init.vim"
 )
 
 # System files: repo <-> /etc/nixos

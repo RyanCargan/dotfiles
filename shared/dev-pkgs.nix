@@ -32,7 +32,6 @@ rec {
       shellcheck
       shfmt
       ghostty
-      zsh
       tmux
       neovim
     ];
