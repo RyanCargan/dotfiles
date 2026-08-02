@@ -1,4 +1,8 @@
-return {
+-- ============================================================
+--  MAIN SETTINGS TABLE (will be returned at the end)
+-- ============================================================
+
+local config = {
     monitor = ", preferred, auto, 1",
 
     vars = {
@@ -90,41 +94,121 @@ return {
         sensitivity = 0,
         touchpad = { natural_scroll = false },
     },
-
-    binds = {
-        -- Main
-        { "$mainMod", "Q", "exec", "$terminal" },
-        { "$mainMod", "C", "killactive" },
-        { "$mainMod", "L", "exit" },
-        { "$mainMod", "E", "exec", "$fileManager" },
-        { "$mainMod", "V", "togglefloating" },
-        { "$mainMod", "R", "exec", "$menu" },
-        { "$mainMod", "P", "pseudo" },
-        { "$mainMod", "J", "layoutmsg", "togglesplit" },
-        { "$mainMod", "F", "fullscreen", 0 },
-        { "$mainMod", "G", "fullscreen", 1 },
-        { "$mainMod SHIFT", "S", "exec", 'grim -g "$(slurp)" - | swappy -f -' },
-        { "$mainMod SHIFT", "W", "exec", "hyprctl dismissnotify" },
-        
-        -- Focus
-        { "$mainMod", "left", "movefocus", "l" },
-        { "$mainMod", "right", "movefocus", "r" },
-        { "$mainMod", "up", "movefocus", "u" },
-        { "$mainMod", "down", "movefocus", "d" },
-
-        -- Workspaces (1-10)
-        -- (Ideally expanded in a loop in your generator)
-        { "$mainMod", "1", "workspace", 1 },
-        { "$mainMod", "2", "workspace", 2 },
-        -- ... [rest of workspaces omitted for brevity but you get the pattern]
-
-        -- Special
-        { "$mainMod", "S", "togglespecialworkspace", "magic" },
-        { "$mainMod SHIFT", "S", "movetoworkspace", "special:magic" },
-    },
-
-    windowrules = {
-        { "match:class ^(firefox-nightly)$, match:title ^(Picture-in-Picture)$, float on" },
-        { "match:class .*, suppress_event maximize" },
-    }
 }
+
+-- ============================================================
+--  KEYBINDS (hl.bind) – must come BEFORE the final `return`
+-- ============================================================
+
+local mainMod = "SUPER"
+
+-- Main application shortcuts
+hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd("tilix"))
+hl.bind(mainMod .. " + C", hl.dsp.killactive())
+hl.bind(mainMod .. " + L", hl.dsp.exit())
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd("thunar"))
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind(mainMod .. " + P", hl.dsp.pseudo())
+hl.bind(mainMod .. " + J", hl.dsp.layoutmsg("togglesplit"))
+hl.bind(mainMod .. " + F", hl.dsp.fullscreen(0))
+hl.bind(mainMod .. " + G", hl.dsp.fullscreen(1))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("hyprctl dismissnotify"))
+
+-- Focus movement
+hl.bind(mainMod .. " + left", hl.dsp.movefocus("l"))
+hl.bind(mainMod .. " + right", hl.dsp.movefocus("r"))
+hl.bind(mainMod .. " + up", hl.dsp.movefocus("u"))
+hl.bind(mainMod .. " + down", hl.dsp.movefocus("d"))
+
+-- Switch to workspace 1-9, and 0 for 10
+for i = 1, 9 do
+    hl.bind(mainMod .. " + " .. i, hl.dsp.workspace(i))
+end
+hl.bind(mainMod .. " + 0", hl.dsp.workspace(10))
+
+-- Move window to workspace 1-9, and 0 for 10
+for i = 1, 9 do
+    hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.movetoworkspace(i))
+end
+hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.movetoworkspace(10))
+
+-- Special workspace (magic)
+hl.bind(mainMod .. " + S", hl.dsp.togglespecialworkspace("magic"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.movetoworkspace("special:magic"))
+
+-- Mouse wheel workspace switching
+hl.bind(mainMod .. " + mouse_down", hl.dsp.workspace("e+1"))
+hl.bind(mainMod .. " + mouse_up", hl.dsp.workspace("e-1"))
+
+-- Move / resize window with mouse (bindm)
+hl.bind(mainMod .. " + mouse:272", hl.dsp.movewindow())
+hl.bind(mainMod .. " + mouse:273", hl.dsp.resizewindow())
+
+-- Volume keys (release + locked)
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { release = true, locked = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { release = true, locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { release = true, locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { release = true, locked = true })
+
+-- Brightness keys (release + locked)
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { release = true, locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { release = true, locked = true })
+
+-- Media keys (locked only, no release)
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+
+-- ============================================================
+--  WINDOW RULES (hl.window_rule)
+-- ============================================================
+
+-- Firefox Picture‑in‑Picture: all five rules
+hl.window_rule({
+    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
+    float = true,
+})
+hl.window_rule({
+    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
+    pin = true,
+})
+hl.window_rule({
+    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
+    keep_aspect_ratio = true,
+})
+hl.window_rule({
+    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
+    size = "25% 25%",
+})
+hl.window_rule({
+    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
+    move = "74% 7%",
+})
+
+-- Suppress maximize events for all windows
+hl.window_rule({
+    match = { class = ".*" },
+    suppress_event = "maximize",
+})
+
+-- No focus for specific XWayland floating windows
+hl.window_rule({
+    match = {
+        class = "^$",
+        title = "^$",
+        xwayland = true,
+        float = true,
+        fullscreen = false,
+        pin = false,
+    },
+    no_focus = true,
+})
+
+-- ============================================================
+--  FINAL RETURN – MUST BE THE LAST STATEMENT
+-- ============================================================
+
+return config
