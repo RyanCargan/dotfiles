@@ -1,25 +1,28 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 set -euo pipefail
 
 # Usage:
-#   ./sync-dotfiles.sh status   # coarse divergence summary
-#   ./sync-dotfiles.sh diff     # full unified diff
-#   ./sync-dotfiles.sh bundle   # regenerate vendored shared chunks
-#   ./sync-dotfiles.sh pull     # live system/project -> repo
-#   ./sync-dotfiles.sh push     # repo -> live system/project; sudo only for /etc copies
+#   ./sync-dotfiles.zsh status   # coarse divergence summary
+#   ./sync-dotfiles.zsh diff     # full unified diff
+#   ./sync-dotfiles.zsh bundle   # regenerate vendored shared chunks
+#   ./sync-dotfiles.zsh pull     # live system/project -> repo
+#   ./sync-dotfiles.zsh push     # repo -> live system/project; sudo only for /etc copies
 
 PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
 
+# ---- file lists ------------------------------------------------------------
+
 # User dotfiles: repo <-> $HOME
+# Explicit single-file entries
 USER_FILES=(
   "$HOME/.bashrc:./.bashrc"
   "$HOME/.bash_profile:./.bash_profile"
   "$HOME/.zshrc:./.zshrc"
 
-  # Emacs entrypoint.
+  # Emacs entrypoint
   "$HOME/.emacs.d/init.el:./emacs/init.el"
 
-  # Emacs sidecar modules.
+  # Emacs sidecar modules (explicit list – you can also glob these if you prefer)
   "$HOME/.emacs.d/lisp/core.el:./emacs/lisp/core.el"
   "$HOME/.emacs.d/lisp/completion.el:./emacs/lisp/completion.el"
   "$HOME/.emacs.d/lisp/place.el:./emacs/lisp/place.el"
@@ -35,11 +38,18 @@ USER_FILES=(
   "$HOME/.config/starship.toml:./.config/starship.toml"
 
   "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
-  "$HOME/.config/nvim/init.vim:./.config/nvim/init.vim"
+
+  # Neovim will be added automatically below (no need to list init.lua explicitly)
 )
 
+# Dynamically add everything under ~/.config/nvim
+# (N) makes the glob null if the directory doesn't exist, avoiding errors
+for livefile in $HOME/.config/nvim/**/*(.N); do
+  rel="${livefile#$HOME/.config/nvim/}"
+  USER_FILES+=("$livefile:./.config/nvim/$rel")
+done
+
 # System files: repo <-> /etc/nixos
-# Push uses sudo per-copy, not sudo for the whole script.
 SYSTEM_FILES=(
   "/etc/nixos/configuration.nix:./nixos/configuration.nix"
   "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
@@ -47,15 +57,18 @@ SYSTEM_FILES=(
   "/etc/nixos/flake.lock:./nixos/flake.lock"
 )
 
-# Prototype/devflake files: repo <-> prototype folder.
-# Generated/vendor shared chunks are intentionally NOT listed here.
+# Prototype/devflake files: repo <-> prototype folder
 PROTO_FILES=(
   "$PROTO/flake.nix:./devflake/flake.nix"
   "$PROTO/flake.lock:./devflake/flake.lock"
   "$PROTO/.envrc:./devflake/.envrc"
 )
 
+# ---- command dispatch ------------------------------------------------------
+
 cmd="${1:-status}"
+
+# ---- helpers ---------------------------------------------------------------
 
 copy_file() {
   local src="$1"
@@ -124,14 +137,6 @@ status_file() {
 }
 
 bundle_shared() {
-  # Source of truth:
-  #   ./shared/dev-pkgs.nix
-  #
-  # Vendored/generated copies:
-  #   ./nixos/shared/dev-pkgs.nix
-  #   ./devflake/shared/dev-pkgs.nix
-  #
-  # Edit only the source of truth, then run bundle/push.
   copy_file "./shared/dev-pkgs.nix" "./nixos/shared/dev-pkgs.nix"
   copy_file "./shared/dev-pkgs.nix" "./devflake/shared/dev-pkgs.nix"
 }
@@ -178,6 +183,8 @@ all_pairs_diff() {
   done
 }
 
+# ---- main ------------------------------------------------------------------
+
 case "$cmd" in
   status)
     all_pairs_status
@@ -195,10 +202,6 @@ case "$cmd" in
     ;;
 
   pull)
-    # Pull live user/system/prototype state into repo.
-    #
-    # Note: generated shared chunks are not pulled from live locations.
-    # Edit ./shared/dev-pkgs.nix, then run bundle.
     check_proto
 
     for pair in "${USER_FILES[@]}"; do
@@ -218,11 +221,6 @@ case "$cmd" in
     ;;
 
   push)
-    # Push repo state to user/system/prototype.
-    #
-    # Important:
-    #   Do NOT run this script with sudo.
-    #   It uses sudo only for /etc/nixos copies.
     check_proto
     bundle_shared
 
