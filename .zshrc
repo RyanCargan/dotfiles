@@ -9,6 +9,23 @@ if [ -f "$HOME/.config/secrets/env" ]; then
   set +a
 fi
 
+# ----- SSH agent: start if not running -----
+mkdir -p "$HOME/.ssh"
+
+# Load saved environment if it exists
+[ -f "$HOME/.ssh/agent-env" ] && source "$HOME/.ssh/agent-env"
+
+# Check if agent is alive
+if ! ssh-add -l &>/dev/null; then
+    echo "Starting ssh-agent..." >&2
+    eval "$(ssh-agent -s)" > /dev/null
+    # Save environment for future shells
+    ssh-agent -s > "$HOME/.ssh/agent-env"
+    source "$HOME/.ssh/agent-env"
+    # Optional: auto-add your default key
+    # ssh-add ~/.ssh/id_rsa 2>/dev/null
+fi
+
 # Env vars
 export EDITOR=nvim
 export SUDO_EDITOR=nvim
