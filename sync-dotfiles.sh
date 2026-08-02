@@ -39,6 +39,8 @@ USER_FILES=(
 
   "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
 
+  "$HOME/.wezterm.lua:./.wezterm.lua"
+
   # Neovim will be added automatically below (no need to list init.lua explicitly)
 )
 
