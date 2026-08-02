@@ -287,3 +287,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # z.lua
 eval "$(lua ~/zsh-plugins/z.lua/z.lua --init zsh enhanced once fzf)"
+
+# opencode
+export PATH=/home/ryan/.opencode/bin:$PATH
