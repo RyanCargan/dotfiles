@@ -1,5 +1,5 @@
 -- ============================================================
---  MAIN SETTINGS TABLE (will be returned at the end)
+--  MAIN SETTINGS TABLE
 -- ============================================================
 
 local config = {
@@ -19,8 +19,8 @@ local config = {
     },
 
     env = {
-        XCURSOR_SIZE = 24,
-        HYPRCURSOR_SIZE = 24,
+        XCURSOR_SIZE = "24",
+        HYPRCURSOR_SIZE = "24",
     },
 
     general = {
@@ -97,7 +97,7 @@ local config = {
 }
 
 -- ============================================================
---  KEYBINDS (hl.bind) – must come BEFORE the final `return`
+--  KEYBINDS (hl.bind) — must come BEFORE the final `return`
 -- ============================================================
 
 local mainMod = "SUPER"
@@ -111,9 +111,19 @@ hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind(mainMod .. " + P", hl.dsp.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layoutmsg("togglesplit"))
-hl.bind(mainMod .. " + F", hl.dsp.fullscreen(0))
-hl.bind(mainMod .. " + G", hl.dsp.fullscreen(1))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "set", mode = 0 }))
+hl.bind(mainMod .. " + G", hl.dsp.window.fullscreen({ action = "set", mode = 1 }))
+
+-- Screenshot: region-select to clipboard + editor (original bind)
+-- NOTE: this collided with SUPER+SHIFT+S (special workspace) below in the
+-- original .conf — moved screenshot to SUPER+SHIFT+G to remove the clash.
+hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+-- Alt binds for screenshot, since SHIFT+S is reserved for special:magic below:
+--   PrintScreen alone -> full screen grab straight to clipboard
+--   SUPER + PrintScreen -> region select, saved + opened in swappy
+hl.bind("Print", hl.dsp.exec_cmd('grim - | wl-copy'))
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
+
 hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("hyprctl dismissnotify"))
 
 -- Focus movement
@@ -134,7 +144,7 @@ for i = 1, 9 do
 end
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.movetoworkspace(10))
 
--- Special workspace (magic)
+-- Special workspace (magic) — kept as-is; this is now the sole owner of SHIFT+S
 hl.bind(mainMod .. " + S", hl.dsp.togglespecialworkspace("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.movetoworkspace("special:magic"))
 
@@ -142,21 +152,22 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.movetoworkspace("special:magic"))
 hl.bind(mainMod .. " + mouse_down", hl.dsp.workspace("e+1"))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.workspace("e-1"))
 
--- Move / resize window with mouse (bindm)
-hl.bind(mainMod .. " + mouse:272", hl.dsp.movewindow())
-hl.bind(mainMod .. " + mouse:273", hl.dsp.resizewindow())
+-- Move / resize window with mouse — requires { mouse = true } and the
+-- window.drag / window.resize dispatchers, NOT movewindow()/resizewindow()
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- Volume keys (release + locked)
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { release = true, locked = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { release = true, locked = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { release = true, locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { release = true, locked = true })
+-- Volume keys (repeat while held + work on lockscreen == old `bindel`)
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { release = true, locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { release = true, locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { release = true, locked = true, repeating = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { release = true, locked = true, repeating = true })
 
--- Brightness keys (release + locked)
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { release = true, locked = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { release = true, locked = true })
+-- Brightness keys (repeat while held + locked, matches official example config)
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
 
--- Media keys (locked only, no release)
+-- Media keys (locked only, single-fire, matches original `bindl`)
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
@@ -166,25 +177,13 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 --  WINDOW RULES (hl.window_rule)
 -- ============================================================
 
--- Firefox Picture‑in‑Picture: all five rules
+-- Firefox Picture-in-Picture: combined into a single rule (same match clause)
 hl.window_rule({
     match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
     float = true,
-})
-hl.window_rule({
-    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
     pin = true,
-})
-hl.window_rule({
-    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
     keep_aspect_ratio = true,
-})
-hl.window_rule({
-    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
     size = "25% 25%",
-})
-hl.window_rule({
-    match = { class = "^(firefox-nightly)$", title = "^(Picture-in-Picture)$" },
     move = "74% 7%",
 })
 
@@ -208,7 +207,7 @@ hl.window_rule({
 })
 
 -- ============================================================
---  FINAL RETURN – MUST BE THE LAST STATEMENT
+--  FINAL RETURN — MUST BE THE LAST STATEMENT
 -- ============================================================
 
 return config
