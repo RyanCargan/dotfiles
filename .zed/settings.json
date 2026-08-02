@@ -7,6 +7,15 @@
         },
       },
     },
+    "nixd": {
+      "settings": {
+        "diagnostic": {
+          "suppress": [
+            "sema-unused-def-lambda-noarg-formal"
+          ]
+        }
+      }
+    }
   },
   "languages": {
     "Nix": {

@@ -183,21 +183,21 @@ fi
 
 # Retry on fail command
 retry_command() {
-    cmd="$@"
+    local cmd=("$@")
     while true; do
-        $cmd
+        "${cmd[@]}"
         exit_code=$?
         if [ $exit_code -eq 0 ]; then
             break
         else
-            echo "Command '$cmd' failed with exit code $exit_code. Retrying in 1 minute..."
+            echo "Command '${cmd[*]}' failed with exit code $exit_code. Retrying in 1 minute..."
             sleep 10
         fi
     done
 }
 
 retry_sudo() {
-    cmd="$@"
+    local cmd=("$@")
 
     refresh_sudo() {
         while true; do
@@ -210,14 +210,14 @@ retry_sudo() {
         refresh_sudo &
 
         while true; do
-            sudo -n $cmd < /dev/null
+            sudo -n "${cmd[@]}" < /dev/null
             exit_code=$?
 
             if [ $exit_code -eq 0 ]; then
                 pkill -P $$
                 break
             else
-                echo "Command '$cmd' failed with exit code $exit_code. Retrying in 1 minute..."
+                echo "Command '${cmd[*]}' failed with exit code $exit_code. Retrying in 1 minute..."
                 sleep 10
             fi
         done
