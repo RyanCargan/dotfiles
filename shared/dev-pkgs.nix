@@ -21,6 +21,8 @@ rec {
       git
       jq
       fzf
+      ripgrep-all
+      lua
       fd
       ripgrep
       tree

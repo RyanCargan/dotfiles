@@ -284,3 +284,6 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL="meta-llama/llama-3.3-70b-instruct:free"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="google/gemma-3-12b-it:free"
 export CLAUDE_CODE_SUBAGENT_MODEL="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
 export PATH="$HOME/.local/bin:$PATH"
+
+# z.lua
+eval "$(lua ~/zsh-plugins/z.lua/z.lua --init zsh enhanced once fzf)"
