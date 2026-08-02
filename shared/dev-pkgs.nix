@@ -37,6 +37,7 @@ rec {
       wezterm
       tmux
       neovim
+      rtk
     ];
 
     # Nix/flake/dev-shell tooling.
