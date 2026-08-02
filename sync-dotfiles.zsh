@@ -31,7 +31,7 @@ USER_FILES=(
   "$HOME/.emacs.d/lisp/ai.el:./emacs/lisp/ai.el"
   "$HOME/.emacs.d/lisp/cockpit.el:./emacs/lisp/cockpit.el"
 
-  "$HOME/.config/hypr/hyprland.conf:./hypr/hyprland.conf"
+  "$HOME/.config/hypr/hyprland.lua:./hypr/hyprland.lua"
   "$HOME/.config/waybar/config:./waybar/config"
   "$HOME/.config/waybar/style.css:./waybar/style.css"
 
