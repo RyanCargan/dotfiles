@@ -40,7 +40,9 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "Q", "<nop>")
 
 -- Switch tab by index using vim.v.count
--- vim.keymap.set("n", "<leader>wt", require('wezterm').switch_tab.index)
+vim.keymap.set("n", "<leader>wt", function()
+    require("wezterm").switch_tab.index(vim.v.count)
+end)
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
