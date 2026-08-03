@@ -39,14 +39,8 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 -- Disable Ex mode to avoid confusion
 vim.keymap.set("n", "Q", "<nop>")
 
--- Switch to a workspace directory from z.lua history with wezterm
-vim.keymap.set("n", "<C-f>", function()
-    require("ryan.sessionizer").pick_and_switch()
-end)
--- Switch to an existing WezTerm workspace by name
-vim.keymap.set("n", "<leader>ws", function()
-    require("ryan.sessionizer").switch_workspace()
-end)
+-- Switch tab by index using vim.v.count
+-- vim.keymap.set("n", "<leader>wt", require('wezterm').switch_tab.index)
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
