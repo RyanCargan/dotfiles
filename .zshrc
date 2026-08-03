@@ -274,15 +274,16 @@ eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
 
 # 1. OpenRouter Connection
-export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
-export ANTHROPIC_AUTH_TOKEN="${OPENROUTER_API_KEY:-}"
-export ANTHROPIC_API_KEY=""
+# export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+# export ANTHROPIC_AUTH_TOKEN="${OPENROUTER_API_KEY:-}"
+# export ANTHROPIC_API_KEY=""
 
 # 2. Free Model Assignments
-export ANTHROPIC_DEFAULT_SONNET_MODEL="tencent/hy3-preview:free"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="meta-llama/llama-3.3-70b-instruct:free"
-export ANTHROPIC_DEFAULT_HAIKU_MODEL="google/gemma-3-12b-it:free"
-export CLAUDE_CODE_SUBAGENT_MODEL="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+# export ANTHROPIC_DEFAULT_SONNET_MODEL="tencent/hy3-preview:free"
+# export ANTHROPIC_DEFAULT_OPUS_MODEL="meta-llama/llama-3.3-70b-instruct:free"
+# export ANTHROPIC_DEFAULT_HAIKU_MODEL="google/gemma-3-12b-it:free"
+# export CLAUDE_CODE_SUBAGENT_MODEL="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+
 export PATH="$HOME/.local/bin:$PATH"
 
 # z.lua
