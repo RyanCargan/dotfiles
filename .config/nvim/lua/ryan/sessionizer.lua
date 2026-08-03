@@ -4,7 +4,6 @@ local wezterm = require("wezterm")
 local M = {}
 
 function M.get_dirs()
-    -- Try using z.lua via interactive Zsh
     local cmd = "zsh -ic 'z -l 2>/dev/null'"
     local handle = io.popen(cmd)
     if not handle then
@@ -17,14 +16,15 @@ function M.get_dirs()
 
     local dirs = {}
     for line in result:gmatch("[^\n]+") do
-        local path = line:match("^%S+%s+(.+)$")
-        if path then
+        -- Expect format: "score  /path/to/dir"
+        local score, path = line:match("^(%d+)%s+(.+)$")
+        if score and path and path:match("^/") then
             table.insert(dirs, path)
         end
     end
 
     if #dirs == 0 then
-        vim.notify("z.lua returned no dirs, using fallback", vim.log.levels.WARN)
+        vim.notify("z.lua returned no valid dirs, using fallback", vim.log.levels.WARN)
         return M.fallback_dirs()
     end
 
@@ -86,6 +86,32 @@ function M.open_workspace(dir)
         })
         vim.notify("Opened workspace: " .. workspace_name, vim.log.levels.INFO)
     end
+end
+
+-- New: switch to an existing workspace by name
+function M.switch_workspace()
+    local windows = wezterm.list_windows() or {}
+    local workspaces = {}
+    local seen = {}
+    for _, win in ipairs(windows) do
+        if win.workspace and not seen[win.workspace] then
+            seen[win.workspace] = true
+            table.insert(workspaces, win.workspace)
+        end
+    end
+
+    if #workspaces == 0 then
+        vim.notify("No workspaces found", vim.log.levels.WARN)
+        return
+    end
+
+    vim.ui.select(workspaces, {
+        prompt = "Switch to workspace:",
+    }, function(choice)
+        if not choice then return end
+        wezterm.exec_sync({ "wezterm", "cli", "switch-workspace", choice })
+        vim.notify("Switched to workspace: " .. choice, vim.log.levels.INFO)
+    end)
 end
 
 return M

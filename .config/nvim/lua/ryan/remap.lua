@@ -43,6 +43,10 @@ vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "<C-f>", function()
     require("ryan.sessionizer").pick_and_switch()
 end)
+-- Switch to an existing WezTerm workspace by name
+vim.keymap.set("n", "<leader>ws", function()
+    require("ryan.sessionizer").switch_workspace()
+end)
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
