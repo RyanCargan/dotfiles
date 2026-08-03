@@ -4,7 +4,7 @@ vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
-vim.api.nvim_set_keymap("n", "<leader>tf", "<Plug>PlenaryTestFile", { noremap = false, silent = false })
+vim.keymap.set("n", "<leader>tf", "<Plug>PlenaryTestFile", { remap = true })
 
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
@@ -40,10 +40,14 @@ vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "Q", "<nop>")
 
 -- Switch tab by index using vim.v.count
+-- NOTE: tab indices are zero-based, so 1<leader>wt switches to the 2nd tab.
+-- With no count, vim.v.count is 0, so <leader>wt switches to the 1st tab.
 vim.keymap.set("n", "<leader>wt", function()
     require("wezterm").switch_tab.index(vim.v.count)
 end)
 
+-- NOTE: <C-j> sends the same byte as <CR> (0x0A) in terminals, so it may not
+-- register in terminal nvim on some terminals; fine in GUI nvim.
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
@@ -80,6 +84,4 @@ vim.keymap.set("n", "<leader>ca", function()
     require("cellular-automaton").start_animation("make_it_rain")
 end)
 
-vim.keymap.set("n", "<leader><leader>", function()
-    vim.cmd("so")
-end)
+vim.keymap.set("n", "<leader><leader>", ":so %<CR>")
