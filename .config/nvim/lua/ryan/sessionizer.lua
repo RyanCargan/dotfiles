@@ -16,7 +16,6 @@ function M.get_dirs()
 
     local dirs = {}
     for line in result:gmatch("[^\n]+") do
-        -- Expect format: "score  /path/to/dir"
         local score, path = line:match("^(%d+)%s+(.+)$")
         if score and path and path:match("^/") then
             table.insert(dirs, path)
@@ -31,7 +30,6 @@ function M.get_dirs()
     return dirs
 end
 
--- Fallback: find directories containing .git inside $HOME (up to 4 levels deep)
 function M.fallback_dirs()
     local home = os.getenv("HOME") or "~"
     local find_cmd = string.format("find %s -maxdepth 4 -type d -name .git -prune 2>/dev/null | sed 's|/.git$||'", home)
@@ -67,10 +65,11 @@ end
 
 function M.open_workspace(dir)
     local workspace_name = dir:match("([^/]+)$") or dir
-    local windows = wezterm.list_windows() or {}
+
+    local panes = wezterm.list_panes() or {}
     local found = false
-    for _, win in ipairs(windows) do
-        if win.workspace == workspace_name then
+    for _, pane in ipairs(panes) do
+        if pane.workspace == workspace_name then
             found = true
             break
         end
@@ -88,15 +87,14 @@ function M.open_workspace(dir)
     end
 end
 
--- New: switch to an existing workspace by name
 function M.switch_workspace()
-    local windows = wezterm.list_windows() or {}
+    local panes = wezterm.list_panes() or {}
     local workspaces = {}
     local seen = {}
-    for _, win in ipairs(windows) do
-        if win.workspace and not seen[win.workspace] then
-            seen[win.workspace] = true
-            table.insert(workspaces, win.workspace)
+    for _, pane in ipairs(panes) do
+        if pane.workspace and not seen[pane.workspace] then
+            seen[pane.workspace] = true
+            table.insert(workspaces, pane.workspace)
         end
     end
 
