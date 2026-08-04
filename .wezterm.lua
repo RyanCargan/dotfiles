@@ -17,5 +17,8 @@ config.color_scheme = 'AdventureTime'
 -- Enable transparency
 config.window_background_opacity = 0.85   -- <-- add this line
 
+-- Enable auto-refresh
+automatically_reload_config = true
+
 -- Finally, return the configuration to wezterm:
 return config
