@@ -57,6 +57,7 @@ SYSTEM_FILES=(
   "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
   "/etc/nixos/flake.nix:./nixos/flake.nix"
   "/etc/nixos/flake.lock:./nixos/flake.lock"
+  "/etc/nixos/asound.state:./nixos/asound.state"
 )
 
 # Prototype/devflake files: repo <-> prototype folder

@@ -283,7 +283,46 @@ with pkgs;
       alsa.enable = true;
       pulse.enable = true;
       jack.enable = true;
-      wireplumber.enable = true;
+      wireplumber = {
+        enable = true;
+        config = {
+          wireplumber.conf = {
+            properties = {
+              "alsa.rules" = [
+                {
+                  matches = [
+                    {
+                      "device.name" = "alsa_card.pci-0000_28_00.4"
+                    }
+                  ];
+                  actions = {
+                    update-props = {
+                      "api.alsa.profile" = "output:analog-stereo+input:analog-stereo"
+                    };
+                  };
+                }
+              ];
+            };
+          };
+        };
+      };
+    };
+
+    # Persist ALSA mixer state (mic gain, input source, etc.)
+    systemd.user.services.alsa-restore = {
+      description = "Restore ALSA mixer state";
+      after = [ "pipewire.service" "wireplumber.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.alsa-utils}/bin/alsactl -f /etc/asound.state restore";
+      };
+      wantedBy = [ "default.target" ];
+    };
+
+    environment.etc."asound.state" = {
+      source = ./asound.state;
+      mode = "0644";
     };
 
     blueman.enable = false;

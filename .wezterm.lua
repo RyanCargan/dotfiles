@@ -22,6 +22,8 @@ config.automatically_reload_config = true
 
 -- Scrollbar
 config.enable_scroll_bar = true
+config.colors = config.colors or {}
+config.colors.scrollbar_thumb = '#888888'
 -- Hide the scrollbar when the alternate screen is active (e.g., vim, less)
 wezterm.on("update-status", function(window, pane)
   local overrides = window:get_config_overrides() or {}
