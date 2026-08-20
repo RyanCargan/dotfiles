@@ -51,6 +51,14 @@ for livefile in $HOME/.config/nvim/**/*(.N); do
   USER_FILES+=("$livefile:./.config/nvim/$rel")
 done
 
+for repofile in ./.config/nvim/**/*(.N); do
+  rel="${repofile#./.config/nvim/}"
+  live="$HOME/.config/nvim/$rel"
+  if [[ ! -e "$live" ]]; then
+    USER_FILES+=("$live:./.config/nvim/$rel")
+  fi
+done
+
 # System files: repo <-> /etc/nixos
 SYSTEM_FILES=(
   "/etc/nixos/configuration.nix:./nixos/configuration.nix"

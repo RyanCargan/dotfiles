@@ -121,6 +121,7 @@ rec {
     cppParsingCodegen = with pkgs; [
       bison
       flex
+      tree-sitter
     ];
 
     # Interactive C++.
