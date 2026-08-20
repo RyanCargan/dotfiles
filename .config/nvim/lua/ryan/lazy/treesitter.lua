@@ -2,6 +2,8 @@ vim.filetype.add({
     extension = {
         slang = "hlsl",
         hlsl = "hlsl",
+        wat = "wat",
+        wasm = "wat",
     },
 })
 
@@ -34,7 +36,6 @@ return {
                 "hlsl",
                 "rust",
                 "asm",
-                "wat",
             }
 
             local group = vim.api.nvim_create_augroup("ThePrimeagenTreesitter", { clear = true })
@@ -42,6 +43,9 @@ return {
                 group = group,
                 callback = function()
                     if vim.bo.buftype ~= "" then
+                        return
+                    end
+                    if vim.bo.filetype == "wat" then
                         return
                     end
 
