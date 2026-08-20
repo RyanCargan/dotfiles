@@ -204,6 +204,17 @@ with pkgs;
   systemd = {
     tmpfiles.rules = [ "d /mnt/ubuntu-storage/tmp 1777 root root -" ];
 
+    user.services.alsa-restore = {
+      description = "Restore ALSA mixer state";
+      after = [ "pipewire.service" "wireplumber.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.alsa-utils}/bin/alsactl -f /etc/asound.state restore";
+      };
+      wantedBy = [ "default.target" ];
+    };
+
     services.nvidia-tdp = {
       description = "Set NVIDIA power limit";
       wantedBy = [ "multi-user.target" ];
@@ -285,19 +296,19 @@ with pkgs;
       jack.enable = true;
       wireplumber = {
         enable = true;
-        config = {
-          wireplumber.conf = {
+        extraConfig = {
+          "wireplumber.conf" = {
             properties = {
               "alsa.rules" = [
                 {
                   matches = [
                     {
-                      "device.name" = "alsa_card.pci-0000_28_00.4"
+                      "device.name" = "alsa_card.pci-0000_28_00.4";
                     }
                   ];
                   actions = {
                     update-props = {
-                      "api.alsa.profile" = "output:analog-stereo+input:analog-stereo"
+                      "api.alsa.profile" = "output:analog-stereo+input:analog-stereo";
                     };
                   };
                 }
@@ -306,23 +317,6 @@ with pkgs;
           };
         };
       };
-    };
-
-    # Persist ALSA mixer state (mic gain, input source, etc.)
-    systemd.user.services.alsa-restore = {
-      description = "Restore ALSA mixer state";
-      after = [ "pipewire.service" "wireplumber.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.alsa-utils}/bin/alsactl -f /etc/asound.state restore";
-      };
-      wantedBy = [ "default.target" ];
-    };
-
-    environment.etc."asound.state" = {
-      source = ./asound.state;
-      mode = "0644";
     };
 
     blueman.enable = false;
@@ -418,6 +412,11 @@ with pkgs;
       Option "Coolbits" "28"
     EndSection
   '';
+
+  environment.etc."asound.state" = {
+    source = ./asound.state;
+    mode = "0644";
+  };
 
   fonts = {
     packages = with pkgs; [
