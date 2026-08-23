@@ -67,11 +67,13 @@ fi
 # --- Launch ---
 LLAMA_BIN="${LLAMA_BIN:-$(command -v llama-server 2>/dev/null || echo /run/current-system/sw/bin/llama-server)}"
 MODEL_PATH=""
+EXTRA_ARGS=()
 case $MODEL in
   qwen)   MODEL_PATH="$HOME/models/Qwen2.5-Coder-3B-Instruct-Q4_K_L.gguf" ;;
   rwkv)   MODEL_PATH="$HOME/models/rwkv7-g1g-2.9b-Q4_K_M.gguf" ;;
   mini)   MODEL_PATH="$HOME/models/MiniCPM5-1B-Claude-Opus-Fable5-Thinking-Q8_0.gguf" ;;
-  asr)    MODEL_PATH="$HOME/models/Qwen3-ASR-0.6B-Q8_0.gguf" ;;
+  asr)    MODEL_PATH="$HOME/models/Qwen3-ASR-0.6B-Q8_0.gguf"
+          EXTRA_ARGS+=(--mmproj "$HOME/models/mmproj-Qwen3-ASR-0.6B-Q8_0.gguf") ;;
 esac
 
 if [[ ! -f "$MODEL_PATH" ]]; then
@@ -80,7 +82,7 @@ if [[ ! -f "$MODEL_PATH" ]]; then
 fi
 
 echo "→ launching $MODEL on port $PORT ctx=$CTX ngl=$NGL ..."
-"$LLAMA_BIN" --model "$MODEL_PATH" --port "$PORT" --ctx-size "$CTX" -ngl "$NGL" -ctk "$CTK" -ctv "$CTT" > "/home/ryan/models/Logs/${MODEL}.log" 2>&1 &
+"$LLAMA_BIN" --model "$MODEL_PATH" --port "$PORT" --ctx-size "$CTX" -ngl "$NGL" -ctk "$CTK" -ctv "$CTT" "${EXTRA_ARGS[@]}" > "/home/ryan/models/Logs/${MODEL}.log" 2>&1 &
 SERVER_PID=$!
 
 echo "launched $MODEL on :$PORT ctx=$CTX ngl=$NGL"
