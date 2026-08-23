@@ -81,14 +81,26 @@ fi
 
 echo "→ launching $MODEL on port $PORT ctx=$CTX ngl=$NGL ..."
 "$LLAMA_BIN" --model "$MODEL_PATH" --port "$PORT" --ctx-size "$CTX" -ngl "$NGL" -ctk "$CTK" -ctv "$CTT" > "/home/ryan/models/Logs/${MODEL}.log" 2>&1 &
+SERVER_PID=$!
 
 echo "launched $MODEL on :$PORT ctx=$CTX ngl=$NGL"
 echo "Logs: /home/ryan/models/Logs/${MODEL}.log"
 
-# Brief wait + check
-sleep 2
-if curl -sf --max-time 2 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; then
-  echo "Server running on :$PORT"
-else
-  echo "WARNING: Server may not have started. Check /home/ryan/models/Logs/${MODEL}.log"
+# Brief wait + check (retry health for up to 10s)
+tries=0
+while (( tries < 50 )); do
+  if curl -sf --max-time 2 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; then
+    echo "Server running on :$PORT"
+    break
+  fi
+  # check if process died early
+  if ! kill -0 $SERVER_PID 2>/dev/null; then
+    echo "WARNING: Server exited. Check /home/ryan/models/Logs/${MODEL}.log"
+    break
+  fi
+  sleep 0.2
+  (( tries++ ))
+done
+if (( tries == 50 )); then
+  echo "WARNING: Server may not have started after 10s. Check /home/ryan/models/Logs/${MODEL}.log"
 fi
