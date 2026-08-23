@@ -41,6 +41,10 @@ USER_FILES=(
 
   "$HOME/.wezterm.lua:./.wezterm.lua"
 
+  # LLM/ASR scripts (hard-linked to ~/models/)
+  "$HOME/models/run-llm.zsh:./scripts/run-llm.zsh"
+  "$HOME/models/asr-hold.zsh:./scripts/asr-hold.zsh"
+
   # Neovim will be added automatically below (no need to list init.lua explicitly)
 )
 
@@ -80,7 +84,7 @@ SYSTEM_FILES=(
   "/etc/nixos/hardware-configuration.nix:./nixos/hardware-configuration.nix"
   "/etc/nixos/flake.nix:./nixos/flake.nix"
   "/etc/nixos/flake.lock:./nixos/flake.lock"
-  "/etc/nixos/asound.state:./nixos/asound.state"
+  # "/etc/nixos/asound.state:./nixos/asound.state"  # excluded — ALSA state too volatile for sync
 )
 
 # Prototype/devflake files: repo <-> prototype folder
