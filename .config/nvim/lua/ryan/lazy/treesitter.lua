@@ -38,7 +38,7 @@ return {
                 "asm",
             }
 
-            local group = vim.api.nvim_create_augroup("ThePrimeagenTreesitter", { clear = true })
+            local group = vim.api.nvim_create_augroup("RyanTreesitter", { clear = true })
             vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
                 group = group,
                 callback = function()

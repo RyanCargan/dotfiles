@@ -59,6 +59,21 @@ for repofile in ./.config/nvim/**/*(.N); do
   fi
 done
 
+# Dynamically add everything under ~/.config/easyeffects
+# (presets, autoload, db state — EasyEffects 8.x stores per-effect state in db/*.rc)
+for livefile in $HOME/.config/easyeffects/**/*(.N); do
+  rel="${livefile#$HOME/.config/easyeffects/}"
+  USER_FILES+=("$livefile:./.config/easyeffects/$rel")
+done
+
+for repofile in ./.config/easyeffects/**/*(.N); do
+  rel="${repofile#./.config/easyeffects/}"
+  live="$HOME/.config/easyeffects/$rel"
+  if [[ ! -e "$live" ]]; then
+    USER_FILES+=("$live:./.config/easyeffects/$rel")
+  fi
+done
+
 # System files: repo <-> /etc/nixos
 SYSTEM_FILES=(
   "/etc/nixos/configuration.nix:./nixos/configuration.nix"

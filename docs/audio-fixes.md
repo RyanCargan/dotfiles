@@ -126,4 +126,54 @@ sync-dotfiles.zsh       # 'push' now includes /etc/nixos/asound.state → repo
 - Tweak EasyEffects Gate/RNNoise parameters for specific microphone
 - Test front-panel mic with plug-in power enabled (if applicable)
 - Explore USB audio interface for cleanest signal chain
-- Document EasyEffects noise gate setup if recurring issue
+- ~~Document EasyEffects noise gate setup if recurring issue~~ → done, see below
+
+---
+
+## EasyEffects State (as of 2026-08-22)
+
+EasyEffects 8.2.4, autostart on login (`autostartOnLogin=true`), always running —
+which is what provides the `Easy Effects Source` virtual mic used by the ASR
+hold hotkey (`Super+Alt+R`).
+
+No saved presets (`.config/easyeffects/{input,output}/` empty). All tuned state
+lives in `db/*.rc` — EE 8's per-effect database. Those files are the source of
+truth and are versioned here; `sync-dotfiles.zsh` now syncs the whole tree.
+
+### Input chain (physical mic → apps/ASR)
+
+| Effect | Params | Inference |
+|---|---|---|
+| DeepFilterNet#0 | attenuationLimit=65, postFilterBeta=0.05 | ML speech denoise, aggressive ceiling. Primary static/fan/hiss killer for voice + ASR feed. |
+| Gate#0 | bypass=true | Noise gate tried and disabled — DeepFilterNet made it redundant. |
+
+### Output chain (apps → speakers), order: compressor → filter#0 → filter#1 → deepfilternet → limiter
+
+| Effect | Params | Inference |
+|---|---|---|
+| Compressor#0 | threshold=-20, attack=5, release=75 | Gentle glue: evens out quiet/loud swings from uneven source audio. |
+| Filter#0 | frequency=10000, slope=1 (type unset = default low-pass) | 12 dB/oct roll-off above ~10 kHz: trims top-end hiss/sibilance harshness from bad recordings. |
+| Filter#1 | frequency=120, slope=1, type=1 (high-pass) | Removes rumble/hum below 120 Hz. |
+| DeepFilterNet#0 | attenuationLimit=35, maxDfProcessingThreshold=15, postFilterBeta=0.03 | ML denoise on playback — conservative vs input chain so music doesn't get artifacts. |
+| Limiter#0 | threshold=-1 | Peak safety ceiling. |
+
+Overall design: band-limit 120 Hz–10 kHz + dynamics glue + ML denoise in both
+directions. Input tuned hard (65 dB) for close-mic static on a cheap analog
+mic; output soft (35 dB) to stay transparent on music.
+
+### Legacy dconf archive
+
+`docs/easyeffects-dconf-legacy.dump` is a full `dconf dump` of the pre-8.x
+gsettings state (13-band equalizer + dual-compressor experiment era,
+`snd_aloop` virtual input experiments). EE 8.2.4 does not read it — kept only
+so old trial-and-error values are recoverable:
+
+```
+dconf load /com/github/wwmm/easyeffects/ < docs/easyeffects-dconf-legacy.dump
+```
+
+### Restore procedure (fresh system)
+
+1. `sync-dotfiles.zsh push` (or manual copy of `.config/easyeffects/db/`)
+2. Start EasyEffects — chains load from `db/*.rc`
+3. Set default source if needed: `wpctl set-default <id>`
