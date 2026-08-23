@@ -36,6 +36,8 @@ case "${1:-}" in
     if [[ -z "$text" ]]; then
       text=$(curl -sf --max-time 60 -F file=@"$opus" -F model=qwen3-asr "http://127.0.0.1:$PORT_ASR/v1/audio/transcriptions" 2>/dev/null | jq -r '.text // empty' 2>/dev/null)
     fi
+    # Strip Qwen3-ASR wrapper: "language English<asr_text>actual text"
+    text=${text#*<asr_text>}
     if [[ -n "$text" ]]; then
       printf "%s" "$text" | wl-copy 2>/dev/null || printf "%s" "$text" | xclip -selection clipboard 2>/dev/null || true
       notify-send -t 2500 "ASR → clipboard" "$text" 2>/dev/null || true
