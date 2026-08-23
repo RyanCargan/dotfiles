@@ -11,12 +11,15 @@ ASR_PORT=8082
 # --- Parse args ---
 MODEL=""
 KILL_FIRST=0
+GPU_MODE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -m|--model)    MODEL="$2"; shift 2 || exit 1 ;;
     -k|--kill)     KILL_FIRST=1 ;;
-    -h|--help)     echo "Usage: $0 -m MODEL [-k]\nModels: qwen|rwkv (FIM, port 8080)\n             mini       (GEN, port 8081)\n             asr       (ASR, port 8082)"; exit 0 ;;
+    -g|--gpu)      GPU_MODE=1 ;;
+    -c|--cpu)      GPU_MODE=0 ;;
+    -h|--help)     echo "Usage: $0 -m MODEL [-k] [-g|-c]\nModels:\n  qwen|rwkv  (FIM, port 8080, CPU default)\n  mini       (GEN, port 8081, GPU default)\n  asr       (ASR, port 8082, CPU default)\n\nFlags: -k kill first, -g force GPU (ngl=-1), -c force CPU (ngl=0)"; exit 0 ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
   shift
@@ -24,20 +27,23 @@ done
 
 # --- Validate ---
 if [[ -z "$MODEL" ]]; then
-  echo "Usage: $0 -m MODEL [-k]"
-  echo "Models: qwen|rwkv (FIM, port 8080)
-mini       (GEN, port 8081)
-asr       (ASR, port 8082)"
+  echo "Usage: $0 -m MODEL [-k] [-g|-c]"
+  echo "Models: qwen|rwkv (FIM, port 8080, CPU default)
+mini       (GEN, port 8081, GPU default)
+asr       (ASR, port 8082, CPU default)"
   exit 1
 fi
 
 # --- Map model to port/ctx/ngl ---
 case "$MODEL" in
-  qwen|rwkv)  PORT=$FIM_PORT; CTX=16384; NGL=-1; CTK="f16"; CTT="f16" ;;
-  mini)       PORT=$GEN_PORT; CTX=65536; NGL=0;   CTK="f16"; CTT="f16" ;;
-  asr)        PORT=$ASR_PORT; CTX=16384; NGL=0;   CTK="f16"; CTT="f16" ;;
+  qwen|rwkv)  PORT=$FIM_PORT; CTX=16384; NGL=0;  CTK="f16"; CTT="f16" ;;
+  mini)       PORT=$GEN_PORT; CTX=65536; NGL=-1; CTK="f16"; CTT="f16" ;;
+  asr)        PORT=$ASR_PORT; CTX=16384; NGL=0;  CTK="f16"; CTT="f16" ;;
   *)          echo "Unknown model: $MODEL"; echo "Valid: qwen|rwkv|mini|asr"; exit 1 ;;
 esac
+
+# Apply GPU/CPU override if requested (-g forces all layers GPU, -c forces CPU)
+if [[ "$GPU_MODE" == "1" ]]; then NGL=-1; elif [[ "$GPU_MODE" == "0" ]]; then NGL=0; fi
 
 # --- Kill existing if requested or in use ---
 kill_port() {
