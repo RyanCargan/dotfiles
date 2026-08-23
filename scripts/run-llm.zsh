@@ -15,14 +15,16 @@ GPU_MODE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -m|--model)    MODEL="$2"; shift 2 || exit 1 ;;
-    -k|--kill)     KILL_FIRST=1 ;;
-    -g|--gpu)      GPU_MODE=1 ;;
-    -c|--cpu)      GPU_MODE=0 ;;
-    -h|--help)     echo "Usage: $0 -m MODEL [-k] [-g|-c]\nModels:\n  qwen|rwkv  (FIM, port 8080, CPU default)\n  mini       (GEN, port 8081, GPU default)\n  asr       (ASR, port 8082, CPU default)\n\nFlags: -k kill first, -g force GPU (ngl=-1), -c force CPU (ngl=0)"; exit 0 ;;
+    -m|--model)
+      if [[ $# -lt 2 ]]; then echo "Error: $1 requires an argument"; exit 1; fi
+      MODEL="$2"; shift 2
+      ;;
+    -k|--kill) KILL_FIRST=1; shift ;;
+    -g|--gpu)  GPU_MODE=1; shift ;;
+    -c|--cpu)  GPU_MODE=0; shift ;;
+    -h|--help) echo "Usage: $0 -m MODEL [-k] [-g|-c]\nModels:\n  qwen|rwkv  (FIM, port 8080, CPU default)\n  mini       (GEN, port 8081, GPU default)\n  asr       (ASR, port 8082, CPU default)\n\nFlags: -k kill first, -g force GPU (ngl=-1), -c force CPU (ngl=0)"; exit 0 ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
-  shift
 done
 
 # --- Validate ---
@@ -49,10 +51,11 @@ if [[ "$GPU_MODE" == "1" ]]; then NGL=-1; elif [[ "$GPU_MODE" == "0" ]]; then NG
 kill_port() {
   local p=$1
   local pid
-  pid=$(ss -tlnp 2>/dev/null | grep -E "127\.0\.0\.1:\"$p\|:\"$p" | grep -oE 'pid=[0-9]+' | head -n1 | cut -d= -f2)
+  pid=$(ss -tlnp 2>/dev/null | grep ":${p}" | grep -oE 'pid=[0-9]+' | head -n1 | cut -d= -f2)
   pid=${pid//[!0-9]/}
   if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
     kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null || true
+    sleep 1
   fi
 }
 
@@ -83,8 +86,8 @@ echo "launched $MODEL on :$PORT ctx=$CTX ngl=$NGL"
 echo "Logs: /home/ryan/models/Logs/${MODEL}.log"
 
 # Brief wait + check
-sleep 1
-if ss -tlnp 2>/dev/null | grep -q ":$PORT "; then
+sleep 2
+if curl -sf --max-time 2 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; then
   echo "Server running on :$PORT"
 else
   echo "WARNING: Server may not have started. Check /home/ryan/models/Logs/${MODEL}.log"
