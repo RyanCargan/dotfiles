@@ -61,15 +61,15 @@ case "${1:-}" in
       notify-send -t 2500 "ASR → clipboard" "$text" 2>/dev/null || true
       echo "$text"
     else
-      # Fallback: archive opus (1 of 10 slots)
+      # Fallback: persist raw WAV to a rolling ring buffer of 3 slots
       idx=$(cat "$ASR_IDX_FILE" 2>/dev/null || echo 0)
-      idx=$(( idx % 10 ))
-      opus="$AUDIO_DIR/asr-${idx}.opus"
-      ffmpeg -hide_banner -loglevel error -y -i "$ASR_WAV" -c:a libopus -b:a 24k -vbr on "$opus" 2>/dev/null || cp "$ASR_WAV" "$opus"
-      echo $(( (idx + 1) % 10 )) > "$ASR_IDX_FILE"
-      wl-copy <<< "$opus" 2>/dev/null || true
-      notify-send -t 3000 "ASR saved" "$opus (offline)" 2>/dev/null || true
-      echo "saved $opus (offline)"
+      idx=$(( idx % 3 ))
+      wav="$AUDIO_DIR/asr-${idx}.wav"
+      cp "$ASR_WAV" "$wav"
+      echo $(( (idx + 1) % 3 )) > "$ASR_IDX_FILE"
+      wl-copy <<< "$wav" 2>/dev/null || true
+      notify-send -t 3000 "ASR saved" "$wav (offline)" 2>/dev/null || true
+      echo "saved $wav (offline)"
     fi
     ;;
 
