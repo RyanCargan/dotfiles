@@ -3,7 +3,7 @@ return {
         config = function()
             require("trouble").setup({ })
 
-            vim.keymap.set("n", "<leader>tt", function()
+            vim.keymap.set("n", "<leader>tx", function()
                 require("trouble").toggle()
             end)
 
