@@ -45,8 +45,17 @@ case "${1:-}" in
     # Wait for ffmpeg flush
     sleep 0.5
 
-    # Send WAV directly to ASR endpoint
-    text=$(curl -sf --max-time 60 \
+    # Always persist WAV immediately to ring buffer (parallel, non-blocking).
+    # Decoupled from ASR success so audio is saved even if endpoint hangs.
+    idx=$(cat "$ASR_IDX_FILE" 2>/dev/null || echo 0)
+    idx=$(( idx % 3 ))
+    wav="$AUDIO_DIR/asr-${idx}.wav"
+    cp "$ASR_WAV" "$wav" &
+    persist_pid=$!
+    echo $(( (idx + 1) % 3 )) > "$ASR_IDX_FILE"
+
+    # Send WAV to ASR endpoint
+    text=$(curl -sf --max-time 30 \
       -F file=@"$ASR_WAV" \
       -F model=qwen3-asr \
       -F response_format=json \
@@ -56,17 +65,13 @@ case "${1:-}" in
     # Strip Qwen3-ASR wrapper: "language English<asr_text>actual text"
     text=${text#*<asr_text>}
 
+    wait "$persist_pid" 2>/dev/null || true
+
     if [[ -n "$text" ]]; then
       printf "%s" "$text" | wl-copy 2>/dev/null || printf "%s" "$text" | xclip -selection clipboard 2>/dev/null || true
       notify-send -t 2500 "ASR → clipboard" "$text" 2>/dev/null || true
       echo "$text"
     else
-      # Fallback: persist raw WAV to a rolling ring buffer of 3 slots
-      idx=$(cat "$ASR_IDX_FILE" 2>/dev/null || echo 0)
-      idx=$(( idx % 3 ))
-      wav="$AUDIO_DIR/asr-${idx}.wav"
-      cp "$ASR_WAV" "$wav"
-      echo $(( (idx + 1) % 3 )) > "$ASR_IDX_FILE"
       wl-copy <<< "$wav" 2>/dev/null || true
       notify-send -t 3000 "ASR saved" "$wav (offline)" 2>/dev/null || true
       echo "saved $wav (offline)"
