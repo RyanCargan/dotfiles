@@ -10,7 +10,9 @@ return {
                 provider = "llama_cpp",
                 provider_options = {
                     base_url = "http://127.0.0.1:8080/completion",
-                    model = "rwkv7-g1g-2.9b-Q4_K_M",
+                    -- model auto-detected from llama-server /props endpoint
+                    -- (empty triggers auto-detection: queries model_alias from
+                    -- http://127.0.0.1:8080/props and picks rwkv vs standard FIM format)
                 },
                 run_on_every_keystroke = true,
             })
