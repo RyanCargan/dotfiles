@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]]; do
     -k|--kill) KILL_FIRST=1; shift ;;
     -g|--gpu)  GPU_MODE=1; shift ;;
     -c|--cpu)  GPU_MODE=0; shift ;;
-    -h|--help) echo "Usage: $0 -m MODEL [-k] [-g|-c]\nModels:\n  qwen|rwkv  (FIM, port 8080, CPU default)\n  mini       (GEN, port 8081, GPU default)\n  asr       (ASR, port 8082, CPU default)\n\nFlags: -k kill first, -g force GPU (ngl=-1), -c force CPU (ngl=0)"; exit 0 ;;
+    -h|--help) echo "Usage: $0 -m MODEL [-k] [-g|-c]\nModels:\n  qwen|rwkv  (FIM, port 8080, GPU default)\n  mini       (GEN, port 8081, GPU default)\n  asr       (ASR, port 8082, GPU default)\n\nFlags: -k kill first, -g force GPU (ngl=-1), -c force CPU (ngl=0)"; exit 0 ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -30,17 +30,17 @@ done
 # --- Validate ---
 if [[ -z "$MODEL" ]]; then
   echo "Usage: $0 -m MODEL [-k] [-g|-c]"
-  echo "Models: qwen|rwkv (FIM, port 8080, CPU default)
+  echo "Models: qwen|rwkv (FIM, port 8080, GPU default)
 mini       (GEN, port 8081, GPU default)
-asr       (ASR, port 8082, CPU default)"
+asr       (ASR, port 8082, GPU default)"
   exit 1
 fi
 
 # --- Map model to port/ctx/ngl ---
 case "$MODEL" in
-  qwen|rwkv)  PORT=$FIM_PORT; CTX=16384; NGL=0;  CTK="f16"; CTT="f16" ;;
+  qwen|rwkv)  PORT=$FIM_PORT; CTX=16384; NGL=-1; CTK="f16"; CTT="f16" ;;
   mini)       PORT=$GEN_PORT; CTX=65536; NGL=-1; CTK="f16"; CTT="f16" ;;
-  asr)        PORT=$ASR_PORT; CTX=16384; NGL=0;  CTK="f16"; CTT="f16" ;;
+  asr)        PORT=$ASR_PORT; CTX=16384; NGL=-1; CTK="f16"; CTT="f16" ;;
   *)          echo "Unknown model: $MODEL"; echo "Valid: qwen|rwkv|mini|asr"; exit 1 ;;
 esac
 

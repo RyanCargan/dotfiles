@@ -743,7 +743,7 @@ with pkgs;
         vscode-fhs
         inputs.zed-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
         inputs.claude-fork.packages.${pkgs.stdenv.hostPlatform.system}.default
-        llama-cpp-vulkan
+        unstable.llama-cpp-vulkan
       ];
     in
     lib.unique (
