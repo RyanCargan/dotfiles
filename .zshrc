@@ -29,6 +29,8 @@ fi
 # Env vars
 export EDITOR=nvim
 export SUDO_EDITOR=nvim
+# Enable zsh vi-mode keybindings (hjkl cursor motion, 0/$ line edges, Esc to toggle modes)
+bindkey -v
 # export NODE_SKIP_PLATFORM_CHECK=1
 export ANDROID_HOME=~/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator

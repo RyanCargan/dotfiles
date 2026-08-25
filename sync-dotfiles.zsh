@@ -39,9 +39,11 @@ USER_FILES=(
 
   "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
 
-  "$HOME/.wezterm.lua:./.wezterm.lua"
+   "$HOME/.wezterm.lua:./.wezterm.lua"
 
-  # LLM/ASR scripts (hard-linked to ~/models/)
+   "$HOME/.config/maki/init.lua:./.config/maki/init.lua"
+
+   # LLM/ASR scripts (hard-linked to ~/models/)
   "$HOME/models/run-llm.zsh:./scripts/run-llm.zsh"
   "$HOME/models/asr-hold.zsh:./scripts/asr-hold.zsh"
 
@@ -124,6 +126,30 @@ copy_file_sudo() {
 
   sudo mkdir -p "$(dirname "$dst")"
   sudo rsync -av "$src" "$dst"
+}
+
+# Timestamp-aware sync: only copy if source strictly newer than destination.
+# Usage: sync_file_directional <src> <dst> <copy_fn> <label>
+# copy_fn: "copy_file" or "copy_file_sudo"
+sync_file_directional() {
+  local src="$1"
+  local dst="$2"
+  local copy_fn="$3"
+  local label="$4"
+
+  [[ ! -e "$src" && ! -e "$dst" ]] && return
+  [[ ! -e "$src" ]] && { echo "  MISSING SRC: $src ($label)"; return; }
+  [[ ! -e "$dst" ]] && { $copy_fn "$src" "$dst"; echo "  SYNC (dst missing): $src -> $dst"; return; }
+  cmp -s "$src" "$dst" && return
+
+  if [[ "$src" -nt "$dst" ]]; then
+    $copy_fn "$src" "$dst"
+    echo "  SYNC: $src -> $dst"
+  else
+    echo "  CONFLICT: $dst newer or same mtime, content differs"
+    echo "    src: $(stat -c '%y' "$src" | cut -d. -f1)  dst: $(stat -c '%y' "$dst" | cut -d. -f1)"
+    echo "    $label — resolve manually, then touch authoritative side."
+  fi
 }
 
 diff_file() {
@@ -231,49 +257,49 @@ case "$cmd" in
     echo "Bundled shared Nix chunks."
     ;;
 
-  pull)
-    check_proto
+   pull)
+     check_proto
 
-    for pair in "${USER_FILES[@]}"; do
-      copy_file "${pair%%:*}" "${pair##*:}"
-    done
+     for pair in "${USER_FILES[@]}"; do
+       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "user"
+     done
 
-    for pair in "${SYSTEM_FILES[@]}"; do
-      copy_file "${pair%%:*}" "${pair##*:}"
-    done
+     for pair in "${SYSTEM_FILES[@]}"; do
+       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file_sudo" "system"
+     done
 
-    for pair in "${PROTO_FILES[@]}"; do
-      copy_file "${pair%%:*}" "${pair##*:}"
-    done
+     for pair in "${PROTO_FILES[@]}"; do
+       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "proto"
+     done
 
-    bundle_shared
-    echo "Pulled live files into repo and refreshed generated chunks."
+     bundle_shared
+     echo "Pulled live files into repo and refreshed generated chunks."
     ;;
 
-  push)
-    check_proto
-    bundle_shared
+   push)
+     check_proto
+     bundle_shared
 
-    echo "Pushing user files..."
-    for pair in "${USER_FILES[@]}"; do
-      copy_file "${pair##*:}" "${pair%%:*}"
-    done
+     echo "Pushing user files..."
+     for pair in "${USER_FILES[@]}"; do
+       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "user"
+     done
 
-    echo "Pushing system files..."
-    for pair in "${SYSTEM_FILES[@]}"; do
-      copy_file_sudo "${pair##*:}" "${pair%%:*}"
-    done
+     echo "Pushing system files..."
+     for pair in "${SYSTEM_FILES[@]}"; do
+       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file_sudo" "system"
+     done
 
-    echo "Pushing prototype/devflake files..."
-    for pair in "${PROTO_FILES[@]}"; do
-      copy_file "${pair##*:}" "${pair%%:*}"
-    done
+     echo "Pushing prototype/devflake files..."
+     for pair in "${PROTO_FILES[@]}"; do
+       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "proto"
+     done
 
-    echo "Pushing generated shared chunks..."
-    copy_file_sudo "./nixos/shared/dev-pkgs.nix" "/etc/nixos/shared/dev-pkgs.nix"
-    copy_file "./devflake/shared/dev-pkgs.nix" "$PROTO/shared/dev-pkgs.nix"
+     echo "Syncing generated shared chunks..."
+     sync_file_directional "./nixos/shared/dev-pkgs.nix" "/etc/nixos/shared/dev-pkgs.nix" "copy_file_sudo" "nixos"
+     sync_file_directional "./devflake/shared/dev-pkgs.nix" "$PROTO/shared/dev-pkgs.nix" "copy_file" "devflake"
 
-    echo "Pushed repo dotfiles into live locations."
+     echo "Pushed repo dotfiles into live locations."
     ;;
 
   *)

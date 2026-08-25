@@ -48,8 +48,9 @@ end)
 
 -- NOTE: <C-j> sends the same byte as <CR> (0x0A) in terminals, so it may not
 -- register in terminal nvim on some terminals; fine in GUI nvim.
-vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
-vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+-- Note: <C-k>/<C-j> now used by smart-splits in terminal.lua for split navigation
+vim.keymap.set("n", "<M-k>", "<cmd>cnext<CR>zz")
+vim.keymap.set("n", "<M-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
 vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
