@@ -79,36 +79,5 @@ table.insert(config.keys, { key = "Tab", mods = "SHIFT|CTRL", action = wezterm.a
  -- Spawn new tab: Ctrl+Shift+t
 table.insert(config.keys, { key = "t", mods = "CTRL|SHIFT", action = wezterm.action.SpawnTab("CurrentPaneDomain") })
 
--- ============================================================
--- Wezurrect: Tab/pane session persistence (fork of resurrect.wezterm)
--- ============================================================
-local resurrect = wezterm.plugin.require("https://github.com/YedPool/resurrect.wezterm")
-resurrect.setup(config)
-
--- Keybindings for session management
-table.insert(config.keys, {
-  key = "s",
-  mods = "LEADER",
-  action = wezterm.action_callback(function(win, pane)
-    resurrect.workspace_state.save_workspace_action()
-  end),
-})
-table.insert(config.keys, {
-  key = "l",
-  mods = "LEADER",
-  action = wezterm.action_callback(function(win, pane)
-    resurrect.workspace_state.restore_workspace_action()
-  end),
-})
-
--- Auto-save every 5 minutes
-wezterm.on("update-status", function(window, pane)
-  local now = os.time()
-  if not resurrect.state_manager.last_save or (now - resurrect.state_manager.last_save) > 300 then
-    resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
-    resurrect.state_manager.last_save = now
-  end
-end)
-
 -- Finally, return the configuration
 return config
