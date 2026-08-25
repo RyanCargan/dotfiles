@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-set -euo pipefail
+set -uo pipefail
 
 # Usage:
 #   ./sync-dotfiles.zsh status   # coarse divergence summary
