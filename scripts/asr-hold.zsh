@@ -31,35 +31,22 @@ start_recording() {
   ffmpeg -hide_banner -loglevel error -y \
     -f pulse -i @DEFAULT_SOURCE@ \
     -ac 1 -ar 16000 -acodec pcm_s16le \
-    "$ASR_WAV" &
+    "$ASR_WAV" >/dev/null 2>&1 &
   local pid=$!
   echo "$pid" > "$ASR_PID_FILE"
   date +%s > "$ASR_START_FILE"
 
-  # Persistent notification with elapsed timer
-  while kill -0 "$pid" 2>/dev/null; do
-    elapsed=$(( $(date +%s) - $(cat "$ASR_START_FILE") ))
-    mm=$(( elapsed / 60 ))
-    ss=$(( elapsed % 60 ))
-    printf -v time_str "%02d:%02d" "$mm" "$ss"
-    notify-send -e -t 0 -u low "$ASR_NOTIFY_APP" "● Recording $time_str" 2>/dev/null || true
-    sleep 1
-  done &
-  echo $! >> "$ASR_PID_FILE"  # second PID for the notification loop
+  # Persistent notification (no timeout) — stays until stop
+  notify-send -e -t 0 -u normal "$ASR_NOTIFY_APP" "● Recording — tap again to stop" 2>/dev/null || true
 }
 
 stop_recording() {
   local pid
-  pid=$(cat "$ASR_PID_FILE" 2>/dev/null | head -n1)
+  pid=$(cat "$ASR_PID_FILE" 2>/dev/null)
   if [[ -n "$pid" ]]; then
     kill "$pid" 2>/dev/null
     wait "$pid" 2>/dev/null || true
   fi
-
-  # Kill notification loop
-  local notif_pid
-  notif_pid=$(cat "$ASR_PID_FILE" 2>/dev/null | tail -n1)
-  [[ -n "$notif_pid" ]] && kill "$notif_pid" 2>/dev/null
 
   rm -f "$ASR_PID_FILE" "$ASR_START_FILE"
 
@@ -136,7 +123,11 @@ case "${1:-}" in
 
   status)
     if is_recording; then
-      echo "recording ($(($(date +%s) - $(cat "$ASR_START_FILE"))))"
+      local elapsed=""
+      if [[ -f "$ASR_START_FILE" ]]; then
+        elapsed=" $(( $(date +%s) - $(cat "$ASR_START_FILE") ))s elapsed"
+      fi
+      echo "recording${elapsed}"
     else
       echo "idle"
     fi
