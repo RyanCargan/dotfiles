@@ -10,6 +10,12 @@ set -uo pipefail
 
 PROTO="/run/media/ryan/nixos/Content/portfolio/prototype"
 
+# Lab repo: one-way consumer of the shared dev-pkgs.nix spec.
+# The lab's own flake.nix imports the spec via relative path, so we only
+# need to keep the spec file in sync — flake.nix / flake.lock / .envrc
+# are lab-authored and stay where they are.
+LAB="/home/ryan/Code/Repos/lab"
+
 # ---- file lists ------------------------------------------------------------
 
 # User dotfiles: repo <-> $HOME
@@ -94,6 +100,17 @@ PROTO_FILES=(
   "$PROTO/flake.nix:./devflake/flake.nix"
   "$PROTO/flake.lock:./devflake/flake.lock"
   "$PROTO/.envrc:./devflake/.envrc"
+)
+
+# Lab files: dotfiles -> lab folder (one-way push of the spec).
+# The lab's flake.nix imports from ./shared/dev-pkgs.nix in the lab repo,
+# not from the submodule — nix flakes require build-time files to be
+# tracked by the parent repo, and submodule contents aren't. So the spec
+# is copied to a parent-tracked path and this entry keeps them in lockstep.
+# The lab's flake.nix / flake.lock / .envrc are lab-authored wrappers
+# and are not touched by this script.
+LAB_FILES=(
+  "./shared/dev-pkgs.nix:$LAB/shared/dev-pkgs.nix"
 )
 
 # ---- command dispatch ------------------------------------------------------
@@ -228,13 +245,13 @@ check_proto() {
 }
 
 all_pairs_status() {
-  for pair in "${USER_FILES[@]}" "${SYSTEM_FILES[@]}" "${PROTO_FILES[@]}"; do
+  for pair in "${USER_FILES[@]}" "${SYSTEM_FILES[@]}" "${PROTO_FILES[@]}" "${LAB_FILES[@]}"; do
     status_file "${pair%%:*}" "${pair##*:}"
   done
 }
 
 all_pairs_diff() {
-  for pair in "${USER_FILES[@]}" "${SYSTEM_FILES[@]}" "${PROTO_FILES[@]}"; do
+  for pair in "${USER_FILES[@]}" "${SYSTEM_FILES[@]}" "${PROTO_FILES[@]}" "${LAB_FILES[@]}"; do
     diff_file "${pair%%:*}" "${pair##*:}"
   done
 }
@@ -272,6 +289,10 @@ case "$cmd" in
        sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "proto"
      done
 
+     for pair in "${LAB_FILES[@]}"; do
+       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "lab"
+     done
+
      bundle_shared
      echo "Pulled live files into repo and refreshed generated chunks."
     ;;
@@ -293,6 +314,11 @@ case "$cmd" in
      echo "Pushing prototype/devflake files..."
      for pair in "${PROTO_FILES[@]}"; do
        sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "proto"
+     done
+
+     echo "Pushing lab files..."
+     for pair in "${LAB_FILES[@]}"; do
+       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "lab"
      done
 
      echo "Syncing generated shared chunks..."
