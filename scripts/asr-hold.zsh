@@ -37,6 +37,7 @@ start_recording() {
   date +%s > "$ASR_START_FILE"
 
   # Persistent notification (no timeout) — stays until stop
+  # Use app name so we can replace it later
   notify-send -e -t 0 -u normal "$ASR_NOTIFY_APP" "● Recording — tap again to stop" 2>/dev/null || true
 }
 
@@ -48,10 +49,11 @@ stop_recording() {
     wait "$pid" 2>/dev/null || true
   fi
 
-  rm -f "$ASR_PID_FILE" "$ASR_START_FILE"
+   rm -f "$ASR_PID_FILE" "$ASR_START_FILE"
 
-  # Dismiss recording notification
-  notify-send -i audio-input-microphone "ASR-rec" "Recording stopped" 2>/dev/null || true
+  # Replace persistent recording notification with timed "stopped" message
+  # Using same app name replaces the -t 0 notification
+  notify-send -e -t 500 -u low "$ASR_NOTIFY_APP" "● stopped, transcribing…" 2>/dev/null || true
 
   if [[ ! -f "$ASR_WAV" ]]; then
     notify-send -t 1500 "ASR" "no audio" 2>/dev/null
