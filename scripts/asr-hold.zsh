@@ -16,6 +16,12 @@ is_recording() {
   [[ -f "$ASR_PID_FILE" ]] && kill -0 "$(cat "$ASR_PID_FILE" 2>/dev/null)" 2>/dev/null
 }
 
+close_notifications() {
+  # Use dunstify to send a 1ms replacement notification with same app name
+  # This triggers dunst's replacement behavior for matching app IDs
+  dunstify --app-name="$ASR_NOTIFY_APP" -t 1 " " 2>/dev/null || true
+}
+
 start_recording() {
   mkdir -p "$AUDIO_DIR" 2>/dev/null
 
@@ -36,9 +42,8 @@ start_recording() {
   echo "$pid" > "$ASR_PID_FILE"
   date +%s > "$ASR_START_FILE"
 
-  # Persistent notification (no timeout) — stays until stop
-  # Use app name so we can replace it later
-  notify-send -e -t 0 -u normal "$ASR_NOTIFY_APP" "● Recording — tap again to stop" 2>/dev/null || true
+  # Notification with 10s timeout (long enough to notice, won't linger forever)
+  notify-send -t 10000 -u normal "$ASR_NOTIFY_APP" "● Recording — tap again to stop" 2>/dev/null || true
 }
 
 stop_recording() {
@@ -51,9 +56,9 @@ stop_recording() {
 
    rm -f "$ASR_PID_FILE" "$ASR_START_FILE"
 
-  # Replace persistent recording notification with timed "stopped" message
-  # Using same app name replaces the -t 0 notification
-  notify-send -e -t 500 -u low "$ASR_NOTIFY_APP" "● stopped, transcribing…" 2>/dev/null || true
+   # Replace recording notification with quick "stopped" message
+   close_notifications
+   notify-send -e -t 500 -u low "ASR-rec" "● stopped, transcribing…" 2>/dev/null || true
 
   if [[ ! -f "$ASR_WAV" ]]; then
     notify-send -t 1500 "ASR" "no audio" 2>/dev/null
