@@ -3,9 +3,10 @@ return {
         "RyanCargan/cmp-ai",
         dependencies = { "nvim-lua/plenary.nvim" },
         config = function()
-            local cmp_ai = require("cmp_ai.config")
+            local cmp_ai = require("cmp_ai")
+            local cmp_ai_config = require("cmp_ai.config")
 
-            cmp_ai:setup({
+            cmp_ai_config:setup({
                 max_lines = 100,
                 provider = "llama_cpp",
                 provider_options = {
@@ -16,6 +17,7 @@ return {
                 },
                 run_on_every_keystroke = true,
             })
+            cmp_ai.setup()
         end,
     },
 }
