@@ -74,11 +74,14 @@ rec {
     ];
 
     # C/C++/Zig compilers.
+    #
+    # zls is NOT included: editor-only LSP with no CLI use, owned by mason
+    # (submodules/dotfiles/.config/nvim/lua/ryan/lazy/lsp.lua
+    # ensure_installed).
     cppCompilers = with pkgs; [
       clang
       gcc
       zig
-      zls
     ];
 
     # Build/link tooling.

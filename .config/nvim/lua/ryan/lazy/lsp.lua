@@ -32,7 +32,6 @@ return {
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",
-                "clangd",
                 "zls",
                 "html",
                 "cssls",
@@ -41,7 +40,11 @@ return {
                 "bashls",
                 "wgsl_analyzer",
                 "vtsls",
-                -- "rust_analyzer", -- uncomment if needed (heavy, ~500MB); keep rust parser for reading without server
+                -- clangd is NOT mason-managed: comes from the system closure
+                -- via clang-tools (shared/dev-pkgs.nix tools.cppLlvmRuntime),
+                -- which also provides clang-format (conform formatter) and
+                -- clang-tidy. nixpkgs has no standalone clangd package.
+                -- "rust_analyzer" -- commented out (heavy ~500MB); keep rust parser for reading without server
                 -- nixd is provided via devPkgs (shared/dev-pkgs.nix), not mason — see nix.lua
             },
         })
