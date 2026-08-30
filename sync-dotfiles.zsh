@@ -1,6 +1,12 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+# If running under sudo, use the real user's HOME so dotfiles land in the
+# right place (sudo sets HOME=/root by default).
+if [ -n "${SUDO_USER:-}" ]; then
+ export HOME="/home/$SUDO_USER"
+fi
+
 # Usage:
 #   ./sync-dotfiles.zsh status   # coarse divergence summary
 #   ./sync-dotfiles.zsh diff     # full unified diff
