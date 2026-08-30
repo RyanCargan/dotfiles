@@ -40,7 +40,7 @@ return {
                 -- which also provides clang-format (conform formatter) and
                 -- clang-tidy. nixpkgs has no standalone clangd package.
                 -- "rust_analyzer" -- commented out (heavy ~500MB); keep rust parser for reading without server
-                -- nixd is provided via devPkgs (shared/dev-pkgs.nix), not mason — see nix.lua
+                -- nixd is provided via devPkgs (shared/dev-pkgs.nix), not mason -- see nix.lua
             },
         },
     },
@@ -59,26 +59,6 @@ return {
         },
 
         config = function()
-            -- nvim-lspconfig 2.x ships new-style server defs at
-            --   <lazy>/nvim-lspconfig/lsp/<name>.lua
-            -- These files are NOT Lua modules (no `return`); they're config tables
-            -- intended to be loaded via dofile/loadfile, then passed to
-            -- `vim.lsp.config(name, def)`. mason-lspconfig's automatic_enable
-            -- does this for Mason-installed servers (see
-            -- mason-lspconfig/features/automatic_enable.lua:42-47); for nix-managed
-            -- servers (clangd, nixd) we replicate the bridge here.
-            local function load_lspconfig_def(name)
-                local path = vim.fn.stdpath("data")
-                    .. "/lazy/nvim-lspconfig/lsp/" .. name .. ".lua"
-                if vim.fn.filereadable(path) == 0 then return nil end
-                local chunk, err = loadfile(path)
-                if not chunk then
-                    vim.notify("lspconfig def load failed for " .. name .. ": " .. err, vim.log.levels.WARN)
-                    return nil
-                end
-                return chunk()
-            end
-
             require("conform").setup({
                 formatters_by_ft = {
                     -- C/C++: clang-format from clang-tools (nix closure)
@@ -122,25 +102,43 @@ return {
 
             require("fidget").setup({})
 
+            -- Default caps for all servers.
             vim.lsp.config("*", {
                 capabilities = capabilities,
             })
 
-            -- nix-managed servers: load the new-style def from lspconfig's lsp/
-            -- dir via loadfile (those files have no `return`, so require() can't
-            -- load them) and merge our overrides.
-            local function register_lspconfig_server(name, overrides)
-                local def = load_lspconfig_def(name)
-                if not def then
-                    vim.notify("lspconfig def not found: " .. name, vim.log.levels.WARN)
-                    return
-                end
-                vim.lsp.config(name, vim.tbl_deep_extend("force", def, overrides or {}))
-            end
+            -- Nix-managed servers: mason-lspconfig's automatic_enable only
+            -- registers servers it installed via Mason. clangd and nixd come
+            -- from the nix closure, so we register them by hand here using
+            -- the same `vim.lsp.config(name, def)` + `vim.lsp.enable(name)`
+            -- pattern mason-lspconfig uses internally.
+            --
+            -- IMPORTANT: no other spec may declare a `config` function for
+            -- `neovim/nvim-lspconfig`. Lazy merges same-plugin specs by
+            -- name; the last `config` function wins. A duplicate in nix.lua
+            -- previously overwrote this entire config body.
 
-            -- clangd: nix closure (clang-tools). Override capabilities.
-            register_lspconfig_server("clangd", { capabilities = capabilities })
-            -- nixd: nix closure (devPkgs). Lspconfig doesn't ship a nixd def; hand-write.
+            -- clangd: from clang-tools in the nix closure. Provides
+            -- clang-format (conform) and clang-tidy alongside the LSP.
+            vim.lsp.config("clangd", {
+                capabilities = capabilities,
+                cmd = { "clangd" },
+                filetypes = { "c", "c.doxygen", "cpp", "cpp.doxygen", "objc", "objcpp", "cuda" },
+                root_markers = {
+                    ".clangd", ".clang-tidy", ".clang-format",
+                    "compile_commands.json", "compile_flags.txt",
+                    "configure.ac", ".git",
+                },
+                on_init = function(client, init_result)
+                    if init_result.offsetEncoding then
+                        client.offset_encoding = init_result.offsetEncoding
+                    end
+                end,
+            })
+
+            -- nixd: from devPkgs in the nix closure. lspconfig doesn't ship
+            -- a nixd def; hand-write. Includes nixpkgs.expr for package
+            -- resolution and options.nixos.expr for NixOS module introspection.
             vim.lsp.config("nixd", {
                 capabilities = capabilities,
                 cmd = { "nixd" },
@@ -148,12 +146,21 @@ return {
                 root_markers = { ".git", "flake.nix" },
                 settings = {
                     nixd = {
+                        nixpkgs = {
+                            expr = "import <nixpkgs> {}",
+                        },
+                        options = {
+                            nixos = {
+                                expr = '(builtins.getFlake "/home/ryan/Code/Repos/lab/submodules/dotfiles").nixosConfigurations.nixos.options',
+                            },
+                        },
                         formatting = { command = { "nixfmt" } },
                     },
                 },
             })
 
-            -- Hand-tuned defs for servers that need settings beyond what lspconfig ships.
+            -- Hand-tuned defs for servers that need settings beyond what
+            -- mason-lspconfig ships by default.
             vim.lsp.config("zls", {
                 capabilities = capabilities,
                 cmd = { "zls" },
