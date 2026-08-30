@@ -281,6 +281,8 @@ sync_file_directional() {
     echo "    $label — resolve manually, then touch authoritative side."
   elif $copy_fn "$src" "$dst"; then
     echo "  ${tag}SYNC: $src -> $dst"
+  else
+    echo "  ${tag}DEBUG: copy returned non-zero, src=$src dst=$dst copy_fn=$copy_fn"
   fi
 }
 
