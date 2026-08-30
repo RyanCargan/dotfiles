@@ -95,11 +95,15 @@ rec {
     ];
 
     # LLVM runtime/toolchain pieces.
+    # `llvmPackages.llvm` adds llvm-config/llvm-mca and the LLVM tools;
+    # graphviz provides `dot` for the depgraph render step.
     cppLlvmRuntime = with pkgs; [
       clang-tools
       llvmPackages.compiler-rt
       llvmPackages.libcxx
       llvmPackages.lld
+      llvmPackages.llvm
+      graphviz
     ];
 
     # Static analysis/indexing/formatting.
@@ -233,6 +237,10 @@ rec {
   libs = rec {
     # Core build/runtime libraries whose dev outputs/headers/pkg-config metadata
     # are useful inside project shells.
+    #
+    # llvmPackages.libclang/llvm expose the clang Tooling headers (dev output)
+    # and libclang-cpp.so / libLLVM.so (lib output) for the testbed depgraph
+    # tool (docs/plans/depgraph-plan.md).
     core = with pkgs; [
       zlib
       openssl
@@ -243,6 +251,9 @@ rec {
 
       cppzmq
       libgccjit
+
+      llvmPackages.libclang
+      llvmPackages.llvm
     ];
 
     # Graphics/windowing/input/rendering libraries.
