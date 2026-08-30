@@ -62,7 +62,6 @@ return {
             require("conform").setup({
                 formatters_by_ft = {
                     -- C/C++: clang-format from clang-tools (nix closure)
-                    ["_"] = { "injected" },
                     c = { "clang_format" },
                     cpp = { "clang_format" },
                     -- Python: ruff does formatting + import sorting + linting
