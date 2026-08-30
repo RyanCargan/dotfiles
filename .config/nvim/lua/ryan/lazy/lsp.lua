@@ -23,6 +23,14 @@ return {
                 "bashls",
                 "wgsl_analyzer",
                 "vtsls",
+                "pyright",
+                -- Formatters: clang-format is in the nix closure, the rest
+                -- are mason-managed. see lsp.lua formatters_by_ft for usage.
+                "prettier",
+                "stylua",
+                "ruff",
+                "shfmt",
+                "nixfmt",
                 -- clangd is NOT mason-managed: comes from the system closure
                 -- via clang-tools (shared/dev-pkgs.nix tools.cppLlvmRuntime),
                 -- which also provides clang-format (conform formatter) and
@@ -49,7 +57,37 @@ return {
         config = function()
             require("conform").setup({
                 formatters_by_ft = {
-                }
+                    -- C/C++: clang-format from clang-tools (nix closure)
+                    ["_"] = { "injected" },
+                    c = { "clang_format" },
+                    cpp = { "clang_format" },
+                    -- Python: ruff does formatting + import sorting + linting
+                    python = { "ruff_format" },
+                    -- Lua: stylua (consistent with lua_ls's defaultConfig)
+                    lua = { "stylua" },
+                    -- Web: prettier handles html/css/js/ts/json/md/yaml
+                    javascript = { "prettier" },
+                    typescript = { "prettier" },
+                    javascriptreact = { "prettier" },
+                    typescriptreact = { "prettier" },
+                    json = { "prettier" },
+                    html = { "prettier" },
+                    css = { "prettier" },
+                    markdown = { "prettier" },
+                    yaml = { "prettier" },
+                    -- Shells: shfmt works on bash + zsh; bashls handles the rest
+                    sh = { "shfmt" },
+                    bash = { "shfmt" },
+                    zsh = { "shfmt" },
+                    -- Nix: nixfmt (nixd isn't a formatter)
+                    nix = { "nixfmt" },
+                    -- SQL: sqlfluff would need DB config; skip for now
+                    -- WGSL: naga doesn't have a stable formatter yet
+                    -- Zig: zig fmt via the zig binary (system closure)
+                },
+                format_on_save = {
+                    lsp_format = "fallback",
+                },
             })
             local cmp = require('cmp')
             local cmp_lsp = require("cmp_nvim_lsp")
@@ -103,7 +141,7 @@ return {
                 }
             })
 
-            vim.lsp.enable({ "lua_ls", "zls", "clangd", "html", "cssls", "marksman", "sqlls", "bashls", "wgsl_analyzer", "vtsls" })
+            vim.lsp.enable({ "lua_ls", "zls", "clangd", "html", "cssls", "marksman", "sqlls", "bashls", "wgsl_analyzer", "vtsls", "pyright" })
             vim.g.zig_fmt_parse_errors = 0
             vim.g.zig_fmt_autosave = 0
 
