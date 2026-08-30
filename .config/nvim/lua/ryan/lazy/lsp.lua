@@ -206,6 +206,40 @@ return {
 
             local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
+            -- EXPERIMENT: completion diversity tuning.
+            -- Each knob is isolated so you can flip one without touching the
+            -- rest. Defaults match upstream nvim-cmp.
+            --   * per-source max_item_count caps how many items a source may
+            --     contribute (applied pre-sort: poorly-matched items may win).
+            --     nil = unlimited.
+            --   * per-source priority adds a flat score bonus (view.lua:
+            --     e.score = e.score + (config.priority or index-based bonus)).
+            --   * comparators run in order; first non-nil answer decides the
+            --     pair. compare.scopes (treesitter) ranks locals above globals.
+            local cmp_sources = cmp.config.sources({
+                { name = 'nvim_lsp', max_item_count = 10, priority = 1 },
+                { name = 'luasnip',  max_item_count = 5,  priority = 2 },
+                { name = 'cmp_ai',   max_item_count = 3,  priority = 3 },
+            }, {
+                { name = 'buffer',   max_item_count = 6 },
+            })
+
+            local cmp_sorting = {
+                priority_weight = 2,
+                comparators = {
+                    cmp.config.compare.offset,
+                    cmp.config.compare.exact,
+                    cmp.config.compare.score,
+                    cmp.config.compare.recently_used,
+                    cmp.config.compare.locality,
+                    cmp.config.compare.scopes,
+                    cmp.config.compare.kind,
+                    cmp.config.compare.sort_text,
+                    cmp.config.compare.length,
+                    cmp.config.compare.order,
+                },
+            }
+
             cmp.setup({
                 snippet = {
                     expand = function(args)
@@ -224,19 +258,14 @@ return {
                         return vim_item
                     end,
                 },
+                sorting = cmp_sorting,
                 mapping = cmp.mapping.preset.insert({
                     ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                     ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
                     ['<C-y>'] = cmp.mapping.confirm({ select = true }),
                     ["<C-Space>"] = cmp.mapping.complete(),
                 }),
-                sources = cmp.config.sources({
-                    { name = 'nvim_lsp' },
-                    { name = 'luasnip' },
-                    { name = 'cmp_ai' },
-                }, {
-                    { name = 'buffer' },
-                })
+                sources = cmp_sources,
             })
 
             vim.diagnostic.config({

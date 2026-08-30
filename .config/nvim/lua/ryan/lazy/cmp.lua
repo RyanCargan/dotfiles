@@ -11,7 +11,7 @@ return {
                 provider = "llama_cpp",
                 provider_options = {
                     base_url = "http://127.0.0.1:8080/completion",
-                    max_tokens = 24,
+                    max_tokens = 48,
                     -- model auto-detected from llama-server /props endpoint
                     -- (empty triggers auto-detection: queries model_alias from
                     -- http://127.0.0.1:8080/props and picks rwkv vs standard FIM format)
