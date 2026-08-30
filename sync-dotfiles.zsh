@@ -258,12 +258,18 @@ sync_file_directional() {
 
   [[ ! -e "$src" && ! -e "$dst" ]] && return
   [[ ! -e "$src" ]] && { echo "  ${tag}MISSING SRC: $src ($label)"; return; }
-  [[ ! -e "$dst" ]] && { $copy_fn "$src" "$dst"; echo "  ${tag}SYNC (dst missing): $src -> $dst"; return; }
+  if [[ ! -e "$dst" ]]; then
+    if $copy_fn "$src" "$dst"; then
+      echo "  ${tag}SYNC (dst missing): $src -> $dst"
+    fi
+    return
+  fi
   cmp -s "$src" "$dst" && return
 
   if [[ "$src" -nt "$dst" ]]; then
-    $copy_fn "$src" "$dst"
-    echo "  ${tag}SYNC: $src -> $dst"
+    if $copy_fn "$src" "$dst"; then
+      echo "  ${tag}SYNC: $src -> $dst"
+    fi
   else
     echo "  ${tag}CONFLICT: $dst newer or same mtime, content differs"
     echo "    $label — resolve manually, then touch authoritative side."
