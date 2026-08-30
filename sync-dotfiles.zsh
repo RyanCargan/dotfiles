@@ -210,7 +210,9 @@ copy_file() {
   fi
 
   mkdir -p "$(dirname "$dst")"
-  _run_rsync "$src" "$dst"
+  # Don't swallow rsync errors — let them print to stderr so a failure
+  # is visible. `set -e` will then abort the script on failure.
+  rsync $(rsync_flags) "$src" "$dst"
 }
 
 copy_file_sudo() {
@@ -229,8 +231,15 @@ copy_file_sudo() {
     return
   fi
 
+  # Detect non-interactive context (no TTY, sudo would hang or fail).
+  # `sudo -n true` succeeds only if sudo can run without a password prompt.
+  if ! sudo -n true 2>/dev/null; then
+    echo "  ${tag}SKIP sudo: non-interactive context, run from a TTY with sudo credentials cached"
+    return 1
+  fi
+
   sudo mkdir -p "$(dirname "$dst")"
-  sudo rsync $(rsync_flags) "$src" "$dst" >/dev/null 2>&1
+  sudo rsync $(rsync_flags) "$src" "$dst"
 }
 
 # Timestamp-aware sync: only copy if source strictly newer than destination.
