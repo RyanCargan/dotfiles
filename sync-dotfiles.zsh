@@ -188,7 +188,13 @@ GENERATED_PUSH=(
 # (see copy_file below); rsync's "sending incremental file list" and
 # stats block is pure noise in a sync script.
 rsync_flags() {
-  echo -a${DRY_RUN:+n}
+  # NB: ${DRY_RUN:+n} treats "0" as truthy (zsh/bash non-empty test).
+  # Use an arithmetic check so DRY_RUN=0 actually means "off".
+  if (( DRY_RUN )); then
+    echo -a -n
+  else
+    echo -a
+  fi
 }
 
 # Run rsync silently. Returns 0 on success.
