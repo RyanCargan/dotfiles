@@ -38,7 +38,7 @@ fi
 
 # --- Map model to port/ctx/ngl ---
 case "$MODEL" in
-  qwen|rwkv)  PORT=$FIM_PORT; CTX=16384; NGL=-1; CTK="f16"; CTT="f16" ;;
+  qwen|rwkv)  PORT=$FIM_PORT; CTX=4096; NGL=-1; CTK="f16"; CTT="f16" ;;
   mini)       PORT=$GEN_PORT; CTX=65536; NGL=-1; CTK="f16"; CTT="f16" ;;
   asr)        PORT=$ASR_PORT; CTX=16384; NGL=-1; CTK="f16"; CTT="f16" ;;
   *)          echo "Unknown model: $MODEL"; echo "Valid: qwen|rwkv|mini|asr"; exit 1 ;;
