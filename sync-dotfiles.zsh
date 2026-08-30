@@ -233,12 +233,13 @@ copy_file_sudo() {
 
   # Detect non-interactive context (no TTY, sudo would hang or fail).
   # `sudo -n true` succeeds only if sudo can run without a password prompt.
-  # Return 0 (not 1) on skip: callers under `set -e` would otherwise abort
-  # the whole script on a sudo-unavailable skip. The SKIP message is the
-  # signal; the script can still proceed with the rest of the run.
+  # Return 1 on skip so the caller's `if $copy_fn; then SYNC; fi` check
+  # can suppress the success message. The SKIP line above is the signal;
+  # sync_file_directional also wraps the call in an `if` so `set -e`
+  # does not abort the script.
   if ! sudo -n true 2>/dev/null; then
     echo "  ${tag}SKIP sudo: non-interactive context, run from a TTY with sudo credentials cached"
-    return 0
+    return 1
   fi
 
   sudo mkdir -p "$(dirname "$dst")"
