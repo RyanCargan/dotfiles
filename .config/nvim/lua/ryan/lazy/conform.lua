@@ -25,8 +25,9 @@ return {
 			},
 		})
 
-		vim.keymap.set("n", "<leader>f", function()
+		-- Capital F: f-prefix is reserved for Telescope (telescope.lua).
+		vim.keymap.set("n", "<leader>F", function()
 			require("conform").format({ bufnr = 0 })
-		end)
+		end, { desc = "Format buffer" })
 	end,
 }

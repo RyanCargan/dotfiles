@@ -234,6 +234,34 @@ return {
                     prefix = "",
                 },
             })
+
+            -- Buffer-local LSP keymaps, set on attach for any server.
+            vim.api.nvim_create_autocmd("LspAttach", {
+                group = vim.api.nvim_create_augroup("lsp_attach", {}),
+                callback = function(args)
+                    local bufnr = args.buf
+                    local nmap = function(keys, fn, desc)
+                        vim.keymap.set("n", keys, fn, { buffer = bufnr, desc = desc })
+                    end
+                    nmap("gd", vim.lsp.buf.definition, "Go to definition")
+                    nmap("grr", vim.lsp.buf.references, "Find references")
+                    nmap("gri", vim.lsp.buf.implementation, "Find implementations")
+                    nmap("grn", vim.lsp.buf.rename, "Rename symbol")
+                    nmap("K", vim.lsp.buf.hover, "Hover")
+                    nmap("<leader>la", vim.lsp.buf.code_action, "Code action")
+                end,
+            })
+
+            -- Focusable diagnostic float under the cursor (scrollable window).
+            vim.keymap.set("n", "gl", function()
+                vim.diagnostic.open_float(0, {
+                    scope = "cursor",
+                    focusable = true,
+                    border = "rounded",
+                })
+            end, { desc = "Diagnostic float" })
+
+            -- LspRestart lives in remap.lua as <leader>zig.
         end
     },
 }
