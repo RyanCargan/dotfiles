@@ -212,6 +212,18 @@ return {
                         require('luasnip').lsp_expand(args.body)
                     end,
                 },
+                formatting = {
+                    format = function(entry, vim_item)
+                        local source_names = {
+                            nvim_lsp = "[LSP]",
+                            luasnip = "[Snip]",
+                            cmp_ai = "[AI]",
+                            buffer = "[Buf]",
+                        }
+                        vim_item.menu = source_names[entry.source.name] or ""
+                        return vim_item
+                    end,
+                },
                 mapping = cmp.mapping.preset.insert({
                     ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
                     ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
