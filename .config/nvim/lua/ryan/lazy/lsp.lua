@@ -197,6 +197,9 @@ return {
                 }
             })
 
+            -- marksman (markdown LSP) is .NET; needs ICU or invariant mode.
+            vim.env.DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = "1"
+
             vim.lsp.enable({ "lua_ls", "zls", "clangd", "nixd", "html", "cssls", "marksman", "sqlls", "bashls", "wgsl_analyzer", "vtsls", "pyright" })
             vim.g.zig_fmt_parse_errors = 0
             vim.g.zig_fmt_autosave = 0
