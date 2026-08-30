@@ -246,7 +246,11 @@ copy_file_sudo() {
   sudo rsync $(rsync_flags) "$src" "$dst"
 }
 
-# Timestamp-aware sync: only copy if source strictly newer than destination.
+# Content-aware sync: if content differs, sync from src to dst, unless dst
+# has been touched more recently than src (then it's a real conflict the
+# user must resolve). mtime on either side is a hint, not a gate — `-nt`
+# returns false on equal mtimes, which would silently skip a real
+# divergence if the user touched a file the same minute rsync touched it.
 # Usage: sync_file_directional <src> <dst> <copy_fn> <label>
 # copy_fn: "copy_file" or "copy_file_sudo"
 sync_file_directional() {
@@ -267,13 +271,16 @@ sync_file_directional() {
   fi
   cmp -s "$src" "$dst" && return
 
-  if [[ "$src" -nt "$dst" ]]; then
-    if $copy_fn "$src" "$dst"; then
-      echo "  ${tag}SYNC: $src -> $dst"
-    fi
-  else
-    echo "  ${tag}CONFLICT: $dst newer or same mtime, content differs"
+  # Content differs. Decide direction by mtime:
+  #   src strictly newer than dst  -> src is authoritative, sync
+  #   dst strictly newer than src  -> conflict (real divergence, resolve manually)
+  #   equal mtime, content differs -> sync src -> dst (rsync's default behaviour;
+  #     the user touched both sides in the same minute; pick a convention)
+  if [[ "$src" -ot "$dst" ]]; then
+    echo "  ${tag}CONFLICT: $dst newer than $src, content differs"
     echo "    $label — resolve manually, then touch authoritative side."
+  elif $copy_fn "$src" "$dst"; then
+    echo "  ${tag}SYNC: $src -> $dst"
   fi
 }
 
