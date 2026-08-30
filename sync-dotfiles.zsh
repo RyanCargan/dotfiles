@@ -424,8 +424,11 @@ _push_proto() {
   done
 }
 _push_lab() {
+  # LAB_FILES is laid out as './src:$LAB/dst' — repo-side first, so the
+  # push direction is left-to-right (same as pull), unlike USER/SYSTEM/PROTO
+  # which have live on the left and need right-to-left for push.
   for pair in "${LAB_FILES[@]}"; do
-    sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "lab"
+    sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "lab"
   done
 }
 _push_generated() {
