@@ -59,6 +59,26 @@ return {
         },
 
         config = function()
+            -- nvim-lspconfig 2.x ships new-style server defs at
+            --   <lazy>/nvim-lspconfig/lsp/<name>.lua
+            -- These files are NOT Lua modules (no `return`); they're config tables
+            -- intended to be loaded via dofile/loadfile, then passed to
+            -- `vim.lsp.config(name, def)`. mason-lspconfig's automatic_enable
+            -- does this for Mason-installed servers (see
+            -- mason-lspconfig/features/automatic_enable.lua:42-47); for nix-managed
+            -- servers (clangd, nixd) we replicate the bridge here.
+            local function load_lspconfig_def(name)
+                local path = vim.fn.stdpath("data")
+                    .. "/lazy/nvim-lspconfig/lsp/" .. name .. ".lua"
+                if vim.fn.filereadable(path) == 0 then return nil end
+                local chunk, err = loadfile(path)
+                if not chunk then
+                    vim.notify("lspconfig def load failed for " .. name .. ": " .. err, vim.log.levels.WARN)
+                    return nil
+                end
+                return chunk()
+            end
+
             require("conform").setup({
                 formatters_by_ft = {
                     -- C/C++: clang-format from clang-tools (nix closure)
@@ -106,9 +126,38 @@ return {
                 capabilities = capabilities,
             })
 
+            -- nix-managed servers: load the new-style def from lspconfig's lsp/
+            -- dir via loadfile (those files have no `return`, so require() can't
+            -- load them) and merge our overrides.
+            local function register_lspconfig_server(name, overrides)
+                local def = load_lspconfig_def(name)
+                if not def then
+                    vim.notify("lspconfig def not found: " .. name, vim.log.levels.WARN)
+                    return
+                end
+                vim.lsp.config(name, vim.tbl_deep_extend("force", def, overrides or {}))
+            end
+
+            -- clangd: nix closure (clang-tools). Override capabilities.
+            register_lspconfig_server("clangd", { capabilities = capabilities })
+            -- nixd: nix closure (devPkgs). Lspconfig doesn't ship a nixd def; hand-write.
+            vim.lsp.config("nixd", {
+                capabilities = capabilities,
+                cmd = { "nixd" },
+                filetypes = { "nix" },
+                root_markers = { ".git", "flake.nix" },
+                settings = {
+                    nixd = {
+                        formatting = { command = { "nixfmt" } },
+                    },
+                },
+            })
+
+            -- Hand-tuned defs for servers that need settings beyond what lspconfig ships.
             vim.lsp.config("zls", {
                 capabilities = capabilities,
                 cmd = { "zls" },
+                filetypes = { "zig", "zir" },
                 root_markers = { ".git", "build.zig", "zls.json" },
                 settings = {
                     zls = {
@@ -121,14 +170,11 @@ return {
 
             vim.lsp.config("lua_ls", {
                 capabilities = capabilities,
+                filetypes = { "lua" },
                 settings = {
                     Lua = {
-                        runtime = {
-                            version = 'LuaJIT',
-                        },
-                        diagnostics = {
-                            globals = { 'vim' },
-                        },
+                        runtime = { version = 'LuaJIT' },
+                        diagnostics = { globals = { 'vim' } },
                         workspace = {
                             library = vim.api.nvim_get_runtime_file("", true),
                             checkThirdParty = false,
@@ -144,7 +190,7 @@ return {
                 }
             })
 
-            vim.lsp.enable({ "lua_ls", "zls", "clangd", "html", "cssls", "marksman", "sqlls", "bashls", "wgsl_analyzer", "vtsls", "pyright" })
+            vim.lsp.enable({ "lua_ls", "zls", "clangd", "nixd", "html", "cssls", "marksman", "sqlls", "bashls", "wgsl_analyzer", "vtsls", "pyright" })
             vim.g.zig_fmt_parse_errors = 0
             vim.g.zig_fmt_autosave = 0
 
