@@ -3,7 +3,7 @@ attenuationLimit=65
 postFilterBeta=0.05
 
 [soe][DeepFilterNet#0]
-attenuationLimit=35
+attenuationLimit=36
 bypass=true
 maxDfProcessingThreshold=15
 postFilterBeta=0.029999999329447746
