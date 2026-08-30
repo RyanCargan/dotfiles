@@ -8,7 +8,18 @@ return {
     -- the editor is restarted. Top-level opts avoids that race.
     {
         "williamboman/mason.nvim",
-        opts = {},
+        opts = {
+            -- mason.nvim's own ensure_installed: tools that aren't LSPs
+            -- (formatters, linters, DAP adapters). LSPs go in the
+            -- mason-lspconfig spec below.
+            ensure_installed = {
+                "prettier",
+                "stylua",
+                "ruff",
+                "shfmt",
+                "nixfmt",
+            },
+        },
     },
     {
         "williamboman/mason-lspconfig.nvim",
@@ -24,13 +35,6 @@ return {
                 "wgsl_analyzer",
                 "vtsls",
                 "pyright",
-                -- Formatters: clang-format is in the nix closure, the rest
-                -- are mason-managed. see lsp.lua formatters_by_ft for usage.
-                "prettier",
-                "stylua",
-                "ruff",
-                "shfmt",
-                "nixfmt",
                 -- clangd is NOT mason-managed: comes from the system closure
                 -- via clang-tools (shared/dev-pkgs.nix tools.cppLlvmRuntime),
                 -- which also provides clang-format (conform formatter) and
