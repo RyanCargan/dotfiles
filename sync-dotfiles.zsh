@@ -41,6 +41,14 @@ done
 
 cmd="${1:-status}"
 
+# Common mistake: `sync-dotfiles.zsh dry-run` (forgot it's a flag, not a
+# subcommand). Detect and suggest the right form.
+if [[ "$cmd" == "dry-run" || "$cmd" == "--dry-run" ]]; then
+  echo "did you mean: $0 -n ${2:-status}" >&2
+  echo "(flags come before the subcommand)" >&2
+  exit 2
+fi
+
 # Sanity: refuse to push/pull if the dotfiles repo has uncommitted changes.
 # Prevents overwriting live state with an in-progress edit that hasn't been
 # reviewed. Skip check on status/diff/bundle (read-only) and on --dry-run
@@ -176,48 +184,53 @@ GENERATED_PUSH=(
 # ---- helpers ---------------------------------------------------------------
 
 # Common rsync flags. --dry-run is added when DRY_RUN=1.
+# We also drop -v because we synthesize our own one-line per-file output
+# (see copy_file below); rsync's "sending incremental file list" and
+# stats block is pure noise in a sync script.
 rsync_flags() {
-  echo -av${DRY_RUN:+n}
+  echo -a${DRY_RUN:+n}
+}
+
+# Run rsync silently. Returns 0 on success.
+_run_rsync() {
+  local flags
+  flags="$(rsync_flags)"
+  rsync $flags "$@" >/dev/null 2>&1
 }
 
 copy_file() {
   local src="$1"
   local dst="$2"
-  local flags
-  flags="$(rsync_flags)"
+  local tag=""
+  [[ "$DRY_RUN" == "1" ]] && tag="[dry-run] "
 
   if [[ ! -e "$src" ]]; then
-    echo "skip missing: $src"
+    echo "  ${tag}skip missing: $src"
     return
   fi
 
   mkdir -p "$(dirname "$dst")"
-  if [[ "$DRY_RUN" == "1" ]]; then
-    echo "  [dry-run] rsync $flags $src $dst"
-    rsync $flags "$src" "$dst" 2>&1 | sed 's/^/  [dry-run] /' || true
-  else
-    rsync $flags "$src" "$dst"
-  fi
+  _run_rsync "$src" "$dst"
 }
 
 copy_file_sudo() {
   local src="$1"
   local dst="$2"
-  local flags
-  flags="$(rsync_flags)"
+  local tag=""
+  [[ "$DRY_RUN" == "1" ]] && tag="[dry-run] "
 
   if [[ ! -e "$src" ]]; then
-    echo "skip missing: $src"
+    echo "  ${tag}skip missing: $src"
     return
   fi
 
   if [[ "$DRY_RUN" == "1" ]]; then
-    echo "  [dry-run] sudo rsync $flags $src $dst"
+    # In dry-run, don't actually invoke sudo (would prompt) — just record.
     return
   fi
 
   sudo mkdir -p "$(dirname "$dst")"
-  sudo rsync $flags "$src" "$dst"
+  sudo rsync $(rsync_flags) "$src" "$dst" >/dev/null 2>&1
 }
 
 # Timestamp-aware sync: only copy if source strictly newer than destination.
@@ -228,18 +241,19 @@ sync_file_directional() {
   local dst="$2"
   local copy_fn="$3"
   local label="$4"
+  local tag=""
+  [[ "$DRY_RUN" == "1" ]] && tag="[dry-run] "
 
   [[ ! -e "$src" && ! -e "$dst" ]] && return
-  [[ ! -e "$src" ]] && { echo "  MISSING SRC: $src ($label)"; return; }
-  [[ ! -e "$dst" ]] && { $copy_fn "$src" "$dst"; echo "  SYNC (dst missing): $src -> $dst"; return; }
+  [[ ! -e "$src" ]] && { echo "  ${tag}MISSING SRC: $src ($label)"; return; }
+  [[ ! -e "$dst" ]] && { $copy_fn "$src" "$dst"; echo "  ${tag}SYNC (dst missing): $src -> $dst"; return; }
   cmp -s "$src" "$dst" && return
 
   if [[ "$src" -nt "$dst" ]]; then
     $copy_fn "$src" "$dst"
-    echo "  SYNC: $src -> $dst"
+    echo "  ${tag}SYNC: $src -> $dst"
   else
-    echo "  CONFLICT: $dst newer or same mtime, content differs"
-    echo "    src: $(stat -c '%y' "$src" | cut -d. -f1)  dst: $(stat -c '%y' "$dst" | cut -d. -f1)"
+    echo "  ${tag}CONFLICT: $dst newer or same mtime, content differs"
     echo "    $label — resolve manually, then touch authoritative side."
   fi
 }
@@ -261,17 +275,15 @@ diff_file() {
 status_file() {
   local live="$1"
   local repo="$2"
-  local live_lines repo_lines live_time repo_time newer
+  local live_lines repo_lines newer
 
   [[ ! -e "$live" && ! -e "$repo" ]] && return
-  [[ ! -e "$live" ]] && { echo "MISSING LIVE  $live <- $repo"; return; }
-  [[ ! -e "$repo" ]] && { echo "MISSING REPO  $repo <- $live"; return; }
+  [[ ! -e "$live" ]] && { echo "MISSING LIVE  $live"; return; }
+  [[ ! -e "$repo" ]] && { echo "MISSING REPO  $repo"; return; }
   cmp -s "$live" "$repo" && return
 
   live_lines="$(wc -l < "$live")"
   repo_lines="$(wc -l < "$repo")"
-  live_time="$(stat -c '%y' "$live" | cut -d. -f1)"
-  repo_time="$(stat -c '%y' "$repo" | cut -d. -f1)"
 
   if [[ "$live" -nt "$repo" ]]; then
     newer="live newer"
@@ -281,7 +293,7 @@ status_file() {
     newer="same mtime"
   fi
 
-  echo "DIFF  $live <-> $repo | lines live:$live_lines repo:$repo_lines | $newer | live:$live_time repo:$repo_time"
+  echo "$newer  $live  (lines $live_lines vs $repo_lines)"
 }
 
 # LAB_FILES is one-way: dotfiles repo -> lab repo. The destination is NOT a
@@ -293,10 +305,10 @@ status_lab() {
 
   [[ ! -e "$src" && ! -e "$dst" ]] && return
   [[ ! -e "$src" ]] && { echo "MISSING SOURCE  $src"; return; }
-  [[ ! -e "$dst" ]] && { echo "STALE LAB COPY  $dst missing (source: $src)"; return; }
+  [[ ! -e "$dst" ]] && { echo "STALE LAB COPY  $dst  (source: $src)"; return; }
   cmp -s "$src" "$dst" && return
 
-  echo "STALE LAB COPY  $dst  (source-of-truth: $src, $(stat -c '%y' "$src" | cut -d. -f1))"
+  echo "STALE LAB COPY  $dst  (source: $src)"
 }
 
 diff_lab() {
@@ -360,9 +372,73 @@ all_pairs_diff() {
 # ---- main ------------------------------------------------------------------
 
 if [[ "$DRY_RUN" == "1" ]]; then
-  echo "[DRY-RUN MODE — no writes will occur]"
+  echo "[dry-run] no writes"
   echo
 fi
+
+# Run a block, printing `header` first only if the block produced any
+# output. Used to keep push/pull output tight: empty sections get no
+# header, active sections are easy to scan.
+section() {
+  local header="$1"
+  shift
+  local out
+  out="$("$@" 2>&1)"
+  [[ -z "$out" ]] && return
+  echo "$header"
+  echo "$out"
+}
+
+# Section bodies for pull (live -> repo). Each is a function so section()
+# can capture its output and decide whether to print the header.
+_pull_user() {
+  for pair in "${USER_FILES[@]}"; do
+    sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "user"
+  done
+}
+_pull_system() {
+  for pair in "${SYSTEM_FILES[@]}"; do
+    sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file_sudo" "system"
+  done
+}
+_pull_proto() {
+  for pair in "${PROTO_FILES[@]}"; do
+    sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "proto"
+  done
+}
+
+# Section bodies for push (repo -> live).
+_push_user() {
+  for pair in "${USER_FILES[@]}"; do
+    sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "user"
+  done
+}
+_push_system() {
+  for pair in "${SYSTEM_FILES[@]}"; do
+    sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file_sudo" "system"
+  done
+}
+_push_proto() {
+  for pair in "${PROTO_FILES[@]}"; do
+    sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "proto"
+  done
+}
+_push_lab() {
+  for pair in "${LAB_FILES[@]}"; do
+    sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "lab"
+  done
+}
+_push_generated() {
+  for pair in "${GENERATED_PUSH[@]}"; do
+    local src="${pair%%:*}"
+    local dst="${pair##*:}"
+    if [[ "$dst" == /etc/* ]]; then
+      sync_file_directional "$src" "$dst" "copy_file_sudo" "nixos generated"
+    else
+      sync_file_directional "$src" "$dst" "copy_file" "proto generated"
+    fi
+  done
+}
 
 case "$cmd" in
   status)
@@ -377,23 +453,19 @@ case "$cmd" in
     ;;
   bundle)
     bundle_shared
-    echo "Bundled shared Nix chunks."
+    if [[ "$DRY_RUN" == "1" ]]; then
+      echo "(would have) bundled shared Nix chunks."
+    else
+      echo "Bundled shared Nix chunks."
+    fi
     ;;
    pull)
      check_repo_clean
      check_proto
 
-     for pair in "${USER_FILES[@]}"; do
-       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "user"
-     done
-
-     for pair in "${SYSTEM_FILES[@]}"; do
-       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file_sudo" "system"
-     done
-
-     for pair in "${PROTO_FILES[@]}"; do
-       sync_file_directional "${pair%%:*}" "${pair##*:}" "copy_file" "proto"
-     done
+     section "user files:" _pull_user
+     section "system files:" _pull_system
+     section "proto files:" _pull_proto
 
      bundle_shared
      echo "Pulled live files into repo and refreshed generated chunks."
@@ -406,39 +478,12 @@ case "$cmd" in
 
      bundle_shared
 
-     echo "Pushing user files..."
-     for pair in "${USER_FILES[@]}"; do
-       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "user"
-     done
-
-     echo "Pushing system files..."
-     for pair in "${SYSTEM_FILES[@]}"; do
-       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file_sudo" "system"
-     done
-
-     echo "Pushing prototype/devflake files..."
-     for pair in "${PROTO_FILES[@]}"; do
-       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "proto"
-     done
-
-     echo "Pushing lab files..."
-     for pair in "${LAB_FILES[@]}"; do
-       sync_file_directional "${pair##*:}" "${pair%%:*}" "copy_file" "lab"
-     done
-
-     echo "Pushing generated chunks to live locations..."
-     for pair in "${GENERATED_PUSH[@]}"; do
-       local src="${pair%%:*}"
-       local dst="${pair##*:}"
-       # First is sudo (nixos), second is regular (proto).
-       if [[ "$dst" == /etc/* ]]; then
-         sync_file_directional "$src" "$dst" "copy_file_sudo" "nixos generated"
-       else
-         sync_file_directional "$src" "$dst" "copy_file" "proto generated"
-       fi
-     done
-
-     echo "Pushed repo dotfiles into live locations."
+     section "user files:" _push_user
+     section "system files:" _push_system
+     section "proto files:" _push_proto
+     section "lab files:" _push_lab
+     section "generated chunks:" _push_generated
+     echo "Pushed."
      ;;
 
   *)
@@ -446,3 +491,7 @@ case "$cmd" in
     exit 1
     ;;
 esac
+
+# Output trimmed for clarity: section headers only print when the section
+# has activity, and dry-run tagging is folded into the SYNC/CONFLICT lines
+# rather than duplicated on every rsync progress line.
