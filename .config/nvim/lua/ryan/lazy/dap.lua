@@ -150,10 +150,12 @@ return {
         },
         config = function()
             require("mason-nvim-dap").setup({
-                ensure_installed = {
-                    "delve",
-                },
-                automatic_installation = true,
+                -- delve requires `go` in PATH to build from source; we don't
+                -- ship go in the nix closure. Install manually with
+                -- `:MasonInstall delve` once go is available, or use
+                -- `:MasonUninstall delve` to silence the failed install.
+                ensure_installed = {},
+                automatic_installation = false,
                 handlers = {
                     function(config)
                         require("mason-nvim-dap").default_setup(config)
