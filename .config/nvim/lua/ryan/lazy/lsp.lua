@@ -30,7 +30,7 @@ return {
                 "html",
                 "cssls",
                 "marksman",
-                "sqlls",
+                "sqls",
                 "bashls",
                 "wgsl_analyzer",
                 "vtsls",
