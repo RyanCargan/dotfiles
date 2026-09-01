@@ -103,6 +103,8 @@ USER_FILES=(
 
   "$HOME/.config/tmux/tmux.conf:./.config/tmux/tmux.conf"
 
+  "$HOME/.config/sqls/config.yml:./.config/sqls/config.yml"
+
    "$HOME/.wezterm.lua:./.wezterm.lua"
 
    "$HOME/.config/maki/init.lua:./.config/maki/init.lua"

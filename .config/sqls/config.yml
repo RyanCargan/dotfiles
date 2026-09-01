@@ -1,0 +1,11 @@
+# sqls LSP configuration — tracked and synced via dotfiles.
+#
+# The lab graph DB holds both domain schemas (note + code topology).
+# Rebuild it after schema changes with:
+#   zig build db   # in sandbox/cpp/testbed
+# (layered, idempotent schema files: domains/note_topology.sql +
+#  domains/code_topology.sql; WAL mode; anomaly rules as v_* views)
+connections:
+  - alias: lab-graph
+    driver: sqlite3
+    dataSourceName: /home/ryan/Code/Repos/lab/sandbox/cpp/testbed/domains/graph.db
