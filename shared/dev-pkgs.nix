@@ -44,6 +44,7 @@ rec {
       tmux
       neovim
       rtk
+      go
     ];
 
     # Nix/flake/dev-shell tooling.
