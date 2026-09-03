@@ -64,6 +64,9 @@ rec {
     ];
 
     # JS/web/project tooling.
+    #
+    # entr watches soupault inputs (site/, templates/, plugins/, soupault.toml)
+    # for `scripts/dev-site.zsh` — rebuilds on change, no browser auto-reload.
     web = with pkgs; [
       nodejs
       pnpm
@@ -71,6 +74,7 @@ rec {
       asar
       mkcert
       flyctl
+      entr
     ];
 
     # SQLite and small local DB tooling.
