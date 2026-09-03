@@ -17,6 +17,7 @@ let
       vpk # Valve Pak archive tooling for Source-engine/game asset work.
       pysdl2 # Python SDL2 bindings for lightweight graphics/input prototypes.
       markitdown
+      playwright # Browser automation for site testing; uses system Chrome via channel="chrome" (docs/WEB-TESTING.md).
     ]
   );
 in
@@ -45,6 +46,7 @@ rec {
       neovim
       rtk
       go
+      soupault
     ];
 
     # Nix/flake/dev-shell tooling.
