@@ -345,7 +345,7 @@ with pkgs;
 
       # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
       # at the kernel input layer. Works on X11 and Wayland with no daemon.
-      hwdb.extraConfig = ''
+      extraHwdb = ''
         evdev:input:*
         KEYBOARD_KEY_90004=reserved
         KEYBOARD_KEY_90005=reserved
