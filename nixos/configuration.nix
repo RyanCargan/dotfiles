@@ -78,6 +78,16 @@ with pkgs;
     ];
   };
 
+  # Compressed RAM-backed swap. memoryPercent is the uncompressed virtual
+  # size; at ~3:1 zstd compression, 50% of RAM as disksize consumes ~17%
+  # of physical RAM. Existing /swapfile remains as fallback.
+  zramSwap = {
+    enable = true;
+    memoryPercent = 50;
+    algorithm = "zstd";
+    priority = 5;
+  };
+
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
@@ -331,6 +341,16 @@ with pkgs;
       SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
       SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
     '';
+
+    # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
+    # at the kernel input layer. Works on X11 and Wayland with no daemon.
+    hwdb = {
+      extraConfig = ''
+        evdev:input:*
+        KEYBOARD_KEY_90004=reserved
+        KEYBOARD_KEY_90005=reserved
+      '';
+    };
   };
 
   virtualisation = {
