@@ -333,19 +333,19 @@ with pkgs;
     gnome.gnome-keyring.enable = true;
     avahi.enable = true;
 
-    udev.extraRules = ''
-      KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
+    services.udev = {
+      extraRules = ''
+        KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
 
-      # Keep internal development partitions hidden from desktop automounters.
-      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
-      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
-      SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
-    '';
+        # Keep internal development partitions hidden from desktop automounters.
+        SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
+        SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-07966a9fb055", ENV{UDISKS_IGNORE}="1"
+        SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
+      '';
 
-    # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
-    # at the kernel input layer. Works on X11 and Wayland with no daemon.
-    hwdb = {
-      extraConfig = ''
+      # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
+      # at the kernel input layer. Works on X11 and Wayland with no daemon.
+      hwdb.extraConfig = ''
         evdev:input:*
         KEYBOARD_KEY_90004=reserved
         KEYBOARD_KEY_90005=reserved
