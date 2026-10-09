@@ -333,7 +333,7 @@ with pkgs;
     gnome.gnome-keyring.enable = true;
     avahi.enable = true;
 
-    services.udev = {
+    udev = {
       extraRules = ''
         KERNEL=="video*", SUBSYSTEM=="video4linux", MODE="0660", OWNER="ryan", GROUP="video"
 
