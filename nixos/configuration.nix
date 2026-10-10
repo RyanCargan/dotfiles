@@ -401,20 +401,6 @@ with pkgs;
         SUBSYSTEM=="block", ENV{ID_FS_UUID}=="9d21acb3-39de-4ed0-8f4f-0123ad151ef3", ENV{UDISKS_IGNORE}="1"
         SUBSYSTEM=="block", ENV{ID_FS_UUID}=="8cbe52d8-cd1e-4aab-a57f-97966a9fb055", ENV{UDISKS_IGNORE}="1"
         SUBSYSTEM=="block", ENV{ID_FS_UUID}=="d4a5bffe-1f7b-4120-bc7e-dcced60866ce", ENV{UDISKS_IGNORE}="1"
-
-        # Force keyboard builtin for mouse so hwdb KEYBOARD_KEY_* mappings apply.
-        # Mice are tagged ID_INPUT_MOUSE, not ID_INPUT_KEY, so 60-evdev.rules
-        # skips the keyboard builtin. IMPORT builtin runs inline and applies
-        # the scancode->keycode mappings from extraHwdb above.
-        SUBSYSTEM=="input", KERNEL=="event*", ATTRS{idVendor}=="1c4f", IMPORT{builtin}="hwdb --subsystem=input --lookup-prefix=evdev:", RUN{builtin}+="keyboard"
-      '';
-
-      # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
-      # at the kernel input layer. Works on X11 and Wayland with no daemon.
-      extraHwdb = ''
-        evdev:input:b0003v1C4Fp0048e0110*
-         KEYBOARD_KEY_90004=reserved
-         KEYBOARD_KEY_90005=reserved
       '';
     };
   };
