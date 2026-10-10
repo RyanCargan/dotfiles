@@ -406,7 +406,7 @@ with pkgs;
         # Mice are tagged ID_INPUT_MOUSE, not ID_INPUT_KEY, so 60-evdev.rules
         # skips the keyboard builtin. IMPORT builtin runs inline and applies
         # the scancode->keycode mappings from extraHwdb above.
-        SUBSYSTEM=="input", KERNEL=="event*", ATTRS{id/vendor}=="1c4f", IMPORT{builtin}="hwdb --subsystem=input --lookup-prefix=evdev:", RUN{builtin}+="keyboard"
+        SUBSYSTEM=="input", KERNEL=="event*", ATTRS{idVendor}=="1c4f", IMPORT{builtin}="hwdb --subsystem=input --lookup-prefix=evdev:", RUN{builtin}+="keyboard"
       '';
 
       # Disable mouse thumb/side buttons (BTN_SIDE=90004, BTN_EXTRA=90005)
@@ -416,22 +416,6 @@ with pkgs;
          KEYBOARD_KEY_90004=reserved
          KEYBOARD_KEY_90005=reserved
       '';
-    };
-
-    evdevremapkeys = {
-      enable = true;
-      settings = {
-        devices = [
-          {
-            input_name = "SIGMACHIP USB Mouse";
-            output_name = "remap-sigmachip";
-            remappings = {
-              BTN_SIDE = [ ];
-              BTN_EXTRA = [ ];
-            };
-          }
-        ];
-      };
     };
   };
 
