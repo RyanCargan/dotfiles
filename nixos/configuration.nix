@@ -96,13 +96,13 @@ with pkgs;
   };
 
   # Compressed RAM-backed swap. memoryPercent is the uncompressed virtual
-  # size; at ~3:1 zstd compression, 50% of RAM as disksize consumes ~17%
+  # size; at ~3:1 zstd compression, 75% of RAM as disksize consumes ~25%
   # of physical RAM. Existing /swapfile remains as fallback.
   zramSwap = {
     enable = true;
-    memoryPercent = 50;
+    memoryPercent = 75;
     algorithm = "zstd";
-    priority = 5;
+    priority = 100;
   };
 
   boot = {
