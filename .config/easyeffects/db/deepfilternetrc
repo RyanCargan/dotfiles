@@ -6,4 +6,5 @@ postFilterBeta=0.05
 attenuationLimit=36
 bypass=true
 maxDfProcessingThreshold=15
+minProcessingThreshold=-9.899999618530273
 postFilterBeta=0.029999999329447746

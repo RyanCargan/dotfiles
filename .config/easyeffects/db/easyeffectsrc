@@ -12,5 +12,6 @@ visiblePlugin=deepfilternet#0
 
 [Window]
 autostartOnLogin=true
-height=1006
+height=496
+visiblePage=inputPage
 width=931

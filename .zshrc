@@ -295,3 +295,10 @@ eval "$(lua ~/zsh-plugins/z.lua/z.lua --init zsh enhanced once fzf)"
 export PATH=/home/ryan/.opencode/bin:$PATH
 
 alias nvg="nvim -c 'tab Git'"
+
+# bun completions
+[ -s "/home/ryan/.bun/_bun" ] && source "/home/ryan/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
